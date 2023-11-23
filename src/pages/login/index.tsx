@@ -66,7 +66,14 @@ const CustomInput: React.FC<CustomInputProps> = ({ name, type, maskFunction, val
   );
 };
 
+import { getSession, signIn } from 'next-auth/react';
+import { GetServerSideProps } from 'next';
+
+// In your sign-in component or function
+
+
 export default function App() {
+  
   return (
     <Flex bg="gray.100" align="center" justify="center" h="100vh">
       <Box bg="white" p={6} rounded="md" w={64}>
@@ -77,7 +84,10 @@ export default function App() {
             rememberMe: false
           }}
           onSubmit={(values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
-            alert(JSON.stringify(values, null, 2));
+            //alert(JSON.stringify(values, null, 2));
+            const cpf = values.CPF
+            const saram  =values.saram
+            signIn('credentials', { cpf, saram });
             setSubmitting(false);
           }}
         >
@@ -112,3 +122,20 @@ export default function App() {
     </Flex>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession({ req: context.req });
+  console.log(session)
+  if (session) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: { session },
+  };
+};

@@ -8,6 +8,8 @@ import { ShiftBox } from '@/components/shifts/ShiftBox'
 import { useEffect, useRef, useState } from 'react'
 import { BodyTemplate } from '@/components/BodyTemplate'
 import { ShiftDatesHeader } from '@/components/shifts/ShiftDatesHeader'
+import { GetServerSideProps } from 'next'
+import { getSession } from 'next-auth/react'
 
 
 export const necessaryShiftsPerDay: Shifts[] = [
@@ -249,3 +251,20 @@ export default function Home() {
 
   )
 }
+
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession({ req: context.req });
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: { session },
+  };
+};

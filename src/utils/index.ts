@@ -110,13 +110,9 @@ export const breadCumbItens:BreadCumbItem[] = [
     title:"Lançar Escala"
   },
   {
-    href:"/login",
+    href:`${process.env.NEXTAUTH_URL}/api/auth/signout`,
     isCurrentPage:false,
     title:"Sair"
   },
-  
-
-  
-
 
 ]

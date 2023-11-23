@@ -9,13 +9,14 @@ import { ShiftBox } from "@/components/shifts/ShiftBox";
 import { ShiftDatesHeader } from "@/components/shifts/ShiftDatesHeader";
 import { ShiftPopOver } from "@/components/shifts/ShftPopOver";
 import Link from "next/link";
+import { GetServerSideProps } from "next";
+import { getSession } from "next-auth/react";
 
 
 
 export default function Lancamento() {
 
   const [shifts, setShifts] = useState<Shifts[][]>([])
-  const [showMenu,setShowMenu] = useState<boolean>(true)
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean[]>(shifts.map(shift=>false));
 
 
@@ -196,9 +197,7 @@ export default function Lancamento() {
           justifyContent={"center"}
           >
           <Button colorScheme={"blue"}>Salvar Proposição</Button>
-
           </Flex>
-
           <Flex w={"50%"}
           
           justifyContent={"center"}
@@ -207,9 +206,6 @@ export default function Lancamento() {
           </Flex>
 
         </Flex>
-          
-
-
 
       </SectionContainer>
 
@@ -218,3 +214,21 @@ export default function Lancamento() {
     </BodyTemplate>
   )
 }
+
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession({ req: context.req });
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: { session },
+  };
+};
