@@ -23,7 +23,8 @@ export function javaScriptObjectToSheetModel(javaScriptObj: any) {
 }
 import Cors from "nextjs-cors"
 import { google } from "googleapis";
-import { encrypt } from "@/utils/crypto";
+import { decrypt, encrypt } from "@/utils/crypto";
+import { getDataFromTab } from "@/utils/getDataFromGoogleSheets";
 const client_email = (process.env.NEXT_PUBLIC_CLIENT_EMAIL as string).replace(/\\n/g, '\n')
 const private_key = (process.env.NEXT_PUBLIC_PRIVATE_KEY as string).replace(/\\n/g, '\n')
 const auth = new google.auth.GoogleAuth({
@@ -53,7 +54,6 @@ export default async function handler(
     case "GET":
       try {
         await doc.loadInfo();
-        const leadsSheet = doc.sheetsByTitle["users"]
         const tabsShifts = await Promise.all(Object.keys(doc.sheetsByTitle).filter(tab => tab.includes("/")).map(async tab => {
           const monthYear = ((tab.split("-"))[1]).split("/")
           const leadsSheet = doc.sheetsByTitle[tab]
@@ -78,20 +78,8 @@ export default async function handler(
 
           return tabObject
         }))
-
-
-
-
-        const rows = (await leadsSheet.getRows())
-        const headers = leadsSheet.headerValues;
-        const dataFromSheets = rows.map(row => {
-          const obj: any = {}
-          headers.forEach((header, i) => {
-            obj[header] = row["_rawData"][i]
-          })
-
-          return obj
-        }).map(row => {
+        
+        const dataFromSheets = (await getDataFromTab("users",doc)).map(row => {
           const newRow = {
             ...row,
             email: encrypt(String(row.email)),
@@ -100,6 +88,9 @@ export default async function handler(
           }
           return newRow
         })
+
+
+        const dataFromShiftsController = encrypt(JSON.stringify(await getDataFromTab("shiftsControl",doc)))
 
 
         const newTabshifts = tabsShifts.map(tab =>{
@@ -113,7 +104,8 @@ export default async function handler(
 
           return {
             ...tab,
-            militaries:newMilitaries
+            militaries:newMilitaries,
+            controlers:dataFromShiftsController
           }
         })
 

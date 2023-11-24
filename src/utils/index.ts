@@ -27,8 +27,8 @@ export const chunkArray = (array: Shifts[], size:number) => {
   return chunkedArr;
 };
 
-export function generateRandomShifts(necessaryShiftsPerDay: Shifts[]) {
-  const randomShifts = getDaysInMonthWithWeekends(2, 2023).map(day => {
+export function generateRandomShifts(necessaryShiftsPerDay: Shifts[],month:number,year:number) {
+  const randomShifts = getDaysInMonthWithWeekends(month, year).map(day => {
     const shiftHeaders = necessaryShiftsPerDay.map(shift => shift.shiftName)
     shiftHeaders.pop()
     shiftHeaders.pop()
@@ -42,9 +42,9 @@ export function generateRandomShifts(necessaryShiftsPerDay: Shifts[]) {
   return randomShifts
 }
 
-export function handleQntPerShift(militaries:Military[],necessaryShiftsPerDay:Shifts[]){
+export function handleQntPerShift(militaries:Military[],necessaryShiftsPerDay:Shifts[],month:number,year:number){
   const qntPerShift: Record<string,Record<string,number>> = {}
-getDaysInMonthWithWeekends(2,2023).forEach(day=>qntPerShift[day.day]= {})
+getDaysInMonthWithWeekends(month,year).forEach(day=>qntPerShift[day.day]= {})
 
 const days = Object.keys(qntPerShift)
 

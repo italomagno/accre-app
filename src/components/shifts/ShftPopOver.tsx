@@ -15,15 +15,16 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import { ReactNode, useState } from "react";
-import { necessaryShiftsPerDayPlusCombinations } from "@/pages";
 import { chunkArray } from "@/utils";
+import { Shifts } from "@/types";
 
 interface ShiftPopOverProps {
   children: ReactNode;
   handleSelectedShift: (shiftString: string) => void;
+  necessaryShiftsPerDayPlusCombinations: Shifts[]
 }
 
-export function ShiftPopOver({ children, handleSelectedShift }: ShiftPopOverProps) {
+export function ShiftPopOver({ children, handleSelectedShift,necessaryShiftsPerDayPlusCombinations }: ShiftPopOverProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedShiftType, setSelectedShiftType] = useState<string | undefined>(undefined);
   const groupedShifts = chunkArray(necessaryShiftsPerDayPlusCombinations, 3);

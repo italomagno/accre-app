@@ -1,6 +1,5 @@
 import { BodyTemplate } from "@/components/BodyTemplate";
 import { useEffect, useRef, useState } from "react";
-import { militaries, necessaryShiftsPerDay } from ".";
 import { getDaysInMonthWithWeekends, handleQntPerShift } from "@/utils";
 import { Military, Shifts, ShiftsMil } from "@/types";
 import { SectionContainer } from "@/components/SectionContainer";
@@ -11,13 +10,22 @@ import { ShiftPopOver } from "@/components/shifts/ShftPopOver";
 import Link from "next/link";
 import { GetServerSideProps } from "next";
 import { getSession } from "next-auth/react";
+import { Session } from "next-auth";
+import { decrypt } from "@/utils/crypto";
 
 
+interface SetShiftProps{
+  session: Session;  // Substitua SessionType pelo tipo correto de sua sessão
+  militaries: Military[];
+  necessaryShiftsPerDay: Shifts[]
+  necessaryShiftsPerDayPlusCombinations:Shifts[]
+  month:number
+  year:number
+}
 
-export default function Lancamento() {
+export default function Lancamento({militaries,necessaryShiftsPerDay,necessaryShiftsPerDayPlusCombinations,month,year}:SetShiftProps) {
 
   const [shifts, setShifts] = useState<Shifts[][]>([])
-  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean[]>(shifts.map(shift=>false));
 
 
   const [mil, setMil] = useState<Military>({
@@ -69,29 +77,13 @@ export default function Lancamento() {
     }  
 
     setMil(newMil)
-    const QntMilitariesPerDay = handleQntPerShift(militaries, necessaryShiftsPerDay)
+    const QntMilitariesPerDay = handleQntPerShift(militaries, necessaryShiftsPerDay,month,year)
     setShifts(QntMilitariesPerDay)
 
   }
-  function handleOpenPopOver(index:number){
-    const newPopover = isPopoverOpen.map((boolean,i)=>{
-      if(index === i) return true
-      return false
-    })
-
-    setIsPopoverOpen(newPopover)
-  }
-  function handleClosePopOver(index:number){
-    const newPopover = isPopoverOpen.map((boolean,i)=>{
-      if(index ===i) return false
-      return false
-    })
-
-    setIsPopoverOpen(newPopover)
-  }
 
   useEffect(() => {
-    const QntMilitariesPerDay = handleQntPerShift(militaries, necessaryShiftsPerDay)
+    const QntMilitariesPerDay = handleQntPerShift(militaries, necessaryShiftsPerDay,month,year)
    
     setShifts(QntMilitariesPerDay)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -168,11 +160,10 @@ export default function Lancamento() {
                 {mil.shiftsMil.map((shift,j)=>{
                 return(
                   <ShiftPopOver
-                   key={j}
-                   handleSelectedShift={(shiftString)=>{
-                    handleSelectedShift(j,shiftString)
-                  }}
-                  >
+                    key={j}
+                    handleSelectedShift={(shiftString) => {
+                      handleSelectedShift(j, shiftString);
+                    } } necessaryShiftsPerDayPlusCombinations={necessaryShiftsPerDayPlusCombinations}>
                   <ShiftBox
                    shiftMil={shift.shift?  shift.shift :  "  -  "}
                    />
@@ -216,8 +207,10 @@ export default function Lancamento() {
 }
 
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (context) => {
   const session = await getSession({ req: context.req });
+
+
 
   if (!session) {
     return {
@@ -228,7 +221,77 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
-  return {
-    props: { session },
-  };
+  try {
+    const res = await fetch(`${process.env.NEXTAUTH_URL}/api/googlesheets`, {
+      method: 'GET',
+    })
+    const data = await res.json()
+    const { militaries } = JSON.parse(decrypt(data["tabs"]))[0]
+    const { month } = JSON.parse(decrypt(data["tabs"]))[0]
+    const { year } = JSON.parse(decrypt(data["tabs"]))[0]
+
+    const military: Military[] = militaries.map((mil: any): Military => {
+
+      return {
+        milId: Number(decrypt(mil.saram)),
+        milName: mil.name,
+        shiftsMil: mil.shifts
+      }
+    }).filter((mil: Military) => !(mil.milId - 1 < 0))
+    military.pop()
+    military.pop()
+
+    const { controlers } = JSON.parse(decrypt(data["tabs"]))[0]
+    const shiftsDecoded = decrypt(controlers)
+    const shifts = JSON.parse(shiftsDecoded)
+
+    const necessaryShiftsPerDay: Shifts[] = shifts.map((shift: any) => {
+      const newShift: Shifts = {
+        shiftId: shift.shiftName,
+        shiftName: shift.shiftName,
+        quantityOfMilitary: Number(shift.quantityOfMilitary)
+      }
+      return newShift
+    })
+    const Combinations: Shifts[] = shifts.map((shift: any) => {
+      const newShift: Shifts = {
+        shiftId: shift.combinations,
+        shiftName: shift.combinations,
+        quantityOfMilitary: 0
+      }
+      return newShift
+    })
+
+    const necessaryShiftsPerDayPlusCombinations = [
+      ...necessaryShiftsPerDay,
+      ...Combinations
+    ].filter(shift => shift.shiftId !== undefined)
+
+    return {
+      props: {
+        session,
+        militaries: military,
+        necessaryShiftsPerDay,
+        necessaryShiftsPerDayPlusCombinations,
+        month:Number(month),
+        year:Number(year)
+      },
+    };
+
+
+  } catch (error) {
+    console.error(error);
+    // Retorne um array vazio para militaries em caso de erro
+    return {
+      props: {
+        session, militaries: []
+        ,
+        necessaryShiftsPerDay: [],
+        necessaryShiftsPerDayPlusCombinations: [],
+        month: 1,
+        year: 2023
+      },
+    };
+  }
+
 };
