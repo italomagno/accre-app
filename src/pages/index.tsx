@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { Box, Flex, Text, HStack } from '@chakra-ui/react'
 import { SectionContainer } from '@/components/SectionContainer'
-import { Military, Shifts, ShiftsMil } from '@/types'
+import { DataFromSheet, Military, Shifts, ShiftsMil } from '@/types'
 import { getDaysInMonthWithWeekends, handleQntPerShift } from '@/utils'
 import { v4 as uuid } from 'uuid'
 import { ShiftBox } from '@/components/shifts/ShiftBox'
@@ -131,7 +131,7 @@ export default function Home({ militaries, necessaryShiftsPerDay,month ,year}: H
           handleScroll={handleScrollFlex2}
           necessaryShiftsPerDay={necessaryShiftsPerDay}
           shifts={shifts}
-        >
+           month={month} year={year}        >
 
           <SectionContainer sectionId={"MilShifts"}
           >
@@ -276,25 +276,17 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async (context)
     const res = await fetch(`${process.env.NEXTAUTH_URL}/api/googlesheets`, {
       method: 'GET',
     })
-    const data = await res.json()
-    const { militaries } = JSON.parse(decrypt(data["tabs"]))[0]
-    const { month } = JSON.parse(decrypt(data["tabs"]))[0]
-    const { year } = JSON.parse(decrypt(data["tabs"]))[0]
+    const dataCrypted = await res.json()
+    const dataDecrypted = decrypt(dataCrypted)
+    const data:DataFromSheet = JSON.parse(dataDecrypted)
 
-    const military: Military[] = militaries.map((mil: any): Military => {
+    const { militaries:military } = data.tabs[0] 
+    const { month } = data.tabs[0]
+    const { year } = data.tabs[0]
 
-      return {
-        milId: Number(decrypt(mil.saram)),
-        milName: mil.name,
-        shiftsMil: mil.shifts
-      }
-    }).filter((mil: Military) => !(mil.milId - 1 < 0))
-    military.pop()
-    military.pop()
+    const militaries = military.filter((mil:Military)=>mil.milName!=="")
 
-    const { controlers } = JSON.parse(decrypt(data["tabs"]))[0]
-    const shiftsDecoded = decrypt(controlers)
-    const shifts = JSON.parse(shiftsDecoded)
+    const { controlers:shifts } = ((data.tabs))[0]
 
     const necessaryShiftsPerDay: Shifts[] = shifts.map((shift: any) => {
       const newShift: Shifts = {
@@ -318,10 +310,12 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async (context)
       ...Combinations
     ].filter(shift => shift.shiftId !== undefined)
 
+   
+    
     return {
       props: {
         session,
-        militaries: military,
+        militaries,
         necessaryShiftsPerDay,
         necessaryShiftsPerDayPlusCombinations,
         month:Number(month),

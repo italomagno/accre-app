@@ -12,10 +12,12 @@ interface BodyTemplateProps{
   flexRef:LegacyRef<HTMLDivElement>
   necessaryShiftsPerDay: Shifts[]
   shifts: Shifts[][]
+  month:number
+  year:number
 }
 
 
-export const BodyTemplate =({children,flexRef,handleScroll,necessaryShiftsPerDay,shifts}:BodyTemplateProps)=>{
+export const BodyTemplate =({children,flexRef,handleScroll,necessaryShiftsPerDay,shifts,month,year}:BodyTemplateProps)=>{
 
 
   return(
@@ -26,10 +28,13 @@ export const BodyTemplate =({children,flexRef,handleScroll,necessaryShiftsPerDay
         <Box>
         
         <ShiftsComponent
-        handleReference={handleScroll}
-        necessaryShiftsPerDay={necessaryShiftsPerDay}
-        reference={flexRef}
-        shifts={shifts}
+                handleReference={handleScroll}
+                necessaryShiftsPerDay={necessaryShiftsPerDay}
+                reference={flexRef}
+                shifts={shifts}
+                month={month}
+                 year={year}
+
         />
         {
           children

@@ -46,22 +46,24 @@ export const authOptions:AuthOptions = {
         const res = await fetch(`${process.env.NEXTAUTH_URL}/api/googlesheets`, {
           method: 'GET',
         })
-        const data = await res.json()
-
+        const dataCrypted = await res.json()
+        const dataDecrypted = decrypt(dataCrypted)
+        const data = JSON.parse(dataDecrypted)
+        
         if (!data || !data["dataFromSheets"]) {
           return null; // Ou trate o erro conforme necessário
         }
 
         const user = data["dataFromSheets"].find((mil: any) => (
-          decrypt(mil.cpf) === credentials?.cpf && decrypt(mil.saram) === credentials.saram
+          (mil.cpf) === credentials?.cpf && (mil.saram) === credentials.saram
         ));
 
         if (!user) {
           return null;
         }
 
-        user.cpf = decrypt(user.cpf);
-        user.saram = decrypt(user.saram);
+        user.cpf = (user.cpf);
+        user.saram = (user.saram);
 
         if (user) {
           return {

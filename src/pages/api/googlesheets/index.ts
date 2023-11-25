@@ -1,30 +1,17 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { GoogleSpreadsheet } from "google-spreadsheet";
+import {Military, MilitaryFromSheet, ShiftsMil} from'@/types'
 
 interface RowData {
   [key: string]: any;
 }
 
-export function javaScriptObjectToSheetModel(javaScriptObj: any) {
-  if (javaScriptObj) {
-    const header = Object.keys(javaScriptObj[0])
 
-    const bodySheet = []
-    javaScriptObj.forEach((row: any) => {
-      let newRow: any[] = []
-      header.forEach((h) => {
-        newRow = [...newRow, row[h]]
-      })
-      bodySheet.push(newRow)
-    })
-    bodySheet.unshift(header)
-    return bodySheet
-  }
-}
 import Cors from "nextjs-cors"
 import { google } from "googleapis";
-import { decrypt, encrypt } from "@/utils/crypto";
+import {  encrypt } from "@/utils/crypto";
 import { getDataFromTab } from "@/utils/getDataFromGoogleSheets";
+import { getSession } from "next-auth/react";
 const client_email = (process.env.NEXT_PUBLIC_CLIENT_EMAIL as string).replace(/\\n/g, '\n')
 const private_key = (process.env.NEXT_PUBLIC_PRIVATE_KEY as string).replace(/\\n/g, '\n')
 const auth = new google.auth.GoogleAuth({
@@ -50,24 +37,24 @@ export default async function handler(
   });
   const { method } = req
 
+
+
   switch (method) {
     case "GET":
+      
       try {
         await doc.loadInfo();
         const tabsShifts = await Promise.all(Object.keys(doc.sheetsByTitle).filter(tab => tab.includes("/")).map(async tab => {
           const monthYear = ((tab.split("-"))[1]).split("/")
-          const leadsSheet = doc.sheetsByTitle[tab]
-          const rows = (await leadsSheet.getRows())
-          const headers = leadsSheet.headerValues;
-          const dataFromSheets = rows.map(row => {
-            const obj: any = {}
-            headers.forEach((header, i) => {
-              obj[header] = row["_rawData"][i] === undefined? "" : row["_rawData"][i]
+          const dataFromSheets = (await getDataFromTab(tab,doc)).map(row=>{
+            const keys = Object.keys(row)
+
+            keys.map((key,i)=>{
+              row[key] === undefined? row[key] = "" : row[key]
             })
 
-            return obj
+            return row
           })
-
 
           const tabObject = {
             name: tab,
@@ -79,28 +66,57 @@ export default async function handler(
           return tabObject
         }))
         
-        const dataFromSheets = (await getDataFromTab("users",doc)).map(row => {
+        const dataFromSheets:MilitaryFromSheet[] = (await getDataFromTab("users",doc)).map(row => {
           const newRow = {
             ...row,
-            email: encrypt(String(row.email)),
-            saram: encrypt(row.saram.replace(/\D/g, '')),
-            cpf: encrypt(row.cpf.replace(/\D/g, ''))
+            email: (String(row.email)),
+            saram: (row.saram.replace("-", '')),
+            cpf: (row.cpf.replace(/\D/g, ''))
           }
           return newRow
         })
 
 
-        const dataFromShiftsController = encrypt(JSON.stringify(await getDataFromTab("shiftsControl",doc)))
+        const dataFromShiftsController = (await getDataFromTab("shiftsControl",doc))
 
-
-        const newTabshifts = tabsShifts.map(tab =>{
-          const newMilitaries = dataFromSheets.map(mil=>{
-                const shifts = tab.militaries.filter(milFromTab=>milFromTab.saram.replace(/\D/g, '') === mil.saram)
-            return {
-              ...mil,
-                shifts:shifts
+        const newTabshifts = tabsShifts.map((tab,i) =>{
+          const newMilitaries: Military[] = dataFromSheets.map((mil)=>{
+            const saram = (mil.saram)
+            const undefindMil:Military = {
+              milId:0,
+              milName:"",
+              shiftsMil:[]
             }
-          }).filter(milFromTab=>milFromTab !==undefined)
+
+            if(!saram || saram === ""){
+              return undefindMil
+            }
+           const shifts = tab.militaries.find((milFromTab,j)=>{
+            const findedMil = milFromTab["saram"].replace(/\D/g,"") === saram
+           // if(findedMil===true) {console.log("findedMil",findedMil,"milFromTab: ",milFromTab)} 
+            return findedMil
+          })
+          if(!shifts) return undefindMil
+
+          const shiftsKeys = Object.keys(shifts).filter(key=>key!=="saram")
+          
+          const newShifts: ShiftsMil[] = shiftsKeys.map(key=>{
+            return{
+              day: key,
+              shift: shifts[key]
+            }
+          })
+
+          const newReturn:Military = {
+            milId: Number(mil.saram.replace(/\D/g,"")),
+            milName: mil.name,
+            shiftsMil: newShifts
+
+          }
+               // const shifts = (.filter(milFromTab=>milFromTab.saram === saram))[0]
+
+            return newReturn
+          })
 
           return {
             ...tab,
@@ -110,38 +126,16 @@ export default async function handler(
         })
 
 
-
-        //console.log("Headers: ", headers);
-        //console.log("row1: ",rows[0]["_rawData"])
-
-
-
-        // Getting rows data
-
-        // Example of accessing a specific row's data
-
-
-        //const dataFromSheets = rows.map((row) => row._rawData)
-        /* const dataJson = dataFromSheets.map((data) => {
-          let object = {}
-          headers.forEach((h: any, i: string | number) => {
-            //@ts-ignore
-            object[h] = data[i]
-
-          })
-          
-          return object
-        })
- */
-
-        // { dataJson }
-
-        const tabsJson = JSON.stringify(newTabshifts)
-        const tabsCryp = encrypt(tabsJson)
-        res.status(200).json({
+        const dataToReturn = {
           dataFromSheets,
-          tabs: tabsCryp
-        });
+          tabs: newTabshifts
+        }
+
+        const jsonToReturn = JSON.stringify(dataToReturn)
+
+        const dataCrypted = encrypt(jsonToReturn)
+
+        res.status(200).json(dataCrypted);
       } catch (err) {
         console.error(err)
       }
@@ -149,65 +143,13 @@ export default async function handler(
 
     case "POST":
       const { id } = req.query
-    /* 
-          if (id) {
-            try {
-              await doc.useServiceAccountAuth({
-                client_email: process.env.NEXT_PUBLIC_CLIENT_EMAIL as string,
-                private_key: (process.env.NEXT_PUBLIC_PRIVATE_KEY as string).replace(/\\n/g, '\n')
-              });
-              await doc.loadInfo();
-              const leadsSheet = doc.sheetsByTitle["Produtos"];
-              const data = req.body
-    
-              const { category, description, image, isAddingToCart, name, productCost, productPrice, stock, uid } = data;
-    
-              // Busca a linha que contém o ID do produto
-              const rows = await leadsSheet.getRows({ offset: 0 });
-              const row = rows.find(r => {
-                return r.uid === id
-              });
-              if (row) {
-                if (uid) row.uid = uid;
-                if (category) row.category = category;
-                if (description) row.description = description;
-                if (image) row.image = image;
-                if (isAddingToCart) row.isAddingToCart = isAddingToCart;
-                if (name) row.name = name;
-                if (productCost) row.productCost = productCost;
-                if (productPrice) row.productPrice = productPrice;
-                if (stock) row.stock = stock;
-                await row.save();
-                res.status(200).json({ message: `Produto com ID ${id} atualizado com sucesso!` });
-              } else {
-                res.status(404).json({ error: `Não foi possível encontrar o produto com ID ${id}` });
-              }
-            } catch (err) {
-              console.error(err);
-              res.status(500).json({ error: "Ocorreu um erro ao atualizar o produto" });
-            }
-    
-          } else {
-            try {
-              await doc.useServiceAccountAuth({
-                client_email: process.env.NEXT_PUBLIC_CLIENT_EMAIL as string,
-                private_key: (process.env.NEXT_PUBLIC_PRIVATE_KEY as string).replace(/\\n/g, '\n')
-              }
-              )
-              await doc.loadInfo();
-              const leadsSheet = doc.sheetsByTitle["Produtos"]
-              const data = JSON.parse(req.body)
-              const { category, description, image, isAddingToCart, name, productCost, productPrice, stock, uid } = data
-              await leadsSheet.addRow([true, uid, category, image, name, description, isAddingToCart, stock, productPrice, productCost, (productPrice / productCost)])
-              res.status(200).json({ data })
-    
-            } catch (err) {
-              console.error(err)
-            }
-          }
-          break */
+      res.status(400)
 
     case "PUT":
+      const session = await getSession({ req });
+      if(!session) res.status(401).send("Usuário não autenticado / User is not logged in");
+      
+      const  {saram}  = req.query
       /*   const products = req.body;
   
         if (!Array.isArray(products)) {

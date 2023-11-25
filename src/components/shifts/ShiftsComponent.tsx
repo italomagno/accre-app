@@ -13,9 +13,11 @@ interface ShiftsProps{
   shifts: Shifts[][]
   reference: LegacyRef<HTMLDivElement>
   handleReference: ()=>void;
+  year:number
+  month:number
 }
 
-export function ShiftsComponent({necessaryShiftsPerDay,reference,handleReference,shifts}:ShiftsProps){
+export function ShiftsComponent({necessaryShiftsPerDay,reference,handleReference,shifts,month,year}:ShiftsProps){
 
 
   return(
@@ -74,7 +76,7 @@ export function ShiftsComponent({necessaryShiftsPerDay,reference,handleReference
              */
             >
           {
-            getDaysInMonthWithWeekends(2,2023).map((day,i) =>{
+            getDaysInMonthWithWeekends(month,year).map((day,i) =>{
            return ( <ShiftColumn key={uuid() + i}
             columnHeader={String(day.day)}
             shiftsPerDayArray={shifts[i]}

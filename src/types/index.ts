@@ -1,3 +1,4 @@
+
 export type Shifts = {
   shiftId: string;
   shiftName: string,
@@ -5,9 +6,29 @@ export type Shifts = {
   hasNecessaryQnt?: number
 }
 
+ export type Tab = {
+  name:string,
+  month:number,
+  year:number,
+  militaries:Military[],
+  controlers:Shifts[][]
+}
+
+export type DataFromSheet={
+  dataFromSheets:MilitaryFromSheet[],
+  tabs:Tab[]
+}
+
+
+export type MilitaryFromSheet = {
+  cpf: string
+  saram: string,
+  name: string,
+  email: string,
+}
 export type DayOfChoosenMonth = {
-  day:number,
-  isWeekend:boolean;
+  day: number,
+  isWeekend: boolean;
 }
 
 export type Military = {
@@ -23,6 +44,6 @@ export type ShiftsMil = {
 
 export type BreadCumbItem = {
   href: string;
-  title:string;
+  title: string;
   isCurrentPage: boolean;
 }

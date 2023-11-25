@@ -1,7 +1,7 @@
 import { BodyTemplate } from "@/components/BodyTemplate";
 import { useEffect, useRef, useState } from "react";
 import { getDaysInMonthWithWeekends, handleQntPerShift } from "@/utils";
-import { Military, Shifts, ShiftsMil } from "@/types";
+import { DataFromSheet, Military, Shifts, ShiftsMil } from "@/types";
 import { SectionContainer } from "@/components/SectionContainer";
 import { Box, HStack, Text, Flex, Button } from "@chakra-ui/react";
 import { ShiftBox } from "@/components/shifts/ShiftBox";
@@ -10,12 +10,12 @@ import { ShiftPopOver } from "@/components/shifts/ShftPopOver";
 import Link from "next/link";
 import { GetServerSideProps } from "next";
 import { getSession } from "next-auth/react";
-import { Session } from "next-auth";
 import { decrypt } from "@/utils/crypto";
+import { error } from "console";
 
 
 interface SetShiftProps{
-  session: Session;  // Substitua SessionType pelo tipo correto de sua sessão
+  user: Military;  // Substitua SessionType pelo tipo correto de sua sessão
   militaries: Military[];
   necessaryShiftsPerDay: Shifts[]
   necessaryShiftsPerDayPlusCombinations:Shifts[]
@@ -23,23 +23,11 @@ interface SetShiftProps{
   year:number
 }
 
-export default function Lancamento({militaries,necessaryShiftsPerDay,necessaryShiftsPerDayPlusCombinations,month,year}:SetShiftProps) {
+export default function Lancamento({militaries,necessaryShiftsPerDay,necessaryShiftsPerDayPlusCombinations,month,year,user}:SetShiftProps) {
 
   const [shifts, setShifts] = useState<Shifts[][]>([])
 
-
-  const [mil, setMil] = useState<Military>({
-    milId: 1,
-    milName: "Militar não encontrado",
-    shiftsMil:  getDaysInMonthWithWeekends(2,2023).map(day=>{
-      const shifts:ShiftsMil = {
-        day: String(day.day),
-        shift:undefined
-      }
-
-        return shifts
-      })
-  })
+  const [mil, setMil] = useState<Military>(user)
 
   const flexRef2 = useRef<HTMLDivElement>(null); // Referência para o segundo Flex
   const flexRef1 = useRef<HTMLDivElement>(null); // Referência para o segundo Flex
@@ -83,8 +71,11 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
   }
 
   useEffect(() => {
-    const QntMilitariesPerDay = handleQntPerShift(militaries, necessaryShiftsPerDay,month,year)
-   
+    const newMilitaries = militaries.map(military=>{
+      if(military.milId === mil.milId) return mil
+      return military
+    })
+    const QntMilitariesPerDay = handleQntPerShift(newMilitaries, necessaryShiftsPerDay,month,year)
     setShifts(QntMilitariesPerDay)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mil])
@@ -96,6 +87,8 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
       handleScroll={handleScrollFlex2}
       necessaryShiftsPerDay={necessaryShiftsPerDay}
       shifts={shifts}
+      year={year}
+      month={month}
     >
 
       <SectionContainer
@@ -144,8 +137,8 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
           >
           <Box >
           <ShiftDatesHeader 
-          month={2}
-          year={2023}
+          month={month}
+          year={year}
           />
         </Box>
           <>
@@ -220,30 +213,24 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
       },
     };
   }
+  
 
   try {
     const res = await fetch(`${process.env.NEXTAUTH_URL}/api/googlesheets`, {
       method: 'GET',
     })
-    const data = await res.json()
-    const { militaries } = JSON.parse(decrypt(data["tabs"]))[0]
-    const { month } = JSON.parse(decrypt(data["tabs"]))[0]
-    const { year } = JSON.parse(decrypt(data["tabs"]))[0]
+    const dataEncrypted = await res.json()
+    const dataDecrypted = decrypt(dataEncrypted)
+    const data:DataFromSheet = JSON.parse(dataDecrypted)
 
-    const military: Military[] = militaries.map((mil: any): Military => {
+    const { militaries } = data["tabs"][0]
+    const { month } = data["tabs"][0]
+    const { year } = data["tabs"][0]
 
-      return {
-        milId: Number(decrypt(mil.saram)),
-        milName: mil.name,
-        shiftsMil: mil.shifts
-      }
-    }).filter((mil: Military) => !(mil.milId - 1 < 0))
-    military.pop()
-    military.pop()
 
-    const { controlers } = JSON.parse(decrypt(data["tabs"]))[0]
-    const shiftsDecoded = decrypt(controlers)
-    const shifts = JSON.parse(shiftsDecoded)
+
+
+    const { controlers:shifts } = data["tabs"][0]
 
     const necessaryShiftsPerDay: Shifts[] = shifts.map((shift: any) => {
       const newShift: Shifts = {
@@ -262,19 +249,35 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
       return newShift
     })
 
+    const user = militaries.find(mil=> mil.milName === String(session.user?.name))
+
+    
+    if(!user) throw error("Não foi possível encontrar esse militar.")
+    if(user?.shiftsMil.length === 0) user.shiftsMil = getDaysInMonthWithWeekends(1,2024).map(day=>{
+      const shifts:ShiftsMil = {
+        day: String(day.day),
+        shift:" - "
+      }
+        return shifts
+      })
+
+
     const necessaryShiftsPerDayPlusCombinations = [
       ...necessaryShiftsPerDay,
       ...Combinations
     ].filter(shift => shift.shiftId !== undefined)
 
+
+
     return {
       props: {
         session,
-        militaries: military,
+        militaries,
         necessaryShiftsPerDay,
         necessaryShiftsPerDayPlusCombinations,
         month:Number(month),
-        year:Number(year)
+        year:Number(year),
+        user
       },
     };
 
@@ -289,7 +292,19 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
         necessaryShiftsPerDay: [],
         necessaryShiftsPerDayPlusCombinations: [],
         month: 1,
-        year: 2023
+        year: 2023,
+        user:{
+          milId: 0,
+          milName: "Militar Não Cadastrado" ,
+          shiftsMil:  getDaysInMonthWithWeekends(1,2024).map(day=>{
+            const shifts:ShiftsMil = {
+              day: String(day.day),
+              shift:" - "
+            }
+              return shifts
+            })
+        }
+
       },
     };
   }
