@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Formik, Field, useFormikContext, FormikHelpers } from 'formik';
 import {
   Box,
@@ -15,7 +15,6 @@ import {
 interface FormValues {
   CPF: string;
   saram: string;
-  rememberMe: boolean;
 }
 
 function applyCpfMask(value: string): string {
@@ -72,7 +71,9 @@ import { GetServerSideProps } from 'next';
 // In your sign-in component or function
 
 
-export default function App() {
+export default function Login() {
+  const [isLoading,setIsloading] = useState<boolean>(false)
+
   
   return (
     <Flex bg="gray.100" align="center" justify="center" h="100vh">
@@ -81,14 +82,22 @@ export default function App() {
           initialValues={{
             CPF: '',
             saram: '',
-            rememberMe: false
           }}
-          onSubmit={(values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
+          onSubmit={async (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
+            setIsloading(true)
             //alert(JSON.stringify(values, null, 2));
             const cpf = values.CPF
             const saram  =values.saram
-            signIn('credentials', { cpf, saram });
+            signIn('credentials', { cpf, saram }).then( (r)=>{
+              console.log("opa")
+              console.log(r)
             setSubmitting(false);
+            setIsloading(false)
+              
+            });
+            
+            setSubmitting(false);
+            setIsloading(false)
           }}
         >
           {({ handleSubmit }) => (
@@ -108,10 +117,7 @@ export default function App() {
     validate={(value) => (value && value.replace(/[^\d]/g, '').length !== 7 ? 'O Saram deve conter 7 dígitos.' : undefined)}
     placeholder="Saram"
   />
-  <Field as={Checkbox} id="rememberMe" name="rememberMe" colorScheme="purple">
-    Lembrar?
-  </Field>
-  <Button type="submit" colorScheme="purple" width="full">
+  <Button type="submit" isLoading={isLoading} colorScheme="purple" width="full">
     Login
   </Button>
 </VStack>

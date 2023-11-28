@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { getDaysInMonthWithWeekends, handleQntPerShift } from "@/utils";
 import { DataFromSheet, Military, Shifts, ShiftsMil } from "@/types";
 import { SectionContainer } from "@/components/SectionContainer";
-import { Box, HStack, Text, Flex, Button } from "@chakra-ui/react";
+import { Box, HStack, Text, Flex, Button, useToast } from "@chakra-ui/react";
 import { ShiftBox } from "@/components/shifts/ShiftBox";
 import { ShiftDatesHeader } from "@/components/shifts/ShiftDatesHeader";
 import { ShiftPopOver } from "@/components/shifts/ShftPopOver";
@@ -24,8 +24,9 @@ interface SetShiftProps{
 }
 
 export default function Lancamento({militaries,necessaryShiftsPerDay,necessaryShiftsPerDayPlusCombinations,month,year,user}:SetShiftProps) {
-
+  const toast = useToast()
   const [shifts, setShifts] = useState<Shifts[][]>([])
+  const [isSaving,setIsSaving] = useState<boolean>(false)
 
   const [mil, setMil] = useState<Military>(user)
 
@@ -50,6 +51,40 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
     const selectedMil = militaries.find(mil => mil.milId === milId)
     if (!selectedMil) return
     setMil(selectedMil)
+  }
+
+  async function handleSaveShifts(){
+    setIsSaving(true)
+      const res = await fetch(`${process.env.NEXTAUTH_URL}/api/googlesheets?saram=${mil.milId}`, {
+        method: 'PUT',
+        body: JSON.stringify(mil.shiftsMil),
+      })
+      
+    if(res.status===200) {
+      toast({
+        title: 'Deu certo!',
+        description: "Turnos salvos com Sucesso.",
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+      })
+    setIsSaving(false)
+
+    }else{
+
+      setIsSaving(false)
+      toast({
+        title: 'Eita pau!',
+        description: "Problema no salvamento dos turnos.",
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+      })
+    }
+      
+    
+
+
   }
 
   function handleSelectedShift(selectedShiftIndex:number,shiftString:string){
@@ -180,7 +215,10 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
           <Flex w={"50%"}
           justifyContent={"center"}
           >
-          <Button colorScheme={"blue"}>Salvar Proposição</Button>
+          <Button
+           isLoading={isSaving}
+           loadingText='Salvando...'
+          colorScheme={"blue"} onClick={handleSaveShifts}>Salvar Proposição</Button>
           </Flex>
           <Flex w={"50%"}
           

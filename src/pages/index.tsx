@@ -171,7 +171,6 @@ export default function Home({ militaries, necessaryShiftsPerDay,month ,year}: H
                 {
                   militaries.map(mil => {
                     return (
-                      <>
                         <Flex key={mil.milId + uuid()} w={'48'} >
                           <Box border={"1px"} bg={'whiteAlpha.300'} px={2} py={1} w={"100%"}>
                             <Text textAlign="center"
@@ -182,7 +181,6 @@ export default function Home({ militaries, necessaryShiftsPerDay,month ,year}: H
                             </Text>
                           </Box>
                         </Flex>
-                      </>
                     )
                   })
                 }

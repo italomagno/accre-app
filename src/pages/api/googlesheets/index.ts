@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { GoogleSpreadsheet } from "google-spreadsheet";
-import {Military, MilitaryFromSheet, ShiftsMil} from'@/types'
+import {Military, MilitaryFromSheet, Shifts, ShiftsMil} from'@/types'
 
 interface RowData {
   [key: string]: any;
@@ -36,6 +36,9 @@ export default async function handler(
     allowCredentials: true, // Allow CORS with cookies
   });
   const { method } = req
+
+  const session = await getSession({ req });
+
 
 
 
@@ -146,48 +149,35 @@ export default async function handler(
       res.status(400)
 
     case "PUT":
-      const session = await getSession({ req });
-      if(!session) res.status(401).send("Usuário não autenticado / User is not logged in");
-      
-      const  {saram}  = req.query
-      /*   const products = req.body;
-  
-        if (!Array.isArray(products)) {
-          res.status(400).json({ error: "O corpo da requisição precisa ser um array de produtos" });
-          break;
-        }
-  
-        try {
-          await doc.useServiceAccountAuth({
-            client_email: process.env.NEXT_PUBLIC_CLIENT_EMAIL as string,
-            private_key: (process.env.NEXT_PUBLIC_PRIVATE_KEY as string).replace(/\\n/g, '\n')
-          });
-  
-          await doc.loadInfo();
-  
-          const leadsSheet = doc.sheetsByTitle["Produtos"];
-          const rows = await leadsSheet.getRows({ offset: 0 });
-  
-          for (let product of products) {
-  
-            const row = rows.find(r => r.name === product.name);
-            const hasUpdatedBefore = row?.uid === product.uid
-  
-       
-            if (row && product.uid && !hasUpdatedBefore) {
-              row.uid = product.uid;
-              await row.save();
-            }
-            
-          }
-  
-          res.status(200).json({ message: "Produtos atualizados com sucesso!" });
-        } catch (err) {
-          console.error(err);
-          res.status(500).json({ error: "Ocorreu um erro ao atualizar os produtos" });
-        } */
 
-      break;
+      const  {saram} = req.query
+      const dataFromForms = req.body;
+      const data:ShiftsMil[] = JSON.parse(dataFromForms)
+
+
+      //pegar o nome da planilha do body
+
+      await doc.loadInfo();
+      const leadsSheet = doc.sheetsByTitle["escala-1/2024"];
+      
+      const rows = await leadsSheet.getRows({ offset: 0 });
+      const rowData = rows.find((r) => r.get("saram").replace(/\D/g,"") === saram)
+
+      if(!rowData){
+         return res.status(404)
+      }else{
+      const saramFromRow = rowData.get("saram") 
+      const newData = data.map(r=>r.shift)
+      const newRawData =[saramFromRow,
+        ...newData]
+        rowData["_rawData"] = newRawData
+     await rowData.save()
+
+    return res.status(200).json("deu certo")
+     
+    }
+
+    return res.status(401)
 
 
   }
