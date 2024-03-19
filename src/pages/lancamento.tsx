@@ -4,6 +4,7 @@ import { getDaysInMonthWithWeekends, handleQntPerShift } from "@/utils";
 import { DataFromSheet, Military, Shifts, ShiftsMil } from "@/types";
 import { SectionContainer } from "@/components/SectionContainer";
 import { Box, HStack, Text, Flex, Button, useToast } from "@chakra-ui/react";
+import { createStandaloneToast } from '@chakra-ui/react'
 import { ShiftBox } from "@/components/shifts/ShiftBox";
 import { ShiftDatesHeader } from "@/components/shifts/ShiftDatesHeader";
 import { ShiftPopOver } from "@/components/shifts/ShftPopOver";
@@ -20,11 +21,13 @@ interface SetShiftProps{
   necessaryShiftsPerDay: Shifts[]
   necessaryShiftsPerDayPlusCombinations:Shifts[]
   month:number
-  year:number
+  year:number,
+  block_changes:boolean
 }
 
-export default function Lancamento({militaries,necessaryShiftsPerDay,necessaryShiftsPerDayPlusCombinations,month,year,user}:SetShiftProps) {
-  const toast = useToast()
+export default function Lancamento({militaries,necessaryShiftsPerDay,necessaryShiftsPerDayPlusCombinations,month,year,user,block_changes}:SetShiftProps) {
+  const { toast } = createStandaloneToast();
+
   const [shifts, setShifts] = useState<Shifts[][]>([])
   const [isSaving,setIsSaving] = useState<boolean>(false)
 
@@ -54,6 +57,21 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
   }
 
   async function handleSaveShifts(){
+    if(block_changes === true){
+    setIsSaving(true)
+    toast({
+      title: 'Adição de turnos Travadas!',
+      description: "Turnos travados pelos escalantes.",
+      status: 'warning',
+      duration: 9000,
+      isClosable: true,
+    })
+
+      setTimeout(() => {
+    setIsSaving(false)
+      }, 2000);
+    }else{
+
     setIsSaving(true)
       const res = await fetch(`${process.env.NEXTAUTH_URL}/api/googlesheets?saram=${mil.milId}`, {
         method: 'PUT',
@@ -61,7 +79,7 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
       })
       
     if(res.status===200) {
-      toast({
+       toast({
         title: 'Deu certo!',
         description: "Turnos salvos com Sucesso.",
         status: 'success',
@@ -71,9 +89,8 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
     setIsSaving(false)
 
     }else{
-
       setIsSaving(false)
-      toast({
+     toast({
         title: 'Eita pau!',
         description: "Problema no salvamento dos turnos.",
         status: 'error',
@@ -81,9 +98,7 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
         isClosable: true,
       })
     }
-      
-    
-
+  }
 
   }
 
@@ -118,12 +133,12 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
 
   return (
     <BodyTemplate
-      flexRef={flexRef2}
-      handleScroll={handleScrollFlex2}
-      necessaryShiftsPerDay={necessaryShiftsPerDay}
-      shifts={shifts}
-      year={year}
-      month={month}
+    flexRef={flexRef2}
+    handleScroll={handleScrollFlex2}
+    necessaryShiftsPerDay={necessaryShiftsPerDay}
+    shifts={shifts}
+    year={year}
+    month={month}
     >
 
       <SectionContainer
@@ -191,7 +206,8 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
                     key={j}
                     handleSelectedShift={(shiftString) => {
                       handleSelectedShift(j, shiftString);
-                    } } necessaryShiftsPerDayPlusCombinations={necessaryShiftsPerDayPlusCombinations}>
+                    } }
+                     necessaryShiftsPerDayPlusCombinations={necessaryShiftsPerDayPlusCombinations}>
                   <ShiftBox
                    shiftMil={shift.shift?  shift.shift :  "  -  "}
                    />
@@ -269,6 +285,8 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
 
 
     const { controlers:shifts } = data["tabs"][0]
+        //@ts-ignore
+        const block_changes = shifts[0]["block_changes"] === 'TRUE'
 
     const necessaryShiftsPerDay: Shifts[] = shifts.map((shift: any) => {
       const newShift: Shifts = {
@@ -315,7 +333,8 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
         necessaryShiftsPerDayPlusCombinations,
         month:Number(month),
         year:Number(year),
-        user
+        user,
+        block_changes
       },
     };
 
@@ -341,8 +360,8 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
             }
               return shifts
             })
-        }
-
+        },
+        block_changes:true
       },
     };
   }

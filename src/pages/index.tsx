@@ -14,69 +14,6 @@ import { decrypt } from '@/utils/crypto'
 import { Session } from 'next-auth'
 
 
-/* export const necessaryShiftsPerDay: Shifts[] = [
-  {shiftId:"M" ,"shiftName": "M", "quantityOfMilitary": 6,},
-  {shiftId:"R1" ,"shiftName": "R1" , "quantityOfMilitary":  8},
-  {shiftId:"R2" ,"shiftName": "R2" , "quantityOfMilitary":  8},
-  {shiftId:"T" ,"shiftName": "T", "quantityOfMilitary": 7},
-  {shiftId:"R3" ,"shiftName": "R3" , "quantityOfMilitary":  5},
-  {shiftId:"P" ,"shiftName": "P", "quantityOfMilitary": 6},
-  {shiftId:"P2" ,"shiftName": "P2" , "quantityOfMilitary":  7},
-  {shiftId:"S1" ,"shiftName": "S1" , "quantityOfMilitary":  1},
-  {shiftId:"S2" ,"shiftName": "S2" , "quantityOfMilitary":  1},
-    ]
-export const necessaryShiftsPerDayPlusCombinations: Shifts[] = [
-  ...necessaryShiftsPerDay,
-  {shiftId:"M/P" ,"shiftName": "M/P", "quantityOfMilitary":     6},
-  {shiftId:"M/P2" ,"shiftName": "M/P2" , "quantityOfMilitary":  8},
-  {shiftId:"R1/P2" ,"shiftName": "R1/P2" , "quantityOfMilitary":  8},
-] */
-/* export const militaries:Military[] = [
-      {"milId": 6900259,"milName": "3S Italo Magno",
-       "shiftsMil": []
-       },
-{"milName":"SO	FRANCISCO",milId:	435293	,shiftsMil: []},
-
-{"milName":"SO	PEDRO	",milId:455185	,shiftsMil: []},
-
-{"milName":"SO	NASCIMENTO",milId:475214	,shiftsMil: []},
-
-{"milName":"1S	HILTON",milId: 465819	,shiftsMil: []},
-
-{"milName":"1S	SENA	 ",milId:520220	,shiftsMil: []},
-
-{"milName":"1S	CLARA	",milId: 532150	,shiftsMil: []},
-
-{"milName":"1S	VICTOR",milId: 536151	,shiftsMil: []},
-
-{"milName":"1S	PEDRO	",milId: 536152	,shiftsMil: []},
-
-{"milName":"1S	REBEKA",milId:	536111	,shiftsMil: []},
-
-{"milName":"1S	PAMELA",milId:  539020	,shiftsMil: []},
-
-{"milName":"1S	ADRIANO",milId:	539041	,shiftsMil: []},
-
-{"milName":"1S	THAIZY",milId:	539089	,shiftsMil: []},
-
-{"milName":"2S	REZENDE",milId:	541781	,shiftsMil: []},
-
-{"milName":"2S	ABDIAS",milId:	 542068	,shiftsMil: []},
-
-{"milName":"2S	DORE",milId:541223	,shiftsMil: []},
-
-{"milName":"2S	ALEXANDRE",milId: 541169	,shiftsMil: []},
-
-{"milName":"2S	GUSTAVO",milId:541216	,shiftsMil: []},
-
-{"milName":"2S	ANDREY",milId:		541328	,shiftsMil: []},
-
-{"milName":"2S	J JUNIOR",milId: 541505	,shiftsMil: []},
-
-
-      
-    ] */
-
 interface HomeProps {
   session: Session;  // Substitua SessionType pelo tipo correto de sua sessão
   militaries: Military[];
@@ -277,7 +214,6 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async (context)
     const dataCrypted = await res.json()
     const dataDecrypted = decrypt(dataCrypted)
     const data:DataFromSheet = JSON.parse(dataDecrypted)
-
     const { militaries:military } = data.tabs[0] 
     const { month } = data.tabs[0]
     const { year } = data.tabs[0]
@@ -285,6 +221,9 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async (context)
     const militaries = military.filter((mil:Military)=>mil.milName!=="")
 
     const { controlers:shifts } = ((data.tabs))[0]
+
+
+    
 
     const necessaryShiftsPerDay: Shifts[] = shifts.map((shift: any) => {
       const newShift: Shifts = {
@@ -317,7 +256,7 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async (context)
         necessaryShiftsPerDay,
         necessaryShiftsPerDayPlusCombinations,
         month:Number(month),
-        year:Number(year)
+        year:Number(year),
       },
     };
 
@@ -332,7 +271,7 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async (context)
         necessaryShiftsPerDay: [],
         necessaryShiftsPerDayPlusCombinations: [],
         month: 1,
-        year: 2023
+        year: 2024,
       },
     };
   }

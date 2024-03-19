@@ -51,9 +51,10 @@ const CustomInput: React.FC<CustomInputProps> = ({ name, type, maskFunction, val
   };
 
   return (
-    <FormControl isInvalid={!!errors[name] && !!touched[name]}>
-      <FormLabel htmlFor={name}>{placeholder}</FormLabel>
+    <FormControl isInvalid={!!errors[name] && !!touched[name]} w="full">
+      <FormLabel pb="2" htmlFor={name}>{placeholder}</FormLabel>
       <Input
+        w="full"
         id={name}
         name={name}
         type={type}
@@ -72,12 +73,12 @@ import { GetServerSideProps } from 'next';
 
 
 export default function Login() {
-  const [isLoading,setIsloading] = useState<boolean>(false)
+  const [isLoading, setIsloading] = useState<boolean>(false)
 
-  
+
   return (
     <Flex bg="gray.100" align="center" justify="center" h="100vh">
-      <Box bg="white" p={6} rounded="md" w={64}>
+      <Box bg="white" p={6} rounded="md" w={400}>
         <Formik
           initialValues={{
             CPF: '',
@@ -87,40 +88,39 @@ export default function Login() {
             setIsloading(true)
             //alert(JSON.stringify(values, null, 2));
             const cpf = values.CPF
-            const saram  =values.saram
-            signIn('credentials', { cpf, saram }).then( (r)=>{
-              console.log("opa")
-              console.log(r)
-            setSubmitting(false);
-            setIsloading(false)
-              
+            const saram = values.saram
+            signIn('credentials', { cpf, saram }).then((r) => {
+           
+              setSubmitting(false);
+              setIsloading(false)
+
             });
-            
+
             setSubmitting(false);
             setIsloading(false)
           }}
         >
           {({ handleSubmit }) => (
             <form onSubmit={handleSubmit}>
-         <VStack spacing={4} align="flex-start">
-  <CustomInput
-    name="CPF"
-    type="text"
-    maskFunction={applyCpfMask}
-    validate={(value) => (value && value.replace(/[^\d]/g, '').length !== 11 ? 'O CPF deve conter 11 dígitos.' : undefined)}
-    placeholder="CPF"
-  />
-  <CustomInput
-    name="saram"
-    type="text"
-    maskFunction={applySaramMask}
-    validate={(value) => (value && value.replace(/[^\d]/g, '').length !== 7 ? 'O Saram deve conter 7 dígitos.' : undefined)}
-    placeholder="Saram"
-  />
-  <Button type="submit" isLoading={isLoading} colorScheme="purple" width="full">
-    Login
-  </Button>
-</VStack>
+              <VStack spacing={4} align="flex-start" w="full">
+                <CustomInput
+                  name="CPF"
+                  type="text"
+                  maskFunction={applyCpfMask}
+                  validate={(value) => (value && value.replace(/[^\d]/g, '').length !== 11 ? 'O CPF deve conter 11 dígitos.' : undefined)}
+                  placeholder="CPF"
+                />
+                <CustomInput
+                  name="saram"
+                  type="text"
+                  maskFunction={applySaramMask}
+                  validate={(value) => (value && value.replace(/[^\d]/g, '').length !== 7 ? 'O Saram deve conter 7 dígitos.' : undefined)}
+                  placeholder="Saram"
+                />
+                <Button type="submit"  isLoading={isLoading} disabled={isLoading} colorScheme="purple" width="full">
+                  Login
+                </Button>
+              </VStack>
             </form>
           )}
         </Formik>
@@ -131,7 +131,6 @@ export default function Login() {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession({ req: context.req });
-  console.log(session)
   if (session) {
     return {
       redirect: {

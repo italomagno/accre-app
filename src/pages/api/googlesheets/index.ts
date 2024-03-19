@@ -24,6 +24,7 @@ const auth = new google.auth.GoogleAuth({
 
 const doc = new GoogleSpreadsheet(process.env.NEXT_PUBLIC_SPREADSHEET_ID as string, auth)
 
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -73,12 +74,12 @@ export default async function handler(
           const newRow = {
             ...row,
             email: (String(row.email)),
-            saram: (row.saram.replace("-", '')),
+            saram: (row.saram.replace(/\D/g, '')),
             cpf: (row.cpf.replace(/\D/g, ''))
           }
+          if(newRow.cpf === "") return
           return newRow
-        })
-
+        }).filter(row=> row !== undefined)
 
         const dataFromShiftsController = (await getDataFromTab("shiftsControl",doc))
 
@@ -161,7 +162,7 @@ export default async function handler(
       const leadsSheet = doc.sheetsByTitle["escala-1/2024"];
       
       const rows = await leadsSheet.getRows({ offset: 0 });
-      const rowData = rows.find((r) => r.get("saram").replace(/\D/g,"") === saram)
+      const rowData = rows.find((r) => r.get("saram") ? r.get("saram").replace(/\D/g,"") === saram : false);
 
       if(!rowData){
          return res.status(404)

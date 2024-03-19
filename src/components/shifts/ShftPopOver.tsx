@@ -86,12 +86,13 @@ export function ShiftPopOver({ children, handleSelectedShift,necessaryShiftsPerD
               >
                 <Button w="35%"colorScheme={selectedShiftType === "shift" ? "blue" : "gray"}
                 onClick={() => handleShiftTypeSelection("shift")}>Turno</Button>
-              <Button w="35%" colorScheme={selectedShiftType === "absence" ? "blue" : "gray"}
+              <Button w="35%" disabled={true} colorScheme={selectedShiftType === "absence" ? "blue" : "gray"}
                 onClick={() => handleShiftTypeSelection("absence")}>Afastamento</Button>
 
               </Flex>
 
-              {selectedShiftType === "shift" && (
+              {
+              selectedShiftType === "shift" && (
                 <VStack spacing={2} mt={3}>
                   {groupedShifts.map((group, index) => (
                     <HStack key={index} spacing={2}>
@@ -104,8 +105,25 @@ export function ShiftPopOver({ children, handleSelectedShift,necessaryShiftsPerD
                     </HStack>
                   ))}
                 </VStack>
-              )}
-              {/* Implemente aqui a lógica para escolha de Afastamento */}
+              )
+              }
+              {
+               /*  selectedShiftType === "absence" && (
+                  <VStack spacing={2} mt={3}>
+                    {groupedShifts.map((group, index) => (
+                      <HStack key={index} spacing={2}>
+                        {group.map((shift) => (
+                          <Button key={shift.shiftId} height='20px' width="20px"
+                            onClick={() => handleShiftSelection(shift.shiftName)}>
+                            {shift.shiftName}
+                          </Button>
+                        ))}
+                      </HStack>
+                    ))}
+                  </VStack>
+                )
+
+               */}
             </Flex>
           </ModalBody>
           <ModalFooter
