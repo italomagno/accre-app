@@ -22,10 +22,11 @@ interface SetShiftProps{
   necessaryShiftsPerDayPlusCombinations:Shifts[]
   month:number
   year:number,
-  block_changes:boolean
+  block_changes:boolean,
+  Abscences: Shifts[]
 }
 
-export default function Lancamento({militaries,necessaryShiftsPerDay,necessaryShiftsPerDayPlusCombinations,month,year,user,block_changes}:SetShiftProps) {
+export default function Lancamento({militaries,necessaryShiftsPerDay,necessaryShiftsPerDayPlusCombinations,month,year,user,block_changes,Abscences}:SetShiftProps) {
   const { toast } = createStandaloneToast();
 
   const [shifts, setShifts] = useState<Shifts[][]>([])
@@ -207,7 +208,9 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
                     handleSelectedShift={(shiftString) => {
                       handleSelectedShift(j, shiftString);
                     } }
-                     necessaryShiftsPerDayPlusCombinations={necessaryShiftsPerDayPlusCombinations}>
+                     necessaryShiftsPerDayPlusCombinations={necessaryShiftsPerDayPlusCombinations}
+                     Abscences={Abscences}
+                     >
                   <ShiftBox
                    shiftMil={shift.shift?  shift.shift :  "  -  "}
                    />
@@ -305,6 +308,17 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
       return newShift
     })
 
+    const Abscences: Shifts[] = shifts.map((shift: any) => {
+      const newAbscence: Shifts = {
+        quantityOfMilitary:0,
+        shiftId: shift.abscences,
+        shiftName: shift.abscences,
+      }
+      return newAbscence
+    }).filter(shift=>shift.shiftId !== undefined)
+
+    console.log(Abscences)
+
     const user = militaries.find(mil=> mil.milName === String(session.user?.name))
 
     
@@ -334,7 +348,8 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
         month:Number(month),
         year:Number(year),
         user,
-        block_changes
+        block_changes,
+        Abscences
       },
     };
 
@@ -361,7 +376,8 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
               return shifts
             })
         },
-        block_changes:true
+        block_changes:true,
+        Abscences:[]
       },
     };
   }

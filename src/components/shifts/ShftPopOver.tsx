@@ -22,12 +22,14 @@ interface ShiftPopOverProps {
   children: ReactNode;
   handleSelectedShift: (shiftString: string) => void;
   necessaryShiftsPerDayPlusCombinations: Shifts[]
+  Abscences: Shifts[]
 }
 
-export function ShiftPopOver({ children, handleSelectedShift,necessaryShiftsPerDayPlusCombinations }: ShiftPopOverProps) {
+export function ShiftPopOver({ children, handleSelectedShift,necessaryShiftsPerDayPlusCombinations,Abscences }: ShiftPopOverProps) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedShiftType, setSelectedShiftType] = useState<string | undefined>(undefined);
   const groupedShifts = chunkArray(necessaryShiftsPerDayPlusCombinations, 3);
+  const groupedAbscences = chunkArray(Abscences,3);
 
   function handleShiftTypeSelection(type: string) {
     setSelectedShiftType(type);
@@ -107,10 +109,11 @@ export function ShiftPopOver({ children, handleSelectedShift,necessaryShiftsPerD
                 </VStack>
               )
               }
+
               {
-               /*  selectedShiftType === "absence" && (
+                 selectedShiftType === "absence" && (
                   <VStack spacing={2} mt={3}>
-                    {groupedShifts.map((group, index) => (
+                    {groupedAbscences.map((group, index) => (
                       <HStack key={index} spacing={2}>
                         {group.map((shift) => (
                           <Button key={shift.shiftId} height='20px' width="20px"
@@ -123,7 +126,7 @@ export function ShiftPopOver({ children, handleSelectedShift,necessaryShiftsPerD
                   </VStack>
                 )
 
-               */}
+               }
             </Flex>
           </ModalBody>
           <ModalFooter
