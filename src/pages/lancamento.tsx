@@ -317,7 +317,6 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
       return newAbscence
     }).filter(shift=>shift.shiftId !== undefined)
 
-    console.log(Abscences)
 
     const user = militaries.find(mil=> mil.milName === String(session.user?.name))
 

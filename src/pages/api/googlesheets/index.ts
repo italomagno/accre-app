@@ -157,9 +157,12 @@ export default async function handler(
 
 
       //pegar o nome da planilha do body
-
       await doc.loadInfo();
-      const leadsSheet = doc.sheetsByTitle["escala-1/2024"];
+      const sheetShiftsMonth = Object.keys(doc.sheetsByTitle).find(title=>title.includes("escala"));
+      if(!sheetShiftsMonth){
+        return res.status(404)
+      }
+      const leadsSheet = doc.sheetsByTitle[sheetShiftsMonth];
       
       const rows = await leadsSheet.getRows({ offset: 0 });
       const rowData = rows.find((r) => r.get("saram") ? r.get("saram").replace(/\D/g,"") === saram : false);
