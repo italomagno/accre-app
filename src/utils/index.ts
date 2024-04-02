@@ -61,9 +61,10 @@ days.forEach(day=>{
 
 militaries.map(mil=>
   mil.shiftsMil.forEach((shift,i)=>{
-   
+    
     const shiftToUse = shift.shift
-
+   
+    
     if(shiftToUse){
     const hasBar = shiftToUse.includes("/")
 
