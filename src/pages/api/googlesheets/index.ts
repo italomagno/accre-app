@@ -75,11 +75,13 @@ export default async function handler(
             ...row,
             email: (String(row.email)),
             saram: (row.saram.replace(/\D/g, '')),
-            cpf: (row.cpf.replace(/\D/g, ''))
+            cpf: (row.cpf.replace(/\D/g, '')),
+            block_changes: row.block_changes === "TRUE" ? true : false
           }
           if(newRow.cpf === "") return
           return newRow
         }).filter(row=> row !== undefined)
+        //console.log(dataFromSheets)
 
         const dataFromShiftsController = (await getDataFromTab("shiftsControl",doc))
 
@@ -102,7 +104,7 @@ export default async function handler(
           })
           if(!shifts) return undefindMil
 
-          const shiftsKeys = Object.keys(shifts).filter(key=>key!=="saram")
+          const shiftsKeys = Object.keys(shifts).filter(key=>isNaN(parseFloat(key)) !== true)
           
           const newShifts: ShiftsMil[] = shiftsKeys.map(key=>{
             return{
@@ -165,14 +167,17 @@ export default async function handler(
       const leadsSheet = doc.sheetsByTitle[sheetShiftsMonth];
       
       const rows = await leadsSheet.getRows({ offset: 0 });
-      const rowData = rows.find((r) => r.get("saram") ? r.get("saram").replace(/\D/g,"") === saram : false);
+      const rowDataIndex = rows.findIndex((r) => r.get("saram") ? r.get("saram").replace(/\D/g,"") === saram : false);
+      const rowData = rows[rowDataIndex];
+
 
       if(!rowData){
          return res.status(404)
       }else{
-      const saramFromRow = rowData.get("saram") 
+      const saramFromRow = rowData.get("saram")
+      const nameFromRow = rowData.get("name")
       const newData = data.map(r=>r.shift)
-      const newRawData =[saramFromRow,
+      const newRawData =[nameFromRow,saramFromRow,
         ...newData]
         rowData["_rawData"] = newRawData
      await rowData.save()

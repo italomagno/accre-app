@@ -25,6 +25,7 @@ export type MilitaryFromSheet = {
   saram: string,
   name: string,
   email: string,
+  block_changes?:boolean
 }
 export type DayOfChoosenMonth = {
   day: number,
@@ -35,7 +36,7 @@ export type Military = {
   milId: number,
   milName: string,
   shiftsMil: ShiftsMil[],
-  block_changes?:string
+  block_changes?:boolean
 }
 
 export type ShiftsMil = {

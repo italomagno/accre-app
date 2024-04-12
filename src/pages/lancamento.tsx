@@ -57,16 +57,7 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
   }
 
   async function handleSaveShifts(){
-    if(mil.block_changes === "TRUE"){
-      toast({
-        title: 'Êpa! Ainda não é sua vez de escolha.',
-        description: "Turnos travados pelos escalantes.",
-        status: 'warning',
-        duration: 9000,
-        isClosable: true,
-      })
-
-    }
+  
     if(block_changes === true){
     setIsSaving(true)
     toast({
@@ -81,6 +72,21 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
     setIsSaving(false)
       }, 2000);
     }else{
+    
+      if(mil.block_changes === true){
+        setIsSaving(true)
+        toast({
+          title: 'Êpa! Ainda não é sua vez de escolha.',
+          description: "Os seus turnos estão travados pelos escalantes.",
+          status: 'warning',
+          duration: 9000,
+          isClosable: true,
+        })
+        setTimeout(() => {
+          setIsSaving(false)
+            }, 2000);
+            return
+      }
 
     setIsSaving(true)
       const res = await fetch(`${process.env.NEXTAUTH_URL}/api/googlesheets?saram=${mil.milId}`, {
@@ -125,6 +131,7 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
     }  
 
     setMil(newMil)
+
     const QntMilitariesPerDay = handleQntPerShift(militaries, necessaryShiftsPerDay,month,year)
     setShifts(QntMilitariesPerDay)
 
@@ -293,6 +300,8 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
     const { month } = data["tabs"][0]
     const { year } = data["tabs"][0]
 
+    console.log(militaries[0].shiftsMil)
+
 
 
 
@@ -308,6 +317,7 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
       }
       return newShift
     })
+
     const Combinations: Shifts[] = shifts.map((shift: any) => {
       const newShift: Shifts = {
         shiftId: shift.combinations,
@@ -329,7 +339,14 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
 
     const user = militaries.find(mil=> mil.milName === String(session.user?.name))
     
+    
     if(!user) throw error("Não foi possível encontrar esse militar.")
+
+      //@ts-ignore
+      const milFromUserTab= data.dataFromSheets.find(row=> Number(row.saram) === user.milId)
+      user.block_changes = milFromUserTab?.block_changes
+
+
     if(user?.shiftsMil.length === 0) user.shiftsMil = getDaysInMonthWithWeekends(1,2024).map(day=>{
       const shifts:ShiftsMil = {
         day: String(day.day),
