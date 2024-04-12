@@ -114,7 +114,7 @@ export default async function handler(
           const newReturn:Military = {
             milId: Number(mil.saram.replace(/\D/g,"")),
             milName: mil.name,
-            shiftsMil: newShifts
+            shiftsMil: newShifts,
 
           }
                // const shifts = (.filter(milFromTab=>milFromTab.saram === saram))[0]

@@ -38,7 +38,6 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
   const flexRef1 = useRef<HTMLDivElement>(null); // Referência para o segundo Flex
 
   const handleScrollFlex2 = () => {
-
     if (flexRef1.current && flexRef2.current) {
       flexRef1.current.scrollLeft = flexRef2.current.scrollLeft;
     }
@@ -58,6 +57,16 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
   }
 
   async function handleSaveShifts(){
+    if(mil.block_changes === "TRUE"){
+      toast({
+        title: 'Êpa! Ainda não é sua vez de escolha.',
+        description: "Turnos travados pelos escalantes.",
+        status: 'warning',
+        duration: 9000,
+        isClosable: true,
+      })
+
+    }
     if(block_changes === true){
     setIsSaving(true)
     toast({
@@ -319,7 +328,6 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
 
 
     const user = militaries.find(mil=> mil.milName === String(session.user?.name))
-
     
     if(!user) throw error("Não foi possível encontrar esse militar.")
     if(user?.shiftsMil.length === 0) user.shiftsMil = getDaysInMonthWithWeekends(1,2024).map(day=>{

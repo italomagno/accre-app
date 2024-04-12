@@ -34,7 +34,8 @@ export type DayOfChoosenMonth = {
 export type Military = {
   milId: number,
   milName: string,
-  shiftsMil: ShiftsMil[]
+  shiftsMil: ShiftsMil[],
+  block_changes?:string
 }
 
 export type ShiftsMil = {
