@@ -76,12 +76,14 @@ export default async function handler(
             email: (String(row.email)),
             saram: (row.saram.replace(/\D/g, '')),
             cpf: (row.cpf.replace(/\D/g, '')),
-            block_changes: row.block_changes === "TRUE" ? true : false
+            block_changes: row.block_changes === "TRUE" ? true : false,
+            is_expediente: row.is_expediente === 'FALSE' ? false : true
           }
+
           if(newRow.cpf === "") return
           return newRow
         }).filter(row=> row !== undefined)
-        //console.log(dataFromSheets)
+        console.log(dataFromSheets)
 
         const dataFromShiftsController = (await getDataFromTab("shiftsControl",doc))
 
@@ -91,7 +93,8 @@ export default async function handler(
             const undefindMil:Military = {
               milId:0,
               milName:"",
-              shiftsMil:[]
+              shiftsMil:[],
+
             }
 
             if(!saram || saram === ""){

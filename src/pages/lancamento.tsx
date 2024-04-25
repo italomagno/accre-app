@@ -18,15 +18,17 @@ import { error } from "console";
 interface SetShiftProps{
   user: Military;  // Substitua SessionType pelo tipo correto de sua sessão
   militaries: Military[];
-  necessaryShiftsPerDay: Shifts[]
+  necessaryShiftsPerDay: Shifts[],
+  minShiftsPerDay: Shifts[]
   necessaryShiftsPerDayPlusCombinations:Shifts[]
   month:number
   year:number,
   block_changes:boolean,
+  isExpediente:boolean,
   Abscences: Shifts[]
 }
 
-export default function Lancamento({militaries,necessaryShiftsPerDay,necessaryShiftsPerDayPlusCombinations,month,year,user,block_changes,Abscences}:SetShiftProps) {
+export default function Lancamento({militaries,minShiftsPerDay,isExpediente,necessaryShiftsPerDay,necessaryShiftsPerDayPlusCombinations,month,year,user,block_changes,Abscences}:SetShiftProps) {
   const { toast } = createStandaloneToast();
 
   const [shifts, setShifts] = useState<Shifts[][]>([])
@@ -87,7 +89,47 @@ export default function Lancamento({militaries,necessaryShiftsPerDay,necessarySh
             }, 2000);
             return
       }
+      if(isExpediente===false){
+        const shiftObj = {}
+        const minShiftObj = {}
 
+        const shiftsVector = minShiftsPerDay.map(shift=>{
+          //@ts-ignore
+          obj[shift.shiftId] = 0
+          //@ts-ignore
+          obj[shift.shiftId] = shift.minQuantityOfMilitary
+          return shift.shiftId
+        }
+        )
+
+      for(var i = 0 ; i < mil.shiftsMil.length ;  i++){
+        const hasBar = mil.shiftsMil[i].shift?.includes("/")
+        if(hasBar){
+          const shiftSplitted = mil.shiftsMil[i].shift?.split("/")
+
+          //@ts-ignore
+            shiftSplitted?.forEach(shift=> obj[shift] ? obj[shift] = obj[shift] +1 : "")
+
+        }else{
+          //@ts-ignore
+          obj[mil.shiftsMil[i].shift] ? obj[mil.shiftsMil[i].shift] = obj[mil.shiftsMil[i].shift] +1 : ""
+        }
+      }
+          //@ts-ignore
+      const isLessThanNecessary = shiftsVector.map(shift=>shiftObj[shift] < minShiftObj[shift]).find(row=>row===true)
+      console.log(isLessThanNecessary)
+      if(isLessThanNecessary === true){ 
+        toast({
+        title: 'Presta atenção!',
+        description: "Os turnos salvos não cumprem os minimos estabelecidos pelos escalantes!",
+        status: 'warning',
+        duration: 9000,
+        isClosable: true,
+      })
+
+      }
+    }
+    
     setIsSaving(true)
       const res = await fetch(`${process.env.NEXTAUTH_URL}/api/googlesheets?saram=${mil.milId}`, {
         method: 'PUT',
@@ -300,7 +342,6 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
     const { month } = data["tabs"][0]
     const { year } = data["tabs"][0]
 
-    console.log(militaries[0].shiftsMil)
 
 
 
@@ -309,11 +350,25 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
         //@ts-ignore
         const block_changes = shifts[0]["block_changes"] === 'TRUE'
 
+    const minShiftsPerDay: Shifts[] = shifts.map((shift: any) => {
+
+      const newShift: Shifts = {
+        shiftId: shift.shiftName,
+        shiftName: shift.shiftName,
+        quantityOfMilitary: Number(shift.quantityOfMilitary),
+        minQuantityOfMilitary: shift.minQuantityOfMilitary ? shift.minQuantityOfMilitary : 0
+      }
+      return newShift
+    })
+
+
+
     const necessaryShiftsPerDay: Shifts[] = shifts.map((shift: any) => {
       const newShift: Shifts = {
         shiftId: shift.shiftName,
         shiftName: shift.shiftName,
-        quantityOfMilitary: Number(shift.quantityOfMilitary)
+        quantityOfMilitary: Number(shift.quantityOfMilitary),
+        minQuantityOfMilitary: shift.minQuantityOfMilitary ? shift.minQuantityOfMilitary : 0
       }
       return newShift
     })
@@ -322,7 +377,8 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
       const newShift: Shifts = {
         shiftId: shift.combinations,
         shiftName: shift.combinations,
-        quantityOfMilitary: 0
+        quantityOfMilitary: 0,
+        minQuantityOfMilitary: 0 
       }
       return newShift
     })
@@ -332,6 +388,7 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
         quantityOfMilitary:0,
         shiftId: shift.abscences,
         shiftName: shift.abscences,
+        minQuantityOfMilitary: 0 
       }
       return newAbscence
     }).filter(shift=>shift.shiftId !== undefined)
@@ -344,7 +401,13 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
 
       //@ts-ignore
       const milFromUserTab= data.dataFromSheets.find(row=> Number(row.saram) === user.milId)
+   
+
       user.block_changes = milFromUserTab?.block_changes
+      //@ts-ignore
+      const isExpediente = user.is_expediente === 'FALSE'? user.is_expediente = false : user.is_expediente = true
+
+
 
 
     if(user?.shiftsMil.length === 0) user.shiftsMil = getDaysInMonthWithWeekends(1,2024).map(day=>{
@@ -372,8 +435,10 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
         month:Number(month),
         year:Number(year),
         user,
+        minShiftsPerDay,
         block_changes,
-        Abscences
+        Abscences,
+        isExpediente
       },
     };
 
@@ -401,7 +466,9 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
             })
         },
         block_changes:true,
-        Abscences:[]
+        Abscences:[],
+        minShiftsPerDay:[],
+        isExpediente:false
       },
     };
   }

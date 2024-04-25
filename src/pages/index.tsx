@@ -229,7 +229,7 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async (context)
       const newShift: Shifts = {
         shiftId: shift.shiftName,
         shiftName: shift.shiftName,
-        quantityOfMilitary: Number(shift.quantityOfMilitary)
+        quantityOfMilitary: Number(shift.quantityOfMilitary),
       }
       return newShift
     })

@@ -3,7 +3,8 @@ export type Shifts = {
   shiftId: string;
   shiftName: string,
   quantityOfMilitary: number,
-  hasNecessaryQnt?: number
+  hasNecessaryQnt?: number,
+  minQuantityOfMilitary?:number
 }
 
  export type Tab = {
@@ -26,6 +27,7 @@ export type MilitaryFromSheet = {
   name: string,
   email: string,
   block_changes?:boolean
+  is_expediente?:boolean
 }
 export type DayOfChoosenMonth = {
   day: number,
@@ -36,7 +38,8 @@ export type Military = {
   milId: number,
   milName: string,
   shiftsMil: ShiftsMil[],
-  block_changes?:boolean
+  block_changes?:boolean,
+  is_expediente?: boolean
 }
 
 export type ShiftsMil = {
