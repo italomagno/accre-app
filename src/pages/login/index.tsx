@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Formik, Field, useFormikContext, FormikHelpers } from 'formik';
 import {
   Box,
@@ -12,10 +12,7 @@ import {
   VStack
 } from '@chakra-ui/react';
 
-interface FormValues {
-  CPF: string;
-  saram: string;
-}
+
 
 function applyCpfMask(value: string): string {
   return value
@@ -33,97 +30,74 @@ function applySaramMask(value: string): string {
     .replace(/(-\d)\d+?$/, '$1');
 }
 
-interface CustomInputProps {
-  name: keyof FormValues;
-  type: string;
-  maskFunction: (value: string) => string;
-  validate: (value: string) => string | undefined;
-  placeholder: string;
-}
 
-const CustomInput: React.FC<CustomInputProps> = ({ name, type, maskFunction, validate, placeholder }) => {
-  const { setFieldValue, values, errors, touched } = useFormikContext<FormValues>();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const maskedValue = maskFunction ? maskFunction(value) : value;
-    setFieldValue(name, maskedValue);
-  };
 
-  return (
-    <FormControl isInvalid={!!errors[name] && !!touched[name]} w="full">
-      <FormLabel pb="2" htmlFor={name}>{placeholder}</FormLabel>
-      <Input
-        w="full"
-        id={name}
-        name={name}
-        type={type}
-        onChange={handleChange}
-        value={values[name] as string | number | readonly string[] | undefined}
-      />
-      <FormErrorMessage>{errors[name]}</FormErrorMessage>
-    </FormControl>
-  );
-};
 
 import { getSession, signIn } from 'next-auth/react';
 import { GetServerSideProps } from 'next';
+import { FormValues } from '@/types';
+import { CustomInput } from '@/components/shared/CustomInput';
 
 // In your sign-in component or function
 
 
 export default function Login() {
-  const [isLoading, setIsloading] = useState<boolean>(false)
-
+  const [isSubmitting,setIsSubmitting] =useState(false)
+// eslint-disable-next-line react-hooks/exhaustive-deps
+async function handleSubmit (values: FormValues, { setSubmitting}: FormikHelpers<FormValues>){
+  setIsSubmitting(true)
+  const cpf = values.CPF
+  const saram = values.saram
+  signIn('credentials', { cpf, saram }).then((r) => {
+    setTimeout(() => {
+    setSubmitting(false);
+    }, 2000);
+  });
+  setTimeout(() => {
+    setSubmitting(false);
+    }, 4000);
+}
+  const memoizedForm = useMemo(()=>(
+    <Formik
+    initialValues={{
+      CPF: '',
+      saram: '',
+    }}
+    onSubmit={handleSubmit}
+  >
+    {({ handleSubmit}) => {
+      return (
+      <form onSubmit={handleSubmit}>
+        <VStack spacing={4} align="flex-start" w="full">
+          <CustomInput
+            name="CPF"
+            type="text"
+            maskFunction={applyCpfMask}
+            validate={(value) => (value && value.replace(/[^\d]/g, '').length !== 11 ? 'O CPF deve conter 11 dígitos.' : undefined)}
+            placeholder="CPF"
+          />
+          <CustomInput
+            name="saram"
+            type="text"
+            maskFunction={applySaramMask}
+            validate={(value) => (value && value.replace(/[^\d]/g, '').length !== 7 ? 'O Saram deve conter 7 dígitos.' : undefined)}
+            placeholder="Saram"
+          />
+          <Button type="submit" isLoading={isSubmitting} disabled={isSubmitting} colorScheme="purple" width="full">
+           { isSubmitting ? "carregando " : "Login" }
+          </Button>
+        </VStack>
+      </form>
+    )}}
+  </Formik>
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ),[handleSubmit])
 
   return (
     <Flex bg="gray.100" align="center" justify="center" h="100vh">
       <Box bg="white" p={6} rounded="md" w={400}>
-        <Formik
-          initialValues={{
-            CPF: '',
-            saram: '',
-          }}
-          onSubmit={async (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
-            setIsloading(true)
-            //alert(JSON.stringify(values, null, 2));
-            const cpf = values.CPF
-            const saram = values.saram
-            signIn('credentials', { cpf, saram }).then((r) => {
-           
-              setSubmitting(false);
-              setIsloading(false)
-
-            });
-
-            setSubmitting(false);
-            setIsloading(false)
-          }}
-        >
-          {({ handleSubmit }) => (
-            <form onSubmit={handleSubmit}>
-              <VStack spacing={4} align="flex-start" w="full">
-                <CustomInput
-                  name="CPF"
-                  type="text"
-                  maskFunction={applyCpfMask}
-                  validate={(value) => (value && value.replace(/[^\d]/g, '').length !== 11 ? 'O CPF deve conter 11 dígitos.' : undefined)}
-                  placeholder="CPF"
-                />
-                <CustomInput
-                  name="saram"
-                  type="text"
-                  maskFunction={applySaramMask}
-                  validate={(value) => (value && value.replace(/[^\d]/g, '').length !== 7 ? 'O Saram deve conter 7 dígitos.' : undefined)}
-                  placeholder="Saram"
-                />
-                <Button type="submit"  isLoading={isLoading} disabled={isLoading} colorScheme="purple" width="full">
-                  Login
-                </Button>
-              </VStack>
-            </form>
-          )}
-        </Formik>
+       {memoizedForm}
       </Box>
     </Flex>
   );

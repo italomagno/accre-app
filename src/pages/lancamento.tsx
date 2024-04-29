@@ -52,12 +52,6 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
   };
 
 
-  function handleSelectedMil(milId: number) {
-    const selectedMil = militaries.find(mil => mil.milId === milId)
-    if (!selectedMil) return
-    setMil(selectedMil)
-  }
-
   async function handleSaveShifts(){
 
     if(block_changes === true){
@@ -92,6 +86,7 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
       }
       const isCorrectProposal = handleProposeShifts(isExpediente,minShiftsPerDay,mil)
       if(isCorrectProposal === false){
+        setIsSaving(true)
         toast({
           title: 'Seus turnos não foram salvos!',
           description: "Os turnos propostos não cumprem os minimos estabelecidos pelos escalantes!",
@@ -99,6 +94,9 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
           duration: 9000,
           isClosable: true,
         })
+        setTimeout(() => {
+          setIsSaving(false)
+            }, 2000);
       return 
       }
      
@@ -152,6 +150,13 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
   }
 
   useEffect(() => {
+    const daysInMonth = getDaysInMonthWithWeekends(month,year).length
+    while(mil.shiftsMil.length > daysInMonth){
+      mil.shiftsMil.pop()
+      console.log(mil)
+      setMil(mil)
+      if(mil.shiftsMil.length === daysInMonth) break
+    }
     const newMilitaries = militaries.map(military=>{
       if(military.milId === mil.milId) return mil
       return military
@@ -405,8 +410,10 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
         militaries,
         necessaryShiftsPerDay,
         necessaryShiftsPerDayPlusCombinations,
-        month:Number(month),
-        year:Number(year),
+              //@ts-ignore
+              month:Number(shifts[0]["monthProposal"]),
+              //@ts-ignore
+              year:Number(shifts[0]["yearProposal"]),
         user,
         minShiftsPerDay,
         block_changes,

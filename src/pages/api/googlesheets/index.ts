@@ -45,21 +45,17 @@ export default async function handler(
 
   switch (method) {
     case "GET":
-      
       try {
         await doc.loadInfo();
         const tabsShifts = await Promise.all(Object.keys(doc.sheetsByTitle).filter(tab => tab.includes("/")).map(async tab => {
           const monthYear = ((tab.split("-"))[1]).split("/")
           const dataFromSheets = (await getDataFromTab(tab,doc)).map(row=>{
             const keys = Object.keys(row)
-
             keys.map((key,i)=>{
               row[key] === undefined? row[key] = "" : row[key]
             })
-
             return row
           })
-
           const tabObject = {
             name: tab,
             month: monthYear[0],

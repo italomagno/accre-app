@@ -4,7 +4,9 @@ export type Shifts = {
   shiftName: string,
   quantityOfMilitary: number,
   hasNecessaryQnt?: number,
-  minQuantityOfMilitary?:number
+  minQuantityOfMilitary?:number,
+  monthProposal?:number,
+  yearProposal?:number
 }
 
  export type Tab = {
@@ -13,6 +15,10 @@ export type Shifts = {
   year:number,
   militaries:Military[],
   controlers:Shifts[][]
+}
+export interface FormValues {
+  CPF: string;
+  saram: string;
 }
 
 export type DataFromSheet={

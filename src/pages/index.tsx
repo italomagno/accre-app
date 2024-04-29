@@ -215,12 +215,12 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async (context)
     const dataDecrypted = decrypt(dataCrypted)
     const data:DataFromSheet = JSON.parse(dataDecrypted)
     const { militaries:military } = data.tabs[0] 
-    const { month } = data.tabs[0]
-    const { year } = data.tabs[0]
+
 
     const militaries = military.filter((mil:Military)=>mil.milName!=="")
 
     const { controlers:shifts } = ((data.tabs))[0]
+  
 
 
     
@@ -255,8 +255,10 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async (context)
         militaries,
         necessaryShiftsPerDay,
         necessaryShiftsPerDayPlusCombinations,
-        month:Number(month),
-        year:Number(year),
+        //@ts-ignore
+        month:Number(shifts[0]["monthProposal"]),
+        //@ts-ignore
+        year:Number(shifts[0]["yearProposal"]),
       },
     };
 
