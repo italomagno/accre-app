@@ -117,3 +117,41 @@ export const breadCumbItens:BreadCumbItem[] = [
   },
 
 ]
+
+export function handleProposeShifts(isExpediente:boolean,minShiftsPerDay:Shifts[],mil:Military){
+  if(isExpediente===false){
+    const shiftObj = {}
+    const minShiftObj = {}
+
+    const shiftsVector = minShiftsPerDay.map(shift=>{
+      //@ts-ignore
+      shiftObj[shift.shiftId] = 0
+      //@ts-ignore
+      minShiftObj[shift.shiftId] = shift.minQuantityOfMilitary
+      return shift.shiftId
+    }
+    )
+
+  for(var i = 0 ; i < mil.shiftsMil.length ;  i++){
+    const hasBar = mil.shiftsMil[i].shift?.includes("/")
+    if(hasBar){
+      const shiftSplitted = mil.shiftsMil[i].shift?.split("/")
+
+      //@ts-ignore
+        shiftSplitted?.forEach(shift=> shiftObj[shift] ? shiftObj[shift] = shiftObj[shift] +1 : "")
+
+    }else{
+      //@ts-ignore
+      shiftObj[mil.shiftsMil[i].shift] ? shiftObj[mil.shiftsMil[i].shift] = shiftObj[mil.shiftsMil[i].shift] +1 : ""
+    }
+  }
+
+      //@ts-ignore
+  const isLessThanNecessary = shiftsVector.map(shift=>shiftObj[shift] < minShiftObj[shift]).find(row=>row===true)
+  if(isLessThanNecessary === true){ 
+    return false
+  }else{
+    return true
+  }
+}
+}

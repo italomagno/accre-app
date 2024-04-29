@@ -1,6 +1,6 @@
 import { BodyTemplate } from "@/components/BodyTemplate";
 import { useEffect, useRef, useState } from "react";
-import { getDaysInMonthWithWeekends, handleQntPerShift } from "@/utils";
+import { getDaysInMonthWithWeekends, handleProposeShifts, handleQntPerShift } from "@/utils";
 import { DataFromSheet, Military, Shifts, ShiftsMil } from "@/types";
 import { SectionContainer } from "@/components/SectionContainer";
 import { Box, HStack, Text, Flex, Button, useToast } from "@chakra-ui/react";
@@ -59,7 +59,7 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
   }
 
   async function handleSaveShifts(){
-  
+
     if(block_changes === true){
     setIsSaving(true)
     toast({
@@ -71,8 +71,9 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
     })
 
       setTimeout(() => {
-    setIsSaving(false)
+      setIsSaving(false)
       }, 2000);
+      return
     }else{
     
       if(mil.block_changes === true){
@@ -89,47 +90,18 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
             }, 2000);
             return
       }
-      if(isExpediente===false){
-        const shiftObj = {}
-        const minShiftObj = {}
-
-        const shiftsVector = minShiftsPerDay.map(shift=>{
-          //@ts-ignore
-          obj[shift.shiftId] = 0
-          //@ts-ignore
-          obj[shift.shiftId] = shift.minQuantityOfMilitary
-          return shift.shiftId
-        }
-        )
-
-      for(var i = 0 ; i < mil.shiftsMil.length ;  i++){
-        const hasBar = mil.shiftsMil[i].shift?.includes("/")
-        if(hasBar){
-          const shiftSplitted = mil.shiftsMil[i].shift?.split("/")
-
-          //@ts-ignore
-            shiftSplitted?.forEach(shift=> obj[shift] ? obj[shift] = obj[shift] +1 : "")
-
-        }else{
-          //@ts-ignore
-          obj[mil.shiftsMil[i].shift] ? obj[mil.shiftsMil[i].shift] = obj[mil.shiftsMil[i].shift] +1 : ""
-        }
-      }
-          //@ts-ignore
-      const isLessThanNecessary = shiftsVector.map(shift=>shiftObj[shift] < minShiftObj[shift]).find(row=>row===true)
-      console.log(isLessThanNecessary)
-      if(isLessThanNecessary === true){ 
+      const isCorrectProposal = handleProposeShifts(isExpediente,minShiftsPerDay,mil)
+      if(isCorrectProposal === false){
         toast({
-        title: 'Presta atenção!',
-        description: "Os turnos salvos não cumprem os minimos estabelecidos pelos escalantes!",
-        status: 'warning',
-        duration: 9000,
-        isClosable: true,
-      })
-
+          title: 'Seus turnos não foram salvos!',
+          description: "Os turnos propostos não cumprem os minimos estabelecidos pelos escalantes!",
+          status: 'warning',
+          duration: 9000,
+          isClosable: true,
+        })
+      return 
       }
-    }
-    
+     
     setIsSaving(true)
       const res = await fetch(`${process.env.NEXTAUTH_URL}/api/googlesheets?saram=${mil.milId}`, {
         method: 'PUT',
@@ -404,8 +376,9 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
    
 
       user.block_changes = milFromUserTab?.block_changes
+      
       //@ts-ignore
-      const isExpediente = user.is_expediente === 'FALSE'? user.is_expediente = false : user.is_expediente = true
+      const isExpediente = milFromUserTab.is_expediente ? milFromUserTab.is_expediente : false
 
 
 

@@ -83,7 +83,6 @@ export default async function handler(
           if(newRow.cpf === "") return
           return newRow
         }).filter(row=> row !== undefined)
-        console.log(dataFromSheets)
 
         const dataFromShiftsController = (await getDataFromTab("shiftsControl",doc))
 
