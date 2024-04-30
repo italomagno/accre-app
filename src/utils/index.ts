@@ -97,6 +97,59 @@ militaries.map(mil=>
   })
   return shiftsVector
 }
+export function handleCountShifts(militaries:Military[],necessaryShiftsPerDay:Shifts[],month:number,year:number){
+const qntPerShift: Record<string,Record<string,number>> = {}
+getDaysInMonthWithWeekends(month,year).forEach(day=>qntPerShift[day.day]= {})
+const days = Object.keys(qntPerShift)
+days.forEach(day=>{
+  necessaryShiftsPerDay.map(shift=>{
+    qntPerShift[day][shift.shiftName] = 0
+    return{
+      shiftId:shift.shiftId,
+      shiftName:shift.shiftName,
+      quantityOfMilitary:0
+    }
+  })
+})
+
+militaries.map(mil=>
+  mil.shiftsMil.forEach((shift,i)=>{
+    
+    const shiftToUse = shift.shift
+   
+    
+    if(shiftToUse){
+    const hasBar = shiftToUse.includes("/")
+
+    if(hasBar){
+      shiftToUse.split("/").forEach(shiftSplitted=>{
+        qntPerShift[i+1][shiftSplitted]++
+      })
+    }else{
+    qntPerShift[i+1][shiftToUse]++
+    } 
+
+    }
+  }))
+
+  const shiftsVector = days.map(day=>{
+
+ 
+    return necessaryShiftsPerDay.map(shift=>{
+
+      const newShift: Shifts = {
+        shiftId: shift.shiftId,
+        shiftName: shift.shiftName,
+        quantityOfMilitary: qntPerShift[day][shift.shiftName],
+      }
+
+      return newShift
+
+    })
+   
+  })
+  return shiftsVector
+}
 
 export const breadCumbItens:BreadCumbItem[] = [
   {

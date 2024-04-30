@@ -13,6 +13,7 @@ import { GetServerSideProps } from "next";
 import { getSession } from "next-auth/react";
 import { decrypt } from "@/utils/crypto";
 import { error } from "console";
+import { CalendarComponent } from "@/components/CalendarComponent";
 
 
 interface SetShiftProps{
@@ -30,7 +31,7 @@ interface SetShiftProps{
 
 export default function Lancamento({militaries,minShiftsPerDay,isExpediente,necessaryShiftsPerDay,necessaryShiftsPerDayPlusCombinations,month,year,user,block_changes,Abscences}:SetShiftProps) {
   const { toast } = createStandaloneToast();
-
+  const [mode, setMode]= useState("schedule")
   const [shifts, setShifts] = useState<Shifts[][]>([])
   const [isSaving,setIsSaving] = useState<boolean>(false)
 
@@ -153,7 +154,6 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
     const daysInMonth = getDaysInMonthWithWeekends(month,year).length
     while(mil.shiftsMil.length > daysInMonth){
       mil.shiftsMil.pop()
-      console.log(mil)
       setMil(mil)
       if(mil.shiftsMil.length === daysInMonth) break
     }
@@ -168,126 +168,147 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
 
 
   return (
-    <BodyTemplate
-    flexRef={flexRef2}
-    handleScroll={handleScrollFlex2}
-    necessaryShiftsPerDay={necessaryShiftsPerDay}
-    shifts={shifts}
-    year={year}
-    month={month}
-    >
-
-      <SectionContainer
-        sectionId={"SelectedMil"}
-        height={200}
+      <>
+      <Flex
+      w={"full"}
+      bg='blackAlpha.600'
       >
-        <HStack
-          spacing={4}
+        <Button onClick={()=>setMode("schedule")}>Modo calendário</Button>
+        <Button onClick={()=>setMode("")}>Modo tabela</Button>
+      </Flex>
+      {
+        mode == "schedule" ?
+      <SectionContainer
+      sectionId={"Calendar"}
+    height={"100vh"}
+
+    >
+      <CalendarComponent
+        Abscences={Abscences}
+        handleSelectedShift={handleSelectedShift}
+        necessaryShiftsPerDayPlusCombinations={necessaryShiftsPerDayPlusCombinations}
+      necessaryShiftsPerDay={necessaryShiftsPerDay}
+
+        mil={mil}
+        handleSaveShifts={handleSaveShifts}
+        isSaving={isSaving}
+        shifts={shifts}
+        
+        />
+    </SectionContainer>
+    :
+
+    <BodyTemplate
+      flexRef={flexRef2}
+      handleScroll={handleScrollFlex2}
+      necessaryShiftsPerDay={necessaryShiftsPerDay}
+      shifts={shifts}
+      year={year}
+      month={month}
+    >
+        <SectionContainer
+          sectionId={"SelectedMil"}
+          height={200}
         >
-          <Box>
-            <Box border={"1px"} bg={'yellow.300'} px={2} py={1} w={'48'} >
-              <Text textAlign={"center"}>
-                Militar
-              </Text>
-            </Box>
-            <Flex key={mil.milId} w={'48'} >
-              <Box border={"1px"} bg={'whiteAlpha.300'} px={2} py={1} w={"100%"}>
+          <HStack
+            spacing={4}
+          >
+            <Box>
+              <Box border={"1px"} bg={'yellow.300'} px={2} py={1} w={'48'}>
                 <Text textAlign={"center"}>
-                  {mil.milName}
+                  Militar
                 </Text>
               </Box>
-            </Flex>
-          </Box>
-
-          <Box
-          overflowX={"auto"}
-          ref={flexRef1}
-          onScroll={handleScrollFlex1}
-          sx={{
-            '&::-webkit-scrollbar': {
-              //width: '16px', // Ajuste para o tamanho desejado
-              height: '4px', // Para a barra de rolagem vertical
-            },
-            '&::-webkit-scrollbar-track': {
-              background: 'gray.200', // Cor de fundo da trilha da barra de rolagem
-            },
-            '&::-webkit-scrollbar-thumb': {
-              background: 'gray.500', // Cor da barra de rolagem
-              borderRadius: '8px', // Raio da borda para a barra de rolagem
-            },
-            '&::-webkit-scrollbar-thumb:hover': {
-              background: 'gray.600', // Cor da barra de rolagem ao passar o mouse
-            },
-          }}
-
-          >
-          <Box >
-          <ShiftDatesHeader 
-          month={month}
-          year={year}
-          />
-        </Box>
-          <>
-          
-        </>
-        {
-
-          
-              <Flex key={mil.milId } 
-              width={"fit-content"}
-              >
-                {mil.shiftsMil.map((shift,j)=>{
-                return(
-                  <ShiftPopOver
-                    key={j}
-                    handleSelectedShift={(shiftString) => {
-                      handleSelectedShift(j, shiftString);
-                    } }
-                     necessaryShiftsPerDayPlusCombinations={necessaryShiftsPerDayPlusCombinations}
-                     Abscences={Abscences}
-                     >
-                  <ShiftBox
-                   shiftMil={shift.shift?  shift.shift :  "  -  "}
-                   />
-                  </ShiftPopOver>
-
-                )
-                })}
+              <Flex key={mil.milId} w={'48'}>
+                <Box border={"1px"} bg={'whiteAlpha.300'} px={2} py={1} w={"100%"}>
+                  <Text textAlign={"center"}>
+                    {mil.milName}
+                  </Text>
+                </Box>
               </Flex>
-           
-        }
+            </Box>
 
-          </Box>
+            <Box
+              overflowX={"auto"}
+              ref={flexRef1}
+              onScroll={handleScrollFlex1}
+              sx={{
+                '&::-webkit-scrollbar': {
+                  //width: '16px', // Ajuste para o tamanho desejado
+                  height: '4px', // Para a barra de rolagem vertical
+                },
+                '&::-webkit-scrollbar-track': {
+                  background: 'gray.200', // Cor de fundo da trilha da barra de rolagem
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  background: 'gray.500', // Cor da barra de rolagem
+                  borderRadius: '8px', // Raio da borda para a barra de rolagem
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                  background: 'gray.600', // Cor da barra de rolagem ao passar o mouse
+                },
+              }}
+
+            >
+              <Box>
+                <ShiftDatesHeader
+                  month={month}
+                  year={year} />
+              </Box>
+              <>
+
+              </>
+              {<Flex key={mil.milId}
+                width={"fit-content"}
+              >
+                {mil.shiftsMil.map((shift, j) => {
+                  return (
+                    <ShiftPopOver
+                      key={j}
+                      handleSelectedShift={(shiftString) => {
+                        handleSelectedShift(j, shiftString);
+                      } }
+                      necessaryShiftsPerDayPlusCombinations={necessaryShiftsPerDayPlusCombinations}
+                      Abscences={Abscences}  shifts={shifts[j]} necessaryShiftsPerDay={necessaryShiftsPerDay}     >
+                      <ShiftBox
+                        shiftMil={shift.shift ? shift.shift : "  -  "} />
+                    </ShiftPopOver>
+
+                  );
+                })}
+              </Flex>}
+
+            </Box>
 
 
-        </HStack>
-        <Flex
-        w={"full"}
-        mt={6}
-        pos={"relative"}
-        >
-          <Flex w={"50%"}
-          justifyContent={"center"}
+          </HStack>
+          <Flex
+            w={"full"}
+            mt={6}
+            pos={"relative"}
           >
-          <Button
-           isLoading={isSaving}
-           loadingText='Salvando...'
-          colorScheme={"blue"} onClick={handleSaveShifts}>Salvar Proposição</Button>
+            <Flex w={"50%"}
+              justifyContent={"center"}
+            >
+              <Button
+                isLoading={isSaving}
+                loadingText='Salvando...'
+                colorScheme={"blue"} onClick={handleSaveShifts}>Salvar Proposição</Button>
+            </Flex>
+            <Flex w={"50%"}
+
+              justifyContent={"center"}
+            >
+              <Button as={Link} href="/" colorScheme={"blue"}>Retornar Sem Salvar</Button>
+            </Flex>
           </Flex>
-          <Flex w={"50%"}
-          
-          justifyContent={"center"}
-          >
-          <Button as={Link} href="/" colorScheme={"blue"}>Retornar Sem Salvar</Button>
-          </Flex>
 
-        </Flex>
+        </SectionContainer>
+      </BodyTemplate>
 
-      </SectionContainer>
+      }
 
-
-
-    </BodyTemplate>
+      </>
   )
 }
 

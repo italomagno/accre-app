@@ -77,7 +77,8 @@ export function ShiftsComponent({necessaryShiftsPerDay,reference,handleReference
             >
           {
             getDaysInMonthWithWeekends(month,year).map((day,i) =>{
-           return ( <ShiftColumn key={uuid() + i}
+           return ( 
+           <ShiftColumn key={uuid() + i}
             columnHeader={String(day.day)}
             shiftsPerDayArray={shifts[i]}
             necessaryShiftsPerDay={necessaryShiftsPerDay}
