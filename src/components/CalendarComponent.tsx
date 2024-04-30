@@ -29,13 +29,14 @@ type CalendarComponentProps = {
   isSaving: boolean
   shifts:Shifts[][]
   necessaryShiftsPerDay:Shifts[]
+  month:number
+  year:number
 
 
 }
 
-export function CalendarComponent({mil,necessaryShiftsPerDayPlusCombinations,handleSelectedShift,Abscences,handleSaveShifts,isSaving,shifts,necessaryShiftsPerDay}:CalendarComponentProps){
-  const month = 2
-  const year = 2024
+export function CalendarComponent({mil,necessaryShiftsPerDayPlusCombinations,handleSelectedShift,Abscences,handleSaveShifts,isSaving,shifts,necessaryShiftsPerDay,year,month}:CalendarComponentProps){
+
   const [days,setDays]=useState<Shifts[][]>([])
 
   useEffect(()=>{

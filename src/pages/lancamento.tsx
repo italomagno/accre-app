@@ -188,7 +188,8 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
         handleSelectedShift={handleSelectedShift}
         necessaryShiftsPerDayPlusCombinations={necessaryShiftsPerDayPlusCombinations}
       necessaryShiftsPerDay={necessaryShiftsPerDay}
-
+      year={year}
+      month={month}
         mil={mil}
         handleSaveShifts={handleSaveShifts}
         isSaving={isSaving}
