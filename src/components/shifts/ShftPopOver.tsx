@@ -48,14 +48,16 @@ export function ShiftPopOver({ children, handleSelectedShift, necessaryShiftsPer
         {children}
       </Button>
 
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <Modal isOpen={isOpen} onClose={onClose} isCentered
+      
+      >
         <ModalOverlay bg='blackAlpha.600' />
         <ModalContent
-          w={"50vw"}
+          w={"80vw"}
           my={"auto"}
           mx={"auto"}
           bg={"white"}
-
+          rounded={"base"}
         >
           <ModalHeader
 
@@ -77,16 +79,25 @@ export function ShiftPopOver({ children, handleSelectedShift, necessaryShiftsPer
               <Box> <ModalCloseButton /></Box>
             </Flex>
             <Flex
-            mt="2"
+            flexDir={"column"}
+            w={"full"}
+            alignItems={"center"}
+
             >
               {
-                necessaryShiftsPerDay.map(necessaryShiftsPerDay =>{
-                    const shiftFromTableOfShifts = shifts.find(shiftFromTableOfShifts=>shiftFromTableOfShifts.shiftName === necessaryShiftsPerDay.shiftName)
-                      if(!shiftFromTableOfShifts) return ""
-                    const isAvailable = shiftFromTableOfShifts.quantityOfMilitary < necessaryShiftsPerDay.quantityOfMilitary
-                    if(!isAvailable) return ""
+  chunkArray(necessaryShiftsPerDay,5).map((row,i) =>(
+                  <Flex
+                  key={i+"k"}
 
-                  return(
+            mt="2"
+                  >
+                 {row.map(necessaryShiftsPerDay=>{
+                      const shiftFromTableOfShifts = shifts.find(shiftFromTableOfShifts=>shiftFromTableOfShifts.shiftName === necessaryShiftsPerDay.shiftName)
+                      if(!shiftFromTableOfShifts) return ""
+                      const isAvailable = shiftFromTableOfShifts.quantityOfMilitary < necessaryShiftsPerDay.quantityOfMilitary
+                      if(!isAvailable) return ""
+                      
+                      return(
                     <VStack gap={1} key={necessaryShiftsPerDay.shiftId} mx={1} px={2} bg={"blackAlpha.50"} w={"fit-content"} rounded={"base"} >
                       <Box> 
                       {`Falta`}
@@ -96,7 +107,10 @@ export function ShiftPopOver({ children, handleSelectedShift, necessaryShiftsPer
                       </Box>
                     </VStack>
                   )
-                })
+
+                    })}
+                    </Flex>
+                ))
               }
 
             </Flex>
