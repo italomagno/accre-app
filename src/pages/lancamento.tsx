@@ -86,18 +86,20 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
             return
       }
       const isCorrectProposal = handleProposeShifts(isExpediente,minShiftsPerDay,mil)
-      if(isCorrectProposal === false){
+
+
+      //@ts-ignore
+      if(isCorrectProposal?.length>0){
         setIsSaving(true)
-        toast({
+        isCorrectProposal?.forEach(error=> toast({
           title: 'Seus turnos não foram salvos!',
-          description: "Os turnos propostos não cumprem os minimos estabelecidos pelos escalantes!",
+          description: `Os turnos propostos não cumprem os minimos estabelecidos pelos escalantes! ${error}`,
           status: 'warning',
           duration: 9000,
           isClosable: true,
-        })
-        setTimeout(() => {
-          setIsSaving(false)
-            }, 2000);
+        }))
+        setIsSaving(false)
+
       return 
       }
      

@@ -185,26 +185,45 @@ export function handleProposeShifts(isExpediente:boolean,minShiftsPerDay:Shifts[
     }
     )
 
-  for(var i = 0 ; i < mil.shiftsMil.length ;  i++){
-    const hasBar = mil.shiftsMil[i].shift?.includes("/")
-    if(hasBar){
-      const shiftSplitted = mil.shiftsMil[i].shift?.split("/")
 
+
+
+  for(var i = 0 ; i < mil.shiftsMil.length ;  i++){
+    var shift = mil.shiftsMil[i].shift
+
+    if (!shift) continue
+
+    const hasBar = shift.includes("/")
+    if(hasBar){
+      const shiftSplitted = shift.split("/")
       //@ts-ignore
-        shiftSplitted?.forEach(shift=> shiftObj[shift] ? shiftObj[shift] = shiftObj[shift] +1 : "")
+        shiftSplitted.forEach(shift=> shiftObj[shift] ? shiftObj[shift] = shiftObj[shift] +1 : shiftObj[shift])
 
     }else{
       //@ts-ignore
-      shiftObj[mil.shiftsMil[i].shift] ? shiftObj[mil.shiftsMil[i].shift] = shiftObj[mil.shiftsMil[i].shift] +1 : ""
+      shiftObj[shift] += 1
     }
   }
 
-      //@ts-ignore
-  const isLessThanNecessary = shiftsVector.map(shift=>shiftObj[shift] < minShiftObj[shift]).find(row=>row===true)
-  if(isLessThanNecessary === true){ 
-    return false
-  }else{
-    return true
-  }
+  const checkVector = shiftsVector.map(shift=>{
+    //@ts-ignore
+    const check = shiftObj[shift] < minShiftObj[shift]
+    if(check === false){
+      return {
+        check,
+        mensage: `Turno ${shift} ok.`
+      }
+     }else{
+    //@ts-ignore
+      const countLess = minShiftObj[shift] - shiftObj[shift] 
+      return {
+        check,
+        mensage: `${countLess > 1 ? "Faltam" : "Falta"} ${countLess} ${shift} para poder lançar a escala.`
+      }
+    }
+      }
+      ).filter(row=>row.check === true).map(error=>error.mensage)
+
+  return checkVector
 }
 }
