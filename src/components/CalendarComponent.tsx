@@ -1,5 +1,5 @@
 import { Military, Shifts } from "@/types";
-import { breadCumbItens, chunkArray, getDaysInMonthWithWeekends } from "@/utils";
+import { breadCumbItens, chunkArray, generateRandomKey, getDaysInMonthWithWeekends } from "@/utils";
 import {
   ChakraProvider,
   Table,
@@ -79,20 +79,20 @@ export function CalendarComponent({mil,necessaryShiftsPerDayPlusCombinations,han
       >
         <Thead >
           <Tr>  
-            { days.length >0 && days[0].map(dayOfWeek=>(
-              <Th key={dayOfWeek.shiftName}>{dayOfWeek.shiftName}</Th>
+            { days.length >0 && days[0].map((dayOfWeek,i)=>(
+              <Th key={generateRandomKey(i,6) + dayOfWeek.shiftName + i}>{dayOfWeek.shiftName}</Th>
             ))}
           </Tr>
         </Thead>
 
         <Tbody >
           {days.length >0 && days.map((day,i) => (
-            <Tr key={i+"i"}>
+            <Tr key={generateRandomKey(i,7)+"i"}>
               {day.map((day) => (
-                <Td key={day.shiftId} >
+                <Td key={generateRandomKey(i,9)+day.shiftId+day.shiftName+i} >
                     
                   <ShiftPopOver
-                    key={i+"j"}
+                    key={generateRandomKey(i,8)+"j"+JSON.stringify(day)}
                     shifts={shifts[Number(day.shiftId)-1]}
                     necessaryShiftsPerDay={necessaryShiftsPerDay}
                     handleSelectedShift={(shiftString) => {

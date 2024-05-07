@@ -2,7 +2,7 @@ import Head from 'next/head'
 import { Box, Flex, Text, HStack } from '@chakra-ui/react'
 import { SectionContainer } from '@/components/SectionContainer'
 import { DataFromSheet, Military, Shifts, ShiftsMil } from '@/types'
-import { getDaysInMonthWithWeekends, handleQntPerShift } from '@/utils'
+import { generateRandomKey, getDaysInMonthWithWeekends, handleQntPerShift } from '@/utils'
 import { v4 as uuid } from 'uuid'
 import { ShiftBox } from '@/components/shifts/ShiftBox'
 import { useEffect, useRef, useState } from 'react'
@@ -106,9 +106,9 @@ export default function Home({ militaries, necessaryShiftsPerDay,month ,year}: H
 
 
                 {
-                  militaries.map(mil => {
+                  militaries.map((mil,i) => {
                     return (
-                        <Flex key={mil.milId + uuid()} w={'48'} >
+                        <Flex key={generateRandomKey(i,8) + mil.milId + uuid()} w={'48'} >
                           <Box border={"1px"} bg={'whiteAlpha.300'} px={2} py={1} w={"100%"}>
                             <Text textAlign="center"
                               whiteSpace="nowrap"      // Mantém o texto em uma única linha
@@ -168,12 +168,12 @@ export default function Home({ militaries, necessaryShiftsPerDay,month ,year}: H
                       })
                     }
                     return (
-                      <Flex key={mil.milId + i}
+                      <Flex key={mil.milId + generateRandomKey(i,9)+"kkk"}
                       >
                         {mil.shiftsMil.map((shift, j) => {
 
                           return (
-                            <ShiftBox key={j + uuid()} shiftMil={shift.shift ? shift.shift : " - "} />
+                            <ShiftBox key={generateRandomKey(j,7)+"kk" + uuid()} shiftMil={shift.shift ? shift.shift : " - "} />
                           )
                         })}
                       </Flex>

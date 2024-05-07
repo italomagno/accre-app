@@ -1,6 +1,6 @@
 import { BodyTemplate } from "@/components/BodyTemplate";
 import { useEffect, useRef, useState } from "react";
-import { getDaysInMonthWithWeekends, handleProposeShifts, handleQntPerShift } from "@/utils";
+import { generateRandomKey, getDaysInMonthWithWeekends, handleProposeShifts, handleQntPerShift } from "@/utils";
 import { DataFromSheet, Military, Shifts, ShiftsMil } from "@/types";
 import { SectionContainer } from "@/components/SectionContainer";
 import { Box, HStack, Text, Flex, Button, useToast } from "@chakra-ui/react";
@@ -222,7 +222,7 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
                   Militar
                 </Text>
               </Box>
-              <Flex key={mil.milId} w={'48'}>
+              <Flex  w={'48'}>
                 <Box border={"1px"} bg={'whiteAlpha.300'} px={2} py={1} w={"100%"}>
                   <Text textAlign={"center"}>
                     {mil.milName}
@@ -261,13 +261,13 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
               <>
 
               </>
-              {<Flex key={mil.milId}
+              {<Flex
                 width={"fit-content"}
               >
                 {mil.shiftsMil.map((shift, j) => {
                   return (
                     <ShiftPopOver
-                      key={j}
+                      key={generateRandomKey(j,8)+"pop"}
                       handleSelectedShift={(shiftString) => {
                         handleSelectedShift(j, shiftString);
                       } }

@@ -227,3 +227,13 @@ export function handleProposeShifts(isExpediente:boolean,minShiftsPerDay:Shifts[
   return checkVector
 }
 }
+export const generateRandomKey = (i:number,length: number) => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let randomString = '';
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    randomString += characters.charAt(randomIndex);
+  }
+  const key = `component-${i}-${randomString}`;
+  return key;
+};

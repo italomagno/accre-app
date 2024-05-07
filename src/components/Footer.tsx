@@ -2,6 +2,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink } from "@chakra-ui/react";
 import { SectionContainer } from "./SectionContainer";
 import Link from "next/link";
 import { BreadCumbItem } from "@/types";
+import { generateRandomKey } from "@/utils";
 
 
 
@@ -26,9 +27,9 @@ export function Footer({ breadCumbs }: FooterProps) {
       w={{lg:"1200px"}}
       separator='-' justifyItems={'center'}>
         {
-          breadCumbs.map(breadCumb =>
+          breadCumbs.map((breadCumb,i) =>
             <BreadcrumbItem
-              key={breadCumb.href}
+              key={generateRandomKey(i,5)+breadCumb.href}
               isCurrentPage={breadCumb.isCurrentPage}  >
               <Link href={breadCumb.href} >{breadCumb.title}</Link>
             </BreadcrumbItem>

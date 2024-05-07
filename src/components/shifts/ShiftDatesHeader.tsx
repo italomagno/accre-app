@@ -1,4 +1,4 @@
-import { getDaysInMonthWithWeekends } from "@/utils"
+import { generateRandomKey, getDaysInMonthWithWeekends } from "@/utils"
 import { ShiftBox } from "./ShiftBox"
 import { Flex } from "@chakra-ui/react"
 
@@ -17,7 +17,7 @@ export function ShiftDatesHeader({month,year}:ShiftDatesHeaderProps){
              
           return(
             <ShiftBox
-            key={i}
+            key={generateRandomKey(i,8)+"hope"}
             bgColor={day.isWeekend? "purple" : "yellow.300"}
             shiftMil={String(day.day)}
             />

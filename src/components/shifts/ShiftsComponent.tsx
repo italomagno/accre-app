@@ -1,4 +1,4 @@
-import { getDaysInMonthWithWeekends } from "@/utils"
+import { generateRandomKey, getDaysInMonthWithWeekends } from "@/utils"
 import { HStack, Flex,Box,Text } from "@chakra-ui/react"
 import { SectionContainer } from "../SectionContainer"
 import { ShiftColumn } from "./ShiftColumn"
@@ -32,7 +32,7 @@ export function ShiftsComponent({necessaryShiftsPerDay,reference,handleReference
             {
               necessaryShiftsPerDay.map((shift,k) =>{
                 return(
-                <Flex key={k+uuid()} w={'48'} >
+                <Flex key={generateRandomKey(k,8)+uuid()} w={'48'} >
                   <Box border={"1px"} bg={'blue.300'} px={2} py={1} w={"50%"}>
                     <Text textAlign={"center"}>
                   {shift.shiftName}
@@ -78,7 +78,7 @@ export function ShiftsComponent({necessaryShiftsPerDay,reference,handleReference
           {
             getDaysInMonthWithWeekends(month,year).map((day,i) =>{
            return ( 
-           <ShiftColumn key={uuid() + i}
+           <ShiftColumn key={uuid() + generateRandomKey(i,5) + "'"}
             columnHeader={String(day.day)}
             shiftsPerDayArray={shifts[i]}
             necessaryShiftsPerDay={necessaryShiftsPerDay}

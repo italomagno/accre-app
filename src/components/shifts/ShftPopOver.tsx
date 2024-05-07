@@ -15,7 +15,7 @@ import {
   useDisclosure
 } from "@chakra-ui/react";
 import { ReactNode, useState } from "react";
-import { chunkArray } from "@/utils";
+import { chunkArray, generateRandomKey } from "@/utils";
 import { Shifts } from "@/types";
 
 interface ShiftPopOverProps {
@@ -87,18 +87,18 @@ export function ShiftPopOver({ children, handleSelectedShift, necessaryShiftsPer
               {
   chunkArray(necessaryShiftsPerDay,5).map((row,i) =>(
                   <Flex
-                  key={i+"k"}
+                  key={generateRandomKey(i,5)+"k"}
 
             mt="2"
                   >
-                 {row.map(necessaryShiftsPerDay=>{
+                 {row.map((necessaryShiftsPerDay,j)=>{
                       const shiftFromTableOfShifts = shifts.find(shiftFromTableOfShifts=>shiftFromTableOfShifts.shiftName === necessaryShiftsPerDay.shiftName)
                       if(!shiftFromTableOfShifts) return ""
                       const isAvailable = shiftFromTableOfShifts.quantityOfMilitary < necessaryShiftsPerDay.quantityOfMilitary
                       if(!isAvailable) return ""
                       
                       return(
-                    <VStack gap={1} key={necessaryShiftsPerDay.shiftId} mx={1} px={2} bg={"blackAlpha.50"} w={"fit-content"} rounded={"base"} >
+                    <VStack gap={1} key={generateRandomKey(j,9) + necessaryShiftsPerDay.shiftId} mx={1} px={2} bg={"blackAlpha.50"} w={"fit-content"} rounded={"base"} >
                       <Box> 
                       {`Falta`}
                       </Box>
@@ -140,9 +140,9 @@ export function ShiftPopOver({ children, handleSelectedShift, necessaryShiftsPer
                 selectedShiftType === "shift" && (
                   <VStack spacing={2} mt={3}>
                     {groupedShifts.map((group, index) => (
-                      <HStack key={index} spacing={2}>
+                      <HStack key={generateRandomKey(index,7)} spacing={2}>
                         {group.map((shift) => (
-                          <Button key={shift.shiftId} px={4}
+                          <Button key={generateRandomKey(index,8) + shift.shiftId} px={4}
                             onClick={() => handleShiftSelection(shift.shiftName)}>
                             {shift.shiftName}
                           </Button>
@@ -157,9 +157,9 @@ export function ShiftPopOver({ children, handleSelectedShift, necessaryShiftsPer
                 selectedShiftType === "absence" && (
                   <VStack spacing={2} mt={3}>
                     {groupedAbscences.map((group, index) => (
-                      <HStack key={index} spacing={2}>
+                      <HStack key={generateRandomKey(index,8)+"j"} spacing={2}>
                         {group.map((shift) => (
-                          <Button key={shift.shiftId}
+                          <Button key={generateRandomKey(index,8) + shift.shiftId + "k"}
                             onClick={() => handleShiftSelection(shift.shiftName)}>
                             {shift.shiftName}
                           </Button>
