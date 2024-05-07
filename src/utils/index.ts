@@ -194,11 +194,10 @@ export function handleProposeShifts(isExpediente:boolean,minShiftsPerDay:Shifts[
     if (!shift) continue
 
     const hasBar = shift.includes("/")
-    if(hasBar){
+    if(hasBar===true){
       const shiftSplitted = shift.split("/")
       //@ts-ignore
-        shiftSplitted.forEach(shift=> shiftObj[shift] ? shiftObj[shift] = shiftObj[shift] +1 : shiftObj[shift])
-
+        shiftSplitted.forEach(shift=> shiftObj[shift] +=1)
     }else{
       //@ts-ignore
       shiftObj[shift] += 1

@@ -51,6 +51,7 @@ export function CalendarComponent({mil,necessaryShiftsPerDayPlusCombinations,han
     })
     const daysChunked = chunkArray(daysOfTheMonth,7)
     setDays(daysChunked)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
   return (
     <Flex
