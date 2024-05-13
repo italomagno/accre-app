@@ -26,10 +26,11 @@ interface SetShiftProps{
   year:number,
   block_changes:boolean,
   isExpediente:boolean,
-  Abscences: Shifts[]
+  Abscences: Shifts[],
+  abscences_without_restrictions:Shifts[],
 }
 
-export default function Lancamento({militaries,minShiftsPerDay,isExpediente,necessaryShiftsPerDay,necessaryShiftsPerDayPlusCombinations,month,year,user,block_changes,Abscences}:SetShiftProps) {
+export default function Lancamento({abscences_without_restrictions,militaries,minShiftsPerDay,isExpediente,necessaryShiftsPerDay,necessaryShiftsPerDayPlusCombinations,month,year,user,block_changes,Abscences}:SetShiftProps) {
   const { toast } = createStandaloneToast();
   const [mode, setMode]= useState("schedule")
   const [shifts, setShifts] = useState<Shifts[][]>([])
@@ -54,7 +55,6 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
 
 
   async function handleSaveShifts(){
-
     if(block_changes === true){
     setIsSaving(true)
     toast({
@@ -85,8 +85,17 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
             }, 2000);
             return
       }
-      const isCorrectProposal = handleProposeShifts(isExpediente,minShiftsPerDay,mil)
+    const isToAddAnyway = mil.shiftsMil.map((shift,i)=>{
+      const oldShift = shift.shift
+      if(oldShift){
+        const hasInRetriction = abscences_without_restrictions.map(shift=>shift.shiftId).includes(oldShift)
+        return hasInRetriction
+      }else{
+        return undefined
+      }
+    }).find(shift=>shift===true)
 
+    const isCorrectProposal = handleProposeShifts(isExpediente,minShiftsPerDay,mil)
 
       //@ts-ignore
       if(isCorrectProposal?.length>0){
@@ -99,8 +108,8 @@ export default function Lancamento({militaries,minShiftsPerDay,isExpediente,nece
           isClosable: true,
         }))
         setIsSaving(false)
-
-      return 
+        if(isToAddAnyway !== true){ 
+          return}
       }
      
     setIsSaving(true)
@@ -393,7 +402,19 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
       }
       return newAbscence
     }).filter(shift=>shift.shiftId !== undefined)
+        
+        const abscences_without_restrictions: Shifts[] = shifts.map((shift:any)=>{
+          const newAbscences_without_restrictions: Shifts = {
+            quantityOfMilitary:0,
+            shiftId: shift.abscences_without_restrictions,
+            shiftName: shift.abscences_without_restrictions,
+            minQuantityOfMilitary: 0 
+          }
+          return newAbscences_without_restrictions
 
+        }).filter(shift=>shift.shiftId !== undefined)
+
+        
 
     const user = militaries.find(mil=> mil.milName === String(session.user?.name))
     
@@ -440,6 +461,7 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
               year:Number(shifts[0]["yearProposal"]),
         user,
         minShiftsPerDay,
+        abscences_without_restrictions,
         block_changes,
         Abscences,
         isExpediente
@@ -471,6 +493,7 @@ export const getServerSideProps: GetServerSideProps<SetShiftProps> = async (cont
         },
         block_changes:true,
         Abscences:[],
+        abscences_without_restrictions:[],
         minShiftsPerDay:[],
         isExpediente:false
       },

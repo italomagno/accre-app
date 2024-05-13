@@ -190,9 +190,7 @@ export function handleProposeShifts(isExpediente:boolean,minShiftsPerDay:Shifts[
 
   for(var i = 0 ; i < mil.shiftsMil.length ;  i++){
     var shift = mil.shiftsMil[i].shift
-
     if (!shift) continue
-
     const hasBar = shift.includes("/")
     if(hasBar===true){
       const shiftSplitted = shift.split("/")

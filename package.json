@@ -26,6 +26,7 @@
     "datatable": "^2.0.2",
     "eslint": "8.47.0",
     "eslint-config-next": "13.4.19",
+    "firebase": "^10.11.1",
     "formik": "^2.4.5",
     "framer-motion": "^10.16.2",
     "google-spreadsheet": "^4.0.2",
