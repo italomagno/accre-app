@@ -100,6 +100,8 @@ export default function Lancamento({abscences_without_restrictions,militaries,mi
       //@ts-ignore
       if(isCorrectProposal?.length>0){
         setIsSaving(true)
+        if(isToAddAnyway !== true){
+        setIsSaving(false)
         isCorrectProposal?.forEach(error=> toast({
           title: 'Seus turnos não foram salvos!',
           description: `Os turnos propostos não cumprem os minimos estabelecidos pelos escalantes! ${error}`,
@@ -108,9 +110,11 @@ export default function Lancamento({abscences_without_restrictions,militaries,mi
           isClosable: true,
         }))
         setIsSaving(false)
-        if(isToAddAnyway !== true){ 
-          return}
+          return
+        }
+        setIsSaving(false)
       }
+        
      
     setIsSaving(true)
       const res = await fetch(`${process.env.NEXTAUTH_URL}/api/googlesheets?saram=${mil.milId}`, {
