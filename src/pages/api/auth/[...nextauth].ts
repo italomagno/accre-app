@@ -76,6 +76,12 @@ export const authOptions:AuthOptions = {
       }
     })
   ],
+  pages:{
+    signIn: '/login',
+    signOut: '/login',
+    error: '/login',
+    verifyRequest: '/login',
+  },
   callbacks: {
     async redirect({ url, baseUrl }) {
       // Allows relative callback URLs

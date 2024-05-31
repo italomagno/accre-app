@@ -1,4 +1,5 @@
 import { BreadCumbItem, Military, Shifts } from "@/types";
+import { signOut } from "next-auth/react";
 
 
 export function getDaysInMonthWithWeekends(month: number, year: number) {
@@ -166,7 +167,9 @@ export const breadCumbItens:BreadCumbItem[] = [
   {
     href:`${process.env.NEXTAUTH_URL}/api/auth/signout`,
     isCurrentPage:false,
-    title:"Sair"
+    title:"Sair",
+    signOut:signOut
+
   },
 
 ]

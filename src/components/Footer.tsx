@@ -3,6 +3,7 @@ import { SectionContainer } from "./SectionContainer";
 import Link from "next/link";
 import { BreadCumbItem } from "@/types";
 import { generateRandomKey } from "@/utils";
+import styles from "@/components/login.module.css"
 
 
 
@@ -31,7 +32,13 @@ export function Footer({ breadCumbs }: FooterProps) {
             <BreadcrumbItem
               key={generateRandomKey(i,5)+breadCumb.href}
               isCurrentPage={breadCumb.isCurrentPage}  >
-              <Link href={breadCumb.href} >{breadCumb.title}</Link>
+                {
+                  breadCumb.signOut ?
+                  //@ts-ignore
+                  <div className={`${styles.pointer}`} onClick={()=>breadCumb.signOut()}>{breadCumb.title}</div>
+                  :
+              <Link href={breadCumb.href}>{breadCumb.title}</Link>
+                }
             </BreadcrumbItem>
             )
         }

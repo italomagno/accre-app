@@ -1,7 +1,6 @@
 import { Military, Shifts } from "@/types";
 import { breadCumbItens, chunkArray, generateRandomKey, getDaysInMonthWithWeekends } from "@/utils";
 import {
-  ChakraProvider,
   Table,
   Thead,
   Tr,

@@ -1,0 +1,105 @@
+/* Login.module.css */
+
+.loginContainer {
+  @apply tw-flex tw-min-h-[tw-100dvh];
+}
+
+.heroContainer {
+  @apply tw-relative tw-flex-1 tw-overflow-hidden tw-block sm:tw-hidden md:tw-block lg:tw-block xl:tw-block;
+}
+
+.heroImage {
+  @apply tw-h-full tw-w-full tw-object-cover tw-object-center;
+}
+
+.gradientOverlay {
+  @apply tw-absolute tw-inset-0 tw-bg-gradient-to-t tw-from-gray-950 tw-to-transparent;
+}
+
+.heroContent {
+  @apply tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center tw-px-4 tw-text-center;
+}
+
+.heroBox {
+  @apply tw-max-w-xl tw-space-y-4;
+}
+
+.heroTitle {
+  @apply tw-text-4xl tw-font-bold tw-tracking-tighter tw-text-zinc-300 tw-bg-clip-text tw-bg-black tw-border-collapse tw-shadow-inherit sm:tw-text-5xl md:tw-text-6xl;
+}
+
+.heroSubtitle {
+  @apply tw-text-lg tw-text-gray-300 md:tw-text-xl tw-bg-clip-text tw-bg-black tw-border-collapse;
+}
+
+.formContainer {
+  @apply tw-flex tw-flex-col tw-items-center tw-justify-center tw-px-4 tw-py-12 sm:tw-px-6 lg:tw-px-8;
+}
+
+.formBox1 {
+  @apply tw-w-full tw-max-w-md tw-space-y-4;
+}
+
+.formBox2 {
+  @apply tw-space-y-2 tw-text-center;
+}
+
+.formTitle {
+  @apply tw-text-3xl tw-font-bold;
+}
+
+.formSubtitle {
+  @apply tw-text-gray-500 dark:tw-text-gray-400;
+}
+
+.formStyle {
+  @apply tw-space-y-4;
+}
+
+.IconBox1 {
+  @apply tw-grid tw-grid-cols-2 tw-gap-2;
+}
+
+.IconStyles1 {
+  @apply tw-mr-2 tw-h-4 tw-w-4;
+}
+
+.Relative {
+  @apply tw-relative;
+}
+
+.div1 {
+  @apply tw-absolute tw-inset-0 tw-flex tw-items-center;
+}
+
+.borderW {
+  @apply tw-w-full tw-border-t;
+}
+
+.textBoxStyle {
+  @apply tw-relative tw-flex tw-justify-center tw-text-xs tw-uppercase;
+}
+
+.spamStyle {
+  @apply tw-bg-white tw-px-2 tw-text-gray-500 dark:tw-bg-gray-950 dark:tw-text-gray-400;
+}
+
+.Button {
+  @apply tw-border tw-w-full tw-mx-auto tw-bg-black tw-text-zinc-300 tw-py-2 tw-border-gray-200  hover:tw-bg-gray-100 hover:tw-text-gray-900 ;
+}
+
+.Label {
+  @apply tw-text-sm tw-font-medium tw-leading-none peer-disabled:tw-cursor-not-allowed peer-disabled:tw-opacity-70;
+}
+
+.Input {
+  @apply tw-flex tw-h-10 tw-w-full tw-rounded-md tw-border tw-border-gray-200 tw-bg-white tw-px-3 tw-py-2 tw-text-sm tw-ring-offset-white file:tw-border-0 file:tw-bg-transparent file:tw-text-sm file:tw-font-medium placeholder:tw-text-gray-500 focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-gray-950 focus-visible:tw-ring-offset-2 disabled:tw-cursor-not-allowed disabled:tw-opacity-50;
+}
+
+.pointer {
+  @apply tw-cursor-pointer;
+}
+
+.TextError {
+  @apply tw-pt-2 tw-text-red-500;
+}
