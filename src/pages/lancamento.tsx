@@ -14,6 +14,7 @@ import { getSession } from "next-auth/react";
 import { decrypt } from "@/utils/crypto";
 import { error } from "console";
 import { CalendarComponent } from "@/components/CalendarComponent";
+import styles from "@/components/login.module.css"
 
 
 interface SetShiftProps{
@@ -188,8 +189,8 @@ export default function Lancamento({abscences_without_restrictions,militaries,mi
       w={"full"}
       bg='blackAlpha.600'
       >
-        <Button onClick={()=>setMode("schedule")}>Modo calendário</Button>
-        <Button onClick={()=>setMode("")}>Modo tabela</Button>
+        <Button variant="solid" className={styles.buttonDefault} onClick={()=>setMode("schedule")}>Modo calendário</Button>
+        <Button variant="solid" className={styles.buttonDefault} onClick={()=>setMode("")}>Modo tabela</Button>
       </Flex>
       {
         mode == "schedule" ?
