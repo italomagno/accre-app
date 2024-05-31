@@ -1,3 +1,4 @@
+import "@/styles/globals.css"
 import { authOptions } from "@/pages/api/auth/[...nextauth]"
 export const metadata = {
   title: 'shiftApp',
