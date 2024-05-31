@@ -1,11 +1,17 @@
 /* Login.module.css */
 
 .loginContainer {
-  @apply tw-flex tw-min-h-[tw-100dvh];
+  @apply tw-flex tw-min-h-dvh;
+}
+.html{
+  @apply tw-h-full tw-m-0
+}
+.body{
+  @apply tw-m-0 tw-h-dvh
 }
 
 .heroContainer {
-  @apply tw-relative tw-flex-1 tw-overflow-hidden tw-block sm:tw-hidden md:tw-block lg:tw-block xl:tw-block;
+  @apply tw-relative tw-flex-1 tw-overflow-hidden tw-block sm:tw-hidden md:tw-block lg:tw-block xl:tw-block xl:tw-w-1/2;
 }
 
 .heroImage {
@@ -33,7 +39,7 @@
 }
 
 .formContainer {
-  @apply tw-flex tw-flex-col tw-items-center tw-justify-center tw-px-4 tw-py-12 sm:tw-px-6 lg:tw-px-8;
+  @apply tw-flex tw-flex-col tw-items-center tw-justify-center tw-px-4 tw-py-12 sm:tw-px-6 lg:tw-px-8 tw-w-1/2;
 }
 
 .formBox1 {
@@ -53,7 +59,7 @@
 }
 
 .formStyle {
-  @apply tw-space-y-4;
+  @apply tw-space-y-4 tw-items-center tw-flex tw-flex-col tw-justify-center;
 }
 
 .IconBox1 {
@@ -85,15 +91,15 @@
 }
 
 .Button {
-  @apply tw-border tw-w-full tw-mx-auto tw-bg-black tw-text-zinc-300 tw-py-2 tw-border-gray-200  hover:tw-bg-gray-100 hover:tw-text-gray-900 ;
+  @apply tw-border tw-w-full tw-py-5 tw-rounded-md tw-bg-black tw-text-zinc-300  tw-border-gray-200  hover:tw-bg-gray-100 hover:tw-text-gray-900 ;
 }
 
 .Label {
-  @apply tw-text-sm tw-font-medium tw-leading-none peer-disabled:tw-cursor-not-allowed peer-disabled:tw-opacity-70;
+  @apply tw-text-sm tw-w-full tw-font-medium tw-leading-none peer-disabled:tw-cursor-not-allowed peer-disabled:tw-opacity-70;
 }
 
 .Input {
-  @apply tw-flex tw-h-10 tw-w-full tw-rounded-md tw-border tw-border-gray-200 tw-bg-white tw-px-3 tw-py-2 tw-text-sm tw-ring-offset-white file:tw-border-0 file:tw-bg-transparent file:tw-text-sm file:tw-font-medium placeholder:tw-text-gray-500 focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-gray-950 focus-visible:tw-ring-offset-2 disabled:tw-cursor-not-allowed disabled:tw-opacity-50;
+  @apply tw-flex tw-h-10 tw-w-full tw-max-w-md  tw-rounded-md tw-border tw-border-gray-200 tw-bg-white tw-px-3 tw-py-2 tw-text-sm tw-ring-offset-white file:tw-border-0 file:tw-bg-transparent file:tw-text-sm file:tw-font-medium placeholder:tw-text-gray-500 focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-gray-950 focus-visible:tw-ring-offset-2 disabled:tw-cursor-not-allowed disabled:tw-opacity-50;
 }
 
 .pointer {
@@ -104,5 +110,6 @@
   @apply tw-pt-2 tw-text-red-500;
 }
 .buttonDefault{
-  @apply tw-bg-gray-900 tw-text-gray-50 hover:tw-bg-gray-900/90 hover:tw-text-gray-50 dark:tw-bg-gray-50 dark:tw-text-gray-900
+  @apply tw-bg-gray-900 tw-text-gray-50  hover:tw-bg-gray-900/90 hover:tw-text-gray-50 dark:tw-bg-gray-50 dark:tw-text-gray-900
 }
+

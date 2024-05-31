@@ -25,7 +25,7 @@ export function LoginComponent({children}:LoginComponentProps) {
               aspectRatio: "1200/800",
               objectFit: "cover",
             }}
-            width="1200"
+            width="600"
           />
           <div className={`${styles.gradientOverlay}`} />
           <div className={`${styles.heroContent}`}>

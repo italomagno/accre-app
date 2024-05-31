@@ -1,10 +1,10 @@
-import "@/styles/globals.css"
 import { authOptions } from "@/pages/api/auth/[...nextauth]"
 export const metadata = {
   title: 'shiftApp',
   description: 'Generated using Next.js',
   
 }
+import styles from "@/components/login.module.css"
 import { Syne, Comfortaa } from 'next/font/google'
 import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation"
@@ -27,8 +27,8 @@ export default async function RootLayout({
   if(session)redirect("/lancamento")
   
   return (
-    <html lang="en">
-      <body className={`${syne.className} ${comfortaa.className}`}>{children}</body>
+    <html lang="pt" style={{ width:"100%",height:"fit-content", margin:"auto"}}>
+      <body className={`${comfortaa.className} ${syne.className} ${styles.body}`} >{children}</body>
     </html>
   )
 }

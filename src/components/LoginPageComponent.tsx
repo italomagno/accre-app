@@ -87,15 +87,11 @@ function handleFinishSubmit(){
   return (
     <LoginComponent>
         <form onSubmit={handleSubmit(onSubmit)} className={`${styles.formStyle}`}>
-        <div>
                 <Label className={`${styles.Label}`} htmlFor="CPF">CPF</Label>
                 <Input className={`${styles.Input}`}   type="text" {...register('CPF',{onChange(event) {
                   return handleChange(event, applyCpfMask)
                 },})}/>
             {errors.CPF && <div className={styles.TextError}>{errors.CPF.message as string}</div>}
-
-          </div>
-        <div>
 
                 <Label className={`${styles.Label}`} htmlFor="saram">saram</Label>
                 <Input className={`${styles.Input}`}   type="text"  {...register('saram',{onChange(event) {
@@ -103,7 +99,6 @@ function handleFinishSubmit(){
                 },})}/>
             {errors.saram && <div className={styles.TextError}>{errors.saram.message as string}</div>}
 
-              </div>
 
               <Button className={styles.Button} type="submit" disabled={isSubmitted}>
                   {isSubmitted ? "carregando ... " : "Login"}
