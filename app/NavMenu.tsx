@@ -1,6 +1,7 @@
 import { DashboardLogo } from "@/components/icons";
 import { UsersIcon, SettingsIcon } from "lucide-react";
 import { NavItem } from "./nav-item";
+import { HiOutlineRocketLaunch } from "react-icons/hi2";
 
 export function NavMenu() {
     return (
@@ -9,6 +10,10 @@ export function NavMenu() {
                   <NavItem href="/">
                     <DashboardLogo className="h-4 w-4" />
                     Escala Geral
+                  </NavItem>
+                  <NavItem href="/lancamento">
+                    <HiOutlineRocketLaunch  className="h-4 w-4" />
+                    Lançamento
                   </NavItem>
                   <NavItem href="/users">
                     <UsersIcon className="h-4 w-4" />

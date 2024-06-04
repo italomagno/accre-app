@@ -1,8 +1,8 @@
-import { CustomTable } from '../customTable';
-import { Search } from '../search';
+
+import { CalendarComponent } from 'app/calendarComponent';
 import { getUsers } from 'lib/db';
 
-export default async function IndexPage({
+export default async function lancamento({
   searchParams
 }: {
   searchParams: { q: string; offset: string };
@@ -14,12 +14,12 @@ export default async function IndexPage({
   return (
     <main className="flex flex-1 flex-col p-4 md:p-6">
       <div className="flex items-center mb-8">
-        <h1 className="font-semibold text-lg md:text-2xl">Militares</h1>
+        <h1 className="font-semibold text-lg md:text-2xl">Lancamento</h1>
       </div>
-      <div className="w-full mb-4">
-        <Search value={searchParams.q} />
+      <div>
+        <CalendarComponent />
       </div>
-      <CustomTable values={users} offset={newOffset} />
+     
     </main>
   );
 }

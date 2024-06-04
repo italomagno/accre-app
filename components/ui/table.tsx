@@ -81,17 +81,38 @@ const TableHead = React.forwardRef<
 ))
 TableHead.displayName = "TableHead"
 
-const TableCell = React.forwardRef<
-  HTMLTableCellElement,
-  React.TdHTMLAttributes<HTMLTableCellElement>
->(({ className, ...props }, ref) => (
-  <td
-    ref={ref}
-    className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)}
-    {...props}
-  />
-))
-TableCell.displayName = "TableCell"
+interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElement> {
+  variant?: 'lessThanNecessary' | 'moreThanNecessary' | 'hasNecessary' ;
+}
+
+const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
+  ({ className, variant = 'default', ...props }, ref) => {
+    const baseStyles = 'p-4 align-middle';
+    let variantStyles = '';
+
+    switch (variant) {
+      case 'lessThanNecessary':
+        variantStyles = 'bg-red-200';
+        break;
+      case 'moreThanNecessary':
+        variantStyles = 'bg-blue-200';
+        break;
+      case 'hasNecessary':
+        variantStyles = 'bg-green-200';
+        break;
+      default:
+        break;
+    }
+
+    return (
+      <td
+        ref={ref}
+        className={cn(baseStyles, variantStyles, className)}
+        {...props}
+      />
+    );
+  }
+);
 
 const TableCaption = React.forwardRef<
   HTMLTableCaptionElement,

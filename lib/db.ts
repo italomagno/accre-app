@@ -19,10 +19,12 @@ export async function getDataFromTab(tabName: string, limit: number = 10) {
   await doc.loadInfo();
 
   const leadsSheets = doc.sheetsByTitle
-  const leadsSheet = Object.keys(leadsSheets).includes(tabName) ? leadsSheets[tabName] : null
-  if (!leadsSheet) {
+  const leadsSheetKey= Object.keys(leadsSheets).find(key=>key.toLowerCase().includes(tabName.toLowerCase()))
+  if (!leadsSheetKey) {
     return []
   }
+  
+  const leadsSheet = leadsSheets[leadsSheetKey]
 
   const rows = (await leadsSheet.getRows({ limit: limit })) // Add limit parameter to getRows() method
   const headers = leadsSheet.headerValues;
@@ -55,10 +57,81 @@ export async function getUsers(search: string, offset: number) {
   const newOffset = users.length >= offset + 20 ? offset + 20 : null;
   return { users, newOffset };
 }
-export async function getShifts(search: string, offset: number) {
-  const shiftsOld = await getDataFromTab("escala-6/2024", offset);
-  const shifts = shiftsOld.map((shift: any) => {if(!shift){return "-"}else{return shift}});
+export async function getShiftsControlers() {
+  const shiftsControllers = await getDataFromTab("shiftsControl", 1000);
+  return shiftsControllers;
+}
+  
 
+export async function getShiftsCounter() {
+  const shiftCounter: { [key: string]: number } = {};
+  const dataFromControllers = (await getShiftsControlers())
+  const shiftsKeys = dataFromControllers.map((controler) => {
+    shiftCounter[controler.shiftName] = 0;
+    return controler.shiftName;
+  }).filter((shift)=>shift!=="");
+  const { shifts: ShiftsMil } = await getShiftsMil("", 1000);
+
+  const filteredShifts = ShiftsMil.map(shift=>{
+    delete shift["name"]
+    delete shift["saram"]
+    return shift
+  })
+  const newVector: { day: number, [key: string]: number }[] = [];
+  for (var col = 1; col <= Object.keys(filteredShifts[0]).length; col++) {
+    const newArrayObj: { day: number, [key: string]: number } = { day: col, ...shiftCounter };
+    newVector.push(newArrayObj);
+    filteredShifts.forEach(row => {
+      const shift = row[col];
+      if (!shift) return;
+      const hasBar = shift.includes("/");
+      if (hasBar) {
+        const shifts = shift.split("/");
+        shifts.forEach((s: any) => {
+          const hasKeyOfThisShift = shiftsKeys.includes(s);
+          if (hasKeyOfThisShift)
+            newVector[col - 1][s] += 1;
+        });
+      } else {
+        const hasKeyOfThisShift = shiftsKeys.includes(shift);
+        if (hasKeyOfThisShift)
+          newVector[col - 1][shift] += 1;
+      }
+    });
+  }
+
+    const vectorToReturn = shiftsKeys.map((shift,i) => {
+      //@ts-ignore
+      const days: {day:number,color:string}[] = newVector.map((day, i) => {
+        const newDay: { day: number, [key: string]: number } = day;
+        return newDay[shift]
+      });
+      return { turno: shift,quantidade:dataFromControllers[i].quantityOfMilitary, ...days };
+    });
+    const requiredShifts:{[x:string]:string} = {}
+    dataFromControllers.forEach(controls=>(requiredShifts[controls.shiftName]=controls.quantityOfMilitary))
+    const vectorToReturnWithColors = vectorToReturn.map((shift:any)=>{
+      const keys = Object.keys(shift).filter(key=>key!=="turno")
+      const necessary = requiredShifts[shift.turno]
+      const days = keys.map((key,i)=>{
+        var color 
+        if(shift[key] > necessary) color = "moreThanNecessary"
+        if(shift[key] < necessary)color = "lessThanNecessary"
+        if(shift[key] == necessary) color = "hasNecessary"
+        return {value:shift[key],color}
+      })
+      return {turno:shift.turno,quantidade:necessary,...days}
+    })
+
+return {vectorToReturn,vectorToReturnWithColors}
+
+
+}
+
+
+export async function getShiftsMil(search: string, offset: number) {
+  const shiftsOld = await getDataFromTab("escala", offset);
+  const shifts = shiftsOld.map((shift: any) => {if(!shift){return "-"}else{return shift}});
   if (search) {
     const filteredShifts = shifts.filter((shift: any) => {
       return Object.keys(shift).some((key) =>
@@ -75,50 +148,3 @@ export async function getShifts(search: string, offset: number) {
 
 
 
-
-/* 
-
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
-import { pgTable, serial, varchar } from 'drizzle-orm/pg-core';
-import { eq, ilike } from 'drizzle-orm';
-
-export const db = ""
-
-const users = pgTable('users', {
-  id: serial('id').primaryKey(),
-  name: varchar('name', { length: 50 }),
-  username: varchar('username', { length: 50 }),
-  email: varchar('email', { length: 50 })
-});
-
-export type SelectUser = typeof users.$inferSelect;
-
-export async function getUsers(
-  search: string,
-  offset: number
-): Promise<{
-  users: SelectUser[];
-  newOffset: number | null;
-}> {
-  // Always search the full table, not per page
-  if (search) {
-
-    return {
-      user,
-    };
-  }
-
-  if (offset === null) {
-    return { users: [], newOffset: null };
-  }
-
-  const moreUsers = await db.select().from(users).limit(20).offset(offset);
-  const newOffset = moreUsers.length >= 20 ? offset + 20 : null;
-  return { users: moreUsers, newOffset };
-}
-
-export async function deleteUserById(id: number) {
-  await db.delete(users).where(eq(users.id, id));
-}
- */
