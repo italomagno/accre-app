@@ -10,7 +10,7 @@ export default async function lancamento({
   const search = searchParams.q ?? '';
   const offset = searchParams.offset ?? 0;
  
-  const {users,newOffset} = await getUsers(search, Number(offset)) 
+  //const {users,newOffset} = await getUsers(search, Number(offset)) 
   return (
     <main className="flex flex-1 flex-col p-4 md:p-6">
       <div className="flex items-center mb-8">

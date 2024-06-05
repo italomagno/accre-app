@@ -22,10 +22,29 @@ export function CalendarComponent() {
 
     return (
         <>
-
-
             <Calendar
                 mode='default'
+                styles={{
+                    months: { 
+                    fontSize: "1.5rem",
+                    lineHeight: "2rem"
+                    },
+                    row: { 
+                    
+                    fontSize: "1.5rem",
+                    lineHeight: "2rem",
+                        
+                },
+                    head_cell: { width: "70px",
+                    height: "50px",
+                    fontSize: "1.5rem",
+                    lineHeight: "2rem"
+                     },
+                    cell: { width: "70px",
+                    height: "75px",
+
+                     },
+                }}
                 onDayKeyPress={ ()=><DialogTrigger >
                   </DialogTrigger>}
                 onDayClick={handleDayClick}
