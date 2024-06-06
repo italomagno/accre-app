@@ -42,7 +42,6 @@ export async function getDataFromTab(tabName: string, limit: number = 10) {
   return dataFromSheets
 }
 
-
 export async function getUsers(search: string, offset: number) {
   const users = await getDataFromTab("users", offset);
   if (search) {
@@ -61,6 +60,7 @@ export async function getShiftsControlers() {
   const shiftsControllers = await getDataFromTab("shiftsControl", 1000);
   return shiftsControllers;
 }
+
   
 
 export async function getShiftsCounter() {

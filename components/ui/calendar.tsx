@@ -6,17 +6,21 @@ import { DayPicker } from "react-day-picker"
 import { pt } from 'date-fns/locale';
 
 import { cn } from "@/lib/utils"
-import { Button, buttonVariants } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./dialog";
+import { buttonVariants } from "@/components/ui/button"
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker>
+export type CalendarProps = React.ComponentProps<typeof DayPicker> 
 
 function Calendar({
   className,
   classNames,
+
   showOutsideDays = true,
   ...props
 }: CalendarProps) {
+
+ 
+
+  
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -59,30 +63,6 @@ function Calendar({
       components={{
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
-        Day: ({...props }) =>
-        <Dialog>
-          {
-          props.date.getMonth() === props.displayMonth.getMonth()?
-            <div className="flex  flex-col gap-3 text-2xl">
-              <div>
-              <DialogTrigger asChild><Button variant={"ghost"}>{props.date.getDate()}</Button></DialogTrigger>
-            </div>
-              <div>
-                -
-              </div>
-            </div>:
-            <Button disabled={true} variant={"ghost"}>{props.date.getDate()}</Button>
-          }
-          <DialogContent>
-              <DialogHeader>
-                  <DialogTitle>Are you absolutely sure?</DialogTitle>
-                  <DialogDescription>
-                      This action cannot be undone. This will permanently delete your account
-                      and remove your data from our servers.
-                  </DialogDescription>
-              </DialogHeader>
-          </DialogContent>
-      </Dialog> // Modified line
       }}
       {...props}
     />
