@@ -6,15 +6,15 @@ import { optionsProps } from 'types';
 export default async function lancamento({
     searchParams
 }: {
-    searchParams: { [key: number]: string };
+    searchParams: { turnos: string; };
 }) {
 
     const controllers = await getShiftsControlers()
     const [abscences, shiftsNames, combinations] = controllers.reduce(
         (acc, controller) => {
-            acc[0].push(controller.abscences);
-            acc[1].push(controller.shiftName);
-            acc[2].push(controller.combinations);
+            controller.abscences && acc[0].push(controller.abscences);
+            controller.shiftName && acc[1].push(controller.shiftName);
+            controller.combinations && acc[2].push(controller.combinations);
             return acc;
         },
         [[], [], []]
@@ -26,6 +26,10 @@ export default async function lancamento({
         { optionTitle: "Afastamentos", optionValues: abscences }
     ]
 
+    console.log(searchParams)
+    const proposal = searchParams.turnos 
+
+
    
 
     return (
@@ -35,7 +39,7 @@ export default async function lancamento({
             </div>
             <div className='mx-auto'>
                 <CalendarComponent
-                    proposal={searchParams && ''}
+                    proposal={proposal}
                     options={options}
                 
                 />
