@@ -1,5 +1,6 @@
 
-import { getShiftsControlers } from '@/lib/db';
+import { getShiftsControlers, getShiftsCounter } from '@/lib/db';
+import { getShiftsStatus } from '@/lib/utils';
 import { CalendarComponent } from 'app/calendarComponent';
 import { optionsProps } from 'types';
 
@@ -9,7 +10,7 @@ export default async function lancamento({
     searchParams: { turnos: string; };
 }) {
 
-    const controllers = await getShiftsControlers()
+    const [controllers, { vectorToReturn, vectorToReturnWithColors }] = await Promise.all([ getShiftsControlers(), getShiftsCounter()])
     const [abscences, shiftsNames, combinations] = controllers.reduce(
         (acc, controller) => {
             controller.abscences && acc[0].push(controller.abscences);
@@ -19,17 +20,29 @@ export default async function lancamento({
         },
         [[], [], []]
     );
-
+    const shiftsStatusData = vectorToReturn.map(shift => {
+        return {
+          shiftName: shift.turno,
+          quantityOfMilitary: shift.quantidade,
+          //@ts-ignore
+          days: shift.days
+        };
+      });
+    const shifts = shiftsStatusData.flatMap(shift => 
+        shift.days.map((day: { day: any; }) => ({
+          shiftName: shift.shiftName,
+          quantityOfMilitary: shift.quantityOfMilitary,
+          day: day.day
+        }))
+      );
+    const shiftsStatus = getShiftsStatus(shifts, shiftsStatusData);
     
     const options:optionsProps[] = [
         { optionTitle: "Turnos", optionValues: [...shiftsNames, ...combinations] },
         { optionTitle: "Afastamentos", optionValues: abscences }
     ]
 
-    console.log(searchParams)
     const proposal = searchParams.turnos 
-
-
    
 
     return (
@@ -41,6 +54,7 @@ export default async function lancamento({
                 <CalendarComponent
                     proposal={proposal}
                     options={options}
+                    shiftsStatus={shiftsStatus}
                 
                 />
             </div>

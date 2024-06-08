@@ -2,10 +2,10 @@
 import { Calendar } from '@/components/ui/calendar';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { optionsProps } from 'types';
+import { ShiftsStatusProps, optionsProps } from 'types';
 import { DialogComponent } from './DialogComponent';
 
-export function CalendarComponent({ proposal, options }: { proposal: string, options: optionsProps[] }) {
+export function CalendarComponent({ proposal, options,shiftsStatus }: { proposal: string, options: optionsProps[],shiftsStatus:ShiftsStatusProps }) {
 
     function handleProposal(DayOfMonth: number) {
         const proposals = proposal ? proposal.split(",") : [];
@@ -59,6 +59,7 @@ export function CalendarComponent({ proposal, options }: { proposal: string, opt
                                                 day={props.date.getDate().toString()}
                                                 proposal={proposal}
                                                 options={options}
+                                                shiftsStatus={shiftsStatus}
                                             />
                                     </Dialog>
                                 </div>

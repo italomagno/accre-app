@@ -127,7 +127,6 @@ export async function getShiftsCounter() {
 
 return {vectorToReturn,vectorToReturnWithColors}
 
-
 }
 
 
@@ -146,6 +145,9 @@ export async function getShiftsMil(search: string, offset: number) {
   const newOffset = shifts.length >= offset + 20 ? offset + 20 : null;
   return { shifts, newOffset };
 }
+
+
+
 
 
 
