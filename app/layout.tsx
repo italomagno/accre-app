@@ -2,12 +2,12 @@ import './globals.css';
 
 import Link from 'next/link';
 import { Analytics } from '@vercel/analytics/react';
-import { DashboardLogo, Logo, SettingsIcon, UsersIcon, VercelLogo } from 'components/icons';
+import {Logo} from 'components/icons';
 import { User } from './user';
-import { NavItem } from './nav-item';
-import { SheetTrigger } from '@/components/ui/sheet';
-import { TriggerButton } from './TriggerButton';
+
 import { NavMenu } from './NavMenu';
+import { ThemeProvider } from '@/components/theme/theme-provider';
+import { TriggerButton } from './TriggerButton';
 
 export const metadata = {
   title: 'Next.js App Router + NextAuth + Tailwind CSS',
@@ -21,8 +21,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full bg-gray-50">
+    <html lang="pt" className="h-full bg-gray-50">
       <body className='w-fit'>
+  <ThemeProvider
+  attribute="class"
+  defaultTheme="system"
+  enableSystem
+  disableTransitionOnChange
+>
         <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
           <div className="hidden border-r bg-gray-100/40 lg:block dark:bg-gray-800/40">
             <div className="flex h-full max-h-screen flex-col gap-2">
@@ -31,7 +37,8 @@ export default function RootLayout({
                   className="flex items-center gap-2 font-semibold"
                   href="/"
                 >
-                  <Logo />
+                  <Logo
+                  />
                   <span className="">Shift-App</span>
                 </Link>
               </div>
@@ -39,17 +46,25 @@ export default function RootLayout({
             </div>
           </div>
           <div className="flex flex-col">
-            <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40 justify-between lg:justify-end">
-              <TriggerButton 
+            <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40 justify-between lg:justify-end ">
+            <div className='flex gap-2 items-center justify-center lg:hidden'>                    
+                    <Logo />
+                    <span className="">Shift-App</span></div>
+            <div>  
+              <User />
+            <TriggerButton 
               children={
                 <NavMenu/>
               }
               />
-              <User />
+            </div>
+            
+            
             </header>
             {children}
           </div>
         </div>
+          </ThemeProvider>
         <Analytics />
       </body>
     </html>

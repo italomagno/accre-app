@@ -14,13 +14,21 @@ interface DialogComponentProps {
 }
 
 export function DialogComponent({ day, options, proposal }: DialogComponentProps): JSX.Element {
+    const roposalSplitted = proposal? proposal.split(",") : []
+    const proposalModified = roposalSplitted
+        .filter(proposalShift => {
+            const [dayFromProposal] = proposalShift.split(":");
+            return dayFromProposal !== day;
+        })
+        .join(",");
+
     return (
         <DialogContent>
             <DialogHeader>
                 <DialogTitle>Faça sua escolha de proposição para o dia {day}</DialogTitle>
                 <DialogDescription>
                     <NavigationMenu>
-                        <NavigationMenuList className="flex w-full py-5">
+                        <NavigationMenuList className="flex w-full py-5 gap-4">
                             {options.map((option) => (
                                 <NavigationMenuItem className="w-1/2 mx-auto" key={generateUniqueKey()}>
                                     <NavigationMenuTrigger asChild>
@@ -28,7 +36,7 @@ export function DialogComponent({ day, options, proposal }: DialogComponentProps
                                     </NavigationMenuTrigger>
                                     <NavigationMenuContent>
                                         {option.optionValues.map((optionValue) => (
-                                            <Link key={generateUniqueKey()} href={`?turnos=${proposal?`${proposal},`:proposal}${day}:${optionValue}`} passHref>
+                                            <Link key={generateUniqueKey()} href={`?turnos=${proposalModified?`${proposalModified},`:proposalModified}${day}:${optionValue}`.replace("undefined","")} passHref>
                                                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>{optionValue}</NavigationMenuLink>
                                             </Link>
                                         ))}

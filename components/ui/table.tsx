@@ -1,6 +1,7 @@
 import * as React from "react"
 
 import { cn } from "lib/utils"
+import { useTheme } from "next-themes"
 
 const Table = React.forwardRef<
   HTMLTableElement,
@@ -89,16 +90,17 @@ const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
   ({ className, variant = 'default', ...props }, ref) => {
     const baseStyles = 'p-4 align-middle';
     let variantStyles = '';
+    const {theme} = useTheme()
 
     switch (variant) {
       case 'lessThanNecessary':
-        variantStyles = 'bg-red-200';
+        variantStyles = theme === 'light' ? 'bg-red-200' : 'bg-red-700';
         break;
       case 'moreThanNecessary':
-        variantStyles = 'bg-blue-200';
+        variantStyles = theme === 'light' ? 'bg-blue-200' : 'bg-blue-700';
         break;
       case 'hasNecessary':
-        variantStyles = 'bg-green-200';
+        variantStyles = theme === 'light' ? 'bg-green-200' : 'bg-green-700';
         break;
       default:
         break;
