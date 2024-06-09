@@ -24,16 +24,20 @@ export default async function lancamento({
         return {
           shiftName: shift.turno,
           quantityOfMilitary: shift.quantidade,
-          //@ts-ignore
-          days: shift.days
+          days: Object.keys(shift).filter((key,i)=>{
+            const isNan = parseInt(key)
+            return isNaN(isNan) !== true
+          }).map(day=>parseInt(day)+1)
         };
       });
-    const shifts = shiftsStatusData.flatMap(shift => 
-        shift.days.map((day: { day: any; }) => ({
-          shiftName: shift.shiftName,
-          quantityOfMilitary: shift.quantityOfMilitary,
-          day: day.day
-        }))
+      //console.log(controllers)
+      const shifts = shiftsStatusData.flatMap(shift =>{ 
+        const controller = controllers.find(controllerRow=>controllerRow.shiftName === shift.shiftName )
+        return shift.days.map((day) => ({
+          shiftName: controller.shiftName,
+          quantityOfMilitary: controller.quantityOfMilitary,
+          day: day
+        }))}
       );
     const shiftsStatus = getShiftsStatus(shifts, shiftsStatusData);
     

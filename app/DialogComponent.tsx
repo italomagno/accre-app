@@ -1,12 +1,12 @@
-import { DialogHeader } from "@/components/ui/dialog";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import { filterShiftsByDay, generateUniqueKey } from "@/lib/utils";
-import { DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Separator } from "@radix-ui/react-dropdown-menu";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink } from "@radix-ui/react-navigation-menu";
 import Link from "next/link";
+import { Button } from "react-day-picker";
 import { ShiftsStatusProps, optionsProps } from "types";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 
 interface DialogComponentProps {
     day: string;
@@ -29,14 +29,37 @@ export function DialogComponent({ day, options, proposal,shiftsStatus }: DialogC
     return (
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>Faça sua escolha de proposição para o dia {day}</DialogTitle>
+                <DialogTitle className="mb-4">Faça sua escolha de proposição para o dia {day}</DialogTitle>
                 <DialogDescription>
+                    <div className="w-full grid grid-cols-2 gap-2">
+                    <Card className="w-full">
+                    <CardHeader>
+                        <CardTitle>Turnos Completos</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-wrap gap-3">
+                    {filteredShifts.completeShifts.map(shift=><div className="flex flex-col" key={generateUniqueKey()}> <div>{`${shift.quantity > 1 ?`Existem ${shift.quantity}` : `Existe ${shift.quantity}` }`}</div>
+                        <div>{shift.shiftName}</div> </div>)}
 
-                    <Separator className="my-6"/>
-                    {filteredShifts.availableShifts.map(shift=><div key={generateUniqueKey()}>{shift.shiftName}/{shift.missingQuantity}</div>)}
+  </CardContent>
+ 
+</Card>
 
+<Card className="w-full">
+                    <CardHeader>
+                        <CardTitle>Turnos Incompletos</CardTitle>
+                    </CardHeader>
+                        <CardContent className="flex flex-wrap">
+                        {filteredShifts.availableShifts.map(shift=><div className="flex flex-col gap-2" key={generateUniqueKey()}> <div>{`${shift.missingQuantity > 1 ?`Faltam ${shift.missingQuantity}` : `Falta ${shift.missingQuantity}` }`}</div>
+                        <div>{shift.shiftName}</div> </div>)}
+  </CardContent>
+ 
+</Card>
+
+
+                    </div>
                     <Separator className="my-6"/>
-                    {filteredShifts.completeShifts.map(shift=><div key={generateUniqueKey()}>{shift.shiftName}/{shift.quantity}</div>)}
+                    
+
 
                     <NavigationMenu>
                         <NavigationMenuList className="flex w-full py-5 gap-4">

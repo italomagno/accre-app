@@ -64,7 +64,7 @@ export async function getShiftsControlers() {
 
 
   
-
+//verificar o counter para aamnhã
 export async function getShiftsCounter() {
   const shiftCounter: { [key: string]: number } = {};
   const dataFromControllers = (await getShiftsControlers())

@@ -1,5 +1,5 @@
 import { ToggleThemeProviderButton } from '@/components/theme/toggleThemeProviderButton';
-import { Button } from 'components/ui/button';
+import { Button } from '@/components/ui/button';
 import { auth, signIn, signOut } from 'lib/auth';
 import Image from 'next/image';
 import { NavMenu } from './NavMenu';

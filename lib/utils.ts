@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from "clsx"
+import { Console } from "console";
 import { twMerge } from "tailwind-merge"
 import { ShiftsStatusProps, availableShifts, completeShifts } from "types";
 
@@ -17,14 +18,13 @@ export function handleSearchParamsForLaunches(searchParams: string) {
 export const getShiftsStatus = (row: any[], shifts: any[]) => {
   const availableShifts: { id: any; shiftName: any; missingQuantity: number; day: any; }[] = [];
   const completeShifts: { id: any; shiftName: any; quantity: any; day: any; }[] = [];
-
+  console.log("row: ",row,"Shifts: ",shifts)
   row.forEach((necessaryShiftsPerDay: { shiftName: any; quantityOfMilitary: number; shiftId: any; day: any; }, j: any) => {
     const shiftFromTableOfShifts = shifts.find(
       (shiftFromTableOfShifts: { shiftName: any; }) => shiftFromTableOfShifts.shiftName === necessaryShiftsPerDay.shiftName
     );
 
     if (!shiftFromTableOfShifts) return;
-
     const isAvailable = shiftFromTableOfShifts.quantityOfMilitary < necessaryShiftsPerDay.quantityOfMilitary;
     const isComplete = shiftFromTableOfShifts.quantityOfMilitary >= necessaryShiftsPerDay.quantityOfMilitary;
 

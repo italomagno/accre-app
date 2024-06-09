@@ -6,8 +6,8 @@ import {Logo} from 'components/icons';
 import { User } from './user';
 
 import { NavMenu } from './NavMenu';
-import { ThemeProvider } from '@/components/theme/theme-provider';
 import { TriggerButton } from './TriggerButton';
+import { ThemeProvider } from '@/components/theme/theme-provider';
 
 export const metadata = {
   title: 'Next.js App Router + NextAuth + Tailwind CSS',

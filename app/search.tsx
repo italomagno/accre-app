@@ -1,6 +1,6 @@
 'use client';
 
-import { Input } from 'components/ui/input';
+import { Input } from '@/components/ui/input';
 import { SearchIcon, Spinner } from 'components/icons';
 import { useRouter } from 'next/navigation';
 import { useTransition, useEffect, useRef, useState } from 'react';

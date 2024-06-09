@@ -7,8 +7,8 @@ import {
   TableCell,
   TableBody,
   Table
-} from 'components/ui/table';
-import { Button } from 'components/ui/button';
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { generateUniqueKey } from 'lib/utils';
 
