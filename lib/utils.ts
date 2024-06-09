@@ -49,7 +49,7 @@ export const getShiftsStatus = (row: any[], shifts: any[]) => {
 
   return { availableShifts, completeShifts };
 };
-export function filterShiftsByDay(shiftsStatus:{availableShifts:availableShifts,completeShifts:completeShifts}, day:number) {
+export function filterShiftsByDay(shiftsStatus:{availableShifts:availableShifts[],completeShifts:completeShifts[]}, day:number) {
   const { availableShifts, completeShifts } = shiftsStatus;
   const filteredAvailableShifts = availableShifts.filter((shift: { day: number; }) => shift.day === day);
   const filteredCompleteShifts = completeShifts.filter((shift: { day: number; }) => shift.day === day);

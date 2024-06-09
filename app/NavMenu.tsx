@@ -2,10 +2,11 @@ import { DashboardLogo } from "@/components/icons";
 import { UsersIcon, SettingsIcon } from "lucide-react";
 import { NavItem } from "./nav-item";
 import { HiOutlineRocketLaunch } from "react-icons/hi2";
+import { ToggleThemeProviderButton } from "@/components/theme/toggleThemeProviderButton";
 
 export function NavMenu() {
     return (
-        <div className="flex-1 overflow-auto py-2">
+        <div className="relative flex-1 overflow-auto py-2">
                 <nav className="grid items-start px-4 text-sm font-medium">
                   <NavItem href="/">
                     <DashboardLogo className="h-4 w-4" />
@@ -24,6 +25,9 @@ export function NavMenu() {
                     Settings
                   </NavItem>
                 </nav>
+                <div className="absolute bottom-5 left-5 block lg:block md:block  sm:hidden">
+                <ToggleThemeProviderButton />
+                </div>
               </div>
     )
 }

@@ -1,6 +1,10 @@
+import { completeShifts } from 'types';
+import { availableShifts } from './../types';
 import 'server-only';
 import { google } from "googleapis";
 import { GoogleSpreadsheet } from "google-spreadsheet";
+import { ShiftsStatusProps } from 'types';
+import { generateUniqueKey } from './utils';
 
 
 
@@ -111,21 +115,59 @@ export async function getShiftsCounter() {
       return { turno: shift,quantidade:dataFromControllers[i].quantityOfMilitary, ...days };
     });
     const requiredShifts:{[x:string]:string} = {}
+    const shiftStatus:ShiftsStatusProps = {
+      availableShifts:[],
+      completeShifts:[]
+    }
+
     dataFromControllers.forEach(controls=>(requiredShifts[controls.shiftName]=controls.quantityOfMilitary))
     const vectorToReturnWithColors = vectorToReturn.map((shift:any)=>{
       const keys = Object.keys(shift).filter(key=>key!=="turno")
       const necessary = requiredShifts[shift.turno]
       const days = keys.map((key,i)=>{
+        let availableShifts:availableShifts | null = null
+        let completeShifts:completeShifts | null = null
         var color 
-        if(shift[key] > necessary) color = "moreThanNecessary"
-        if(shift[key] < necessary)color = "lessThanNecessary"
-        if(shift[key] == necessary) color = "hasNecessary"
+        if(shift[key] > necessary){ 
+        
+          color = "moreThanNecessary"
+          completeShifts = {
+            day:i+1,
+            id:generateUniqueKey(),
+            quantity: shift[key],
+            shiftName: shift["turno"]
+          }
+        }
+        if(shift[key] < necessary){ 
+          color = "lessThanNecessary"
+          availableShifts = {
+            day:i+1,
+            id:generateUniqueKey(),
+            missingQuantity: parseFloat(necessary) - shift[key],
+            shiftName: shift["turno"]
+          }
+        }
+        if(shift[key] == necessary){
+          color = "hasNecessary"
+          completeShifts = {
+            day:i+1,
+            id:generateUniqueKey(),
+            quantity: shift[key],
+            shiftName: shift["turno"]
+          }
+        }
+
+        if(availableShifts)
+        shiftStatus.availableShifts.push(availableShifts)
+        if(completeShifts)
+        shiftStatus.completeShifts.push(completeShifts)
+
         return {value:shift[key],color}
       })
       return {turno:shift.turno,quantidade:necessary,...days}
     })
 
-return {vectorToReturn,vectorToReturnWithColors}
+return {vectorToReturn,vectorToReturnWithColors,shiftStatus}
 
 }
 

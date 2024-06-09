@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
@@ -27,7 +28,7 @@ export function DialogComponent({ day, options, proposal,shiftsStatus }: DialogC
         const filteredShifts = filterShiftsByDay(shiftsStatus, Number(day));
 
     return (
-        <DialogContent>
+        <DialogContent className="max-h-dvh overflow-y-auto">
             <DialogHeader>
                 <DialogTitle className="mb-4">Faça sua escolha de proposição para o dia {day}</DialogTitle>
                 <DialogDescription>
@@ -37,8 +38,8 @@ export function DialogComponent({ day, options, proposal,shiftsStatus }: DialogC
                         <CardTitle>Turnos Completos</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-wrap gap-3">
-                    {filteredShifts.completeShifts.map(shift=><div className="flex flex-col" key={generateUniqueKey()}> <div>{`${shift.quantity > 1 ?`Existem ${shift.quantity}` : `Existe ${shift.quantity}` }`}</div>
-                        <div>{shift.shiftName}</div> </div>)}
+                    {filteredShifts.completeShifts.map(shift=><Badge className="flex flex-col text-xl" key={generateUniqueKey()}> {/* <div>{`${shift.quantity > 1 ?`Existem ${shift.quantity}` : `Existe ${shift.quantity}` }`}</div> */}
+                        <div>{`${shift.shiftName} (${shift.quantity})`}</div> </Badge>)}
 
   </CardContent>
  
@@ -48,9 +49,9 @@ export function DialogComponent({ day, options, proposal,shiftsStatus }: DialogC
                     <CardHeader>
                         <CardTitle>Turnos Incompletos</CardTitle>
                     </CardHeader>
-                        <CardContent className="flex flex-wrap">
-                        {filteredShifts.availableShifts.map(shift=><div className="flex flex-col gap-2" key={generateUniqueKey()}> <div>{`${shift.missingQuantity > 1 ?`Faltam ${shift.missingQuantity}` : `Falta ${shift.missingQuantity}` }`}</div>
-                        <div>{shift.shiftName}</div> </div>)}
+                        <CardContent className="flex flex-wrap gap-3">
+                        {filteredShifts.availableShifts.map(shift=><Badge className="flex flex-col gap-2 text-xl" key={generateUniqueKey()}> {/* <div>{`${shift.missingQuantity > 1 ?`Faltam ${shift.missingQuantity}` : `Falta ${shift.missingQuantity}` }`}</div> */}
+                        <div>{`${shift.shiftName} (${shift.missingQuantity})`}</div> </Badge>)}
   </CardContent>
  
 </Card>

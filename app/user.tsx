@@ -1,9 +1,7 @@
-import { ToggleThemeProviderButton } from '@/components/theme/toggleThemeProviderButton';
-import { Button } from '@/components/ui/button';
-import { auth, signIn, signOut } from 'lib/auth';
+
+import { auth, signOut } from 'lib/auth';
 import Image from 'next/image';
-import { NavMenu } from './NavMenu';
-import { TriggerButton } from './TriggerButton';
+import { Button } from '@/components/ui/button';
 
 export async function User() {
   const session = await auth();
@@ -12,7 +10,6 @@ export async function User() {
   if (!user) {
     return (
       <div className="flex items-center gap-4">
-      <ToggleThemeProviderButton />
      {/*  <form
         action={async () => {
           'use server';
@@ -28,7 +25,6 @@ export async function User() {
 
   return (
     <div className="flex items-center gap-4">
-      <ToggleThemeProviderButton />
       <form
         action={async () => {
           'use server';

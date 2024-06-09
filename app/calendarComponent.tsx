@@ -1,9 +1,9 @@
 'use client'
 import { Calendar } from '@/components/ui/calendar';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { ShiftsStatusProps, optionsProps } from 'types';
 import { DialogComponent } from './DialogComponent';
+import { Button } from '@/components/ui/button';
 
 export function CalendarComponent({ proposal, options,shiftsStatus }: { proposal: string, options: optionsProps[],shiftsStatus:ShiftsStatusProps }) {
 

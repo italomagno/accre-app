@@ -42,7 +42,7 @@ export default function RootLayout({
                   <span className="">Shift-App</span>
                 </Link>
               </div>
-              <NavMenu/>
+              <NavMenu/ >
             </div>
           </div>
           <div className="flex flex-col">
@@ -58,8 +58,6 @@ export default function RootLayout({
               }
               />
             </div>
-            
-            
             </header>
             {children}
           </div>
