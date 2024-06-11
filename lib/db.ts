@@ -181,10 +181,10 @@ export async function getShiftsMil(search: string, offset: number) {
         shift[key] && shift[key].toLowerCase().includes(search.toLowerCase())
       );
     });
-    const newOffset = null;
+    const newOffset = shifts.length <= offset + 10  ? offset + 10  : shifts.length -1
     return { shifts: filteredShifts, newOffset };
   }
-  const newOffset = shifts.length >= offset + 20 ? offset + 20 : null;
+  const newOffset = shifts.length >= offset + 10 ? offset + 10 : offset + 10
   return { shifts, newOffset };
 }
 

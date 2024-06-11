@@ -2,7 +2,7 @@ import { DashboardLogo } from "@/components/icons";
 import { UsersIcon, SettingsIcon } from "lucide-react";
 import { NavItem } from "./nav-item";
 import { HiOutlineRocketLaunch } from "react-icons/hi2";
-import { ToggleThemeProviderButton } from "@/components/theme/toggleThemeProviderButton";
+
 
 export function NavMenu() {
     return (
@@ -25,9 +25,7 @@ export function NavMenu() {
                     Settings
                   </NavItem>
                 </nav>
-                <div className="absolute bottom-5 left-5 block lg:block md:block  sm:hidden">
-                <ToggleThemeProviderButton />
-                </div>
+                
               </div>
     )
 }

@@ -1,23 +1,17 @@
 'use client';
 
-import {
-  TableHead,
-  TableRow,
-  TableHeader,
-  TableCell,
-  TableBody,
-  Table
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
+
 import { useRouter } from 'next/navigation';
 import { generateUniqueKey } from 'lib/utils';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 
 export function CustomTable({
   values,
   offset
 }: {
   values: any[];
-  offset: number | null;
+  offset: number;
 }) {
   const router = useRouter();
   function onClick() {
@@ -27,13 +21,13 @@ export function CustomTable({
   const keys = Object.keys(values[0]);
   const hasName = keys.map(key=>key.toLocaleLowerCase()).includes('name' || 'nome');
   const hasNumber = keys.some(key=>!isNaN(parseFloat(key)))
-
-
+  
   return (
     <>
+
       <form className="border shadow-sm rounded-lg">
-        <div className='max-h-dvh overflow-auto'>
-          <Table >
+        <div className=' '>
+          <Table className="overflow-auto max-h-dvh" >
             <TableHeader>
               <TableRow>
                 
@@ -65,18 +59,29 @@ export function CustomTable({
               ))}
             </TableBody>
           </Table>
+        
         </div>
       </form>
-
       {offset !== null && (
+        <div className='flex gap-4'>
+          
         <Button
           className="mt-4 w-40"
           variant="secondary"
           onClick={() => onClick()}
-        >
-          Next Page
+          >
+          Próxima Página
         </Button>
+        <Button
+          className="mt-4 w-40"
+          variant="secondary"
+          onClick={() => offset >= values.length? router.replace(`/?offset=${10}`) : router.replace(`/?offset=${values.length}`)}
+          >
+          {offset >= values.length? "Comprimir tudo" : "Carregar tudo"}
+        </Button>
+          </div>
       )}
+     
     </>
   );
 }

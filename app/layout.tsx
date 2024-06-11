@@ -8,6 +8,7 @@ import { User } from './user';
 import { NavMenu } from './NavMenu';
 import { TriggerButton } from './TriggerButton';
 import { ThemeProvider } from '@/components/theme/theme-provider';
+import { ToggleThemeProviderButton } from '@/components/theme/toggleThemeProviderButton';
 
 export const metadata = {
   title: 'Next.js App Router + NextAuth + Tailwind CSS',
@@ -21,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt" className="h-full bg-gray-50">
-      <body className='w-fit'>
+    <html lang="pt" >
+      <body className='w-full'>
   <ThemeProvider
   attribute="class"
   defaultTheme="system"
@@ -42,22 +43,36 @@ export default function RootLayout({
                   <span className="">Shift-App</span>
                 </Link>
               </div>
-              <NavMenu/ >
+              <NavMenu/>
             </div>
           </div>
           <div className="flex flex-col">
-            <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40 justify-between lg:justify-end ">
+            {/* 
+            class="fixed  z-50      bg-zinc-900/0 "
+            */}
+            <header>
+              <div className=" flex h-14 lg:h-[60px] duration-200 inset-x-0  border-b top-0 items-center gap-4   px-6 dark:bg-gray-800/40 justify-between lg:justify-end ">
+              <div className='hidden lg:block'>
+              <ToggleThemeProviderButton />
+              </div>
+
             <div className='flex gap-2 items-center justify-center lg:hidden'>                    
                     <Logo />
                     <span className="">Shift-App</span></div>
-            <div>  
+            <div> 
+              <div className='flex gap-2 items-center justify-center lg:hidden'>
+
               <User />
+              <ToggleThemeProviderButton />
+
             <TriggerButton 
               children={
                 <NavMenu/>
               }
               />
+                </div> 
             </div>
+              </div>
             </header>
             {children}
           </div>

@@ -10,7 +10,7 @@ export default async function IndexPage({
   searchParams: { q: string; offset: string };
 }) {
   const search = searchParams.q ?? '';
-  const offset = searchParams.offset ?? 0;
+  const offset = searchParams.offset ?? 10;
  
   const {shifts:oldShifts,newOffset} = await getShiftsMil(search, Number(offset))
   const shifts = oldShifts.map((shift: any) => {
@@ -28,21 +28,26 @@ export default async function IndexPage({
 
 
   return (
-    <main>
+    <main className='flex flex-col p-4 md:p-6'>
        <div className="flex flex-1 flex-col p-4 md:p-6">
         <div className="flex items-center mb-8">
         <h1 className="font-semibold text-lg md:text-2xl">Turnos</h1>
       </div>
+      <div className='w-screen'>
         <ShiftsTable values={counter} valuesWithColors={vectorToReturnWithColors} offset={100} />
       </div>
-      <div className="flex flex-1 flex-col p-4 md:p-6">
+      </div>
+      <div className="flex flex-1 flex-col p-4 md:p-6 sw-screen">
         <div className="flex items-center mb-8">
-        <h1 className="font-semibold text-lg md:text-2xl">Escala geral de Julho</h1>
+        <h1 className="font-semibold text-lg md:text-2xl">Escala geral de Julho </h1>
       </div>
       <div className="w-full mb-4">
         <Search value={searchParams.q} />
       </div>
+      <div className='w-screen'>
+
       <CustomTable values={shifts} offset={newOffset} />
+      </div>
       </div>
      
       
