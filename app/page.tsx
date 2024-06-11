@@ -3,6 +3,7 @@ import { getShiftsCounter, getShiftsMil } from 'lib/db';
 import { Search } from './search';
 import { CustomTable } from './customTable';
 import { ShiftsTable } from './shiftsTable';
+import { LayoutComponent } from './LayoutComponent';
 
 export default async function IndexPage({
   searchParams
@@ -27,7 +28,8 @@ export default async function IndexPage({
   const {vectorToReturn:counter, vectorToReturnWithColors} = await getShiftsCounter()
 
 
-  return (
+    return (
+      <LayoutComponent>
     <main className='flex flex-col p-4 md:p-6'>
        <div className="flex flex-1 flex-col p-4 md:p-6">
         <div className="flex items-center mb-8">
@@ -49,8 +51,8 @@ export default async function IndexPage({
       <CustomTable values={shifts} offset={newOffset} />
       </div>
       </div>
-     
-      
     </main>
+    </LayoutComponent>
+
   );
 }

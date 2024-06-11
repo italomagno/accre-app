@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { generateUniqueKey } from 'lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 
 export function CustomTable({
   values,
@@ -18,10 +19,20 @@ export function CustomTable({
     router.replace(`/?offset=${offset}`);
   }
 
+  const [isAllDataLoaded,setIsAllDataLoaded] = useState(false)
   const keys = Object.keys(values[0]);
   const hasName = keys.map(key=>key.toLocaleLowerCase()).includes('name' || 'nome');
   const hasNumber = keys.some(key=>!isNaN(parseFloat(key)))
-  
+  function handleLoadData(){
+    if(isAllDataLoaded){ 
+      setIsAllDataLoaded(false)
+      router.replace(`/?offset=${10}`) }
+      else{
+      setIsAllDataLoaded(true)
+      router.replace(`/?offset=${1000}`)
+    }
+  }
+
   return (
     <>
 
@@ -75,9 +86,9 @@ export function CustomTable({
         <Button
           className="mt-4 w-40"
           variant="secondary"
-          onClick={() => offset >= values.length? router.replace(`/?offset=${10}`) : router.replace(`/?offset=${values.length}`)}
+          onClick={() => handleLoadData()}
           >
-          {offset >= values.length? "Comprimir tudo" : "Carregar tudo"}
+          {isAllDataLoaded? "Comprimir tudo" : "Carregar tudo"}
         </Button>
           </div>
       )}

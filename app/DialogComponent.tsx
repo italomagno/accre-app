@@ -1,12 +1,13 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 import { filterShiftsByDay, generateUniqueKey } from "@/lib/utils";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink } from "@radix-ui/react-navigation-menu";
 import Link from "next/link";
-import { Button } from "react-day-picker";
+
 import { ShiftsStatusProps, optionsProps } from "types";
 
 interface DialogComponentProps {
@@ -69,7 +70,7 @@ export function DialogComponent({ day, options, proposal,shiftsStatus }: DialogC
                                     <NavigationMenuTrigger asChild>
                                         <Button className="w-full mx-auto">{option.optionTitle}</Button>
                                     </NavigationMenuTrigger>
-                                    <NavigationMenuContent>
+                                    <NavigationMenuContent className="mt-2">
                                         {option.optionValues.map((optionValue) => (
                                             <Link key={generateUniqueKey()} href={`?turnos=${proposalModified?`${proposalModified},`:proposalModified}${day}:${optionValue}`.replace("undefined","")} passHref>
                                                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>{optionValue}</NavigationMenuLink>
@@ -81,10 +82,15 @@ export function DialogComponent({ day, options, proposal,shiftsStatus }: DialogC
                         </NavigationMenuList>
                     </NavigationMenu>
                     <Separator className="my-6"/>
-
-
                 </DialogDescription>
             </DialogHeader>
+            <DialogFooter>
+                <Button variant="destructive"className="w-full">
+                <Link className="w-full" href={`?turnos=${proposalModified?`${proposalModified},` :proposalModified}`.replace("undefined","")}><span>Apagar proposição do dia {day}</span></Link>
+                </Button>
+
+            </DialogFooter>
+
         </DialogContent>
     );
 }

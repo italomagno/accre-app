@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 export type  optionsProps ={
     optionTitle: string;
     optionValues: string[];
@@ -19,3 +21,8 @@ export type ShiftsStatusProps = {
     availableShifts:availableShifts[],
     completeShifts: completeShifts[]
 }
+export const schema = z.object({
+    CPF: z.string().min(11, 'O CPF deve conter 11 dígitos.').refine(value => value !== '', 'CPF é obrigatório.'),
+    saram: z.string().min(7, 'O Saram deve conter 7 dígitos.').refine(value => value !== '', 'Saram é obrigatório.'),
+  });
+  export type FormValues = z.infer<typeof schema>;
