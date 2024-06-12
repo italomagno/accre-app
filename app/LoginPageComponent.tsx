@@ -1,13 +1,12 @@
 "use client";
 
 
-import { signIn } from 'next-auth/react';
 
 import image from "../assets/loginImage.jpg"
 import { UseFormSetValue, useForm} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
-import { FormValues, schema } from 'types';
+import { FormValues, LoginSchema } from '../types';
 import { Input } from '@/components/ui/input';
 
 import { useState } from 'react';
@@ -16,7 +15,7 @@ import Link from 'next/link';
 import { useToast } from '@/components/ui/use-toast';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import Image from 'next/image';
-
+import { signInOnServerActions } from "./login/_actions";
 
 
 export function LoginPageComponent() {
@@ -40,40 +39,36 @@ export function LoginPageComponent() {
       .replace(/(-\d)\d+?$/, '$1');
   }
    async function handleSubmitForm (values: FormValues){
-    setIsSubmitted(true);
-    const cpf = values.CPF
-    const saram = values.saram
-    const response = await signIn('credentials', { cpf, saram,redirect:false })
-    if (response && response.ok === false) {
+  
+   /*  if (response && response.ok === false) {
       toast({
       title: 'Pau no login!',
       description: "Verifique seu CPF ou Saram.",
-      status: 'error',
       duration: 3000,
-      isClosable: true,
+
       })
     }
     if (response && response.ok === true) {
       toast({
       title: 'Login realizado com sucesso!',
       description: "Aguarde redirecionamento.",
-      status: 'success',
       duration: 3000,
-      isClosable: true,
+
       })
         router.push('/lancamento')
     }
    
     setTimeout(() => {
       handleFinishSubmit()
-    }, 3000);
+    }, 3000); */
 }
 function handleFinishSubmit(){
   setIsSubmitted(false);
 }
 
-  const onSubmit = (data:FormValues) => {
-    handleSubmitForm(data);
+  const onSubmit = async(data:FormValues) => {
+    const result = await signInOnServerActions(data);
+    console.log(result)
   };
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -91,8 +86,9 @@ function handleFinishSubmit(){
       shouldDirty: true,
     });
   };
+  //TypeError: Cannot read properties of undefined (reading 'parseAsync')
   const form = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(LoginSchema),
     defaultValues: {
       CPF: "",
       saram: "",

@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
-import { Console } from "console";
+
 import { twMerge } from "tailwind-merge"
-import { ShiftsStatusProps, availableShifts, completeShifts } from "types";
+import {  availableShifts, completeShifts } from "types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -54,4 +54,7 @@ export function filterShiftsByDay(shiftsStatus:{availableShifts:availableShifts[
   const filteredAvailableShifts = availableShifts.filter((shift: { day: number; }) => shift.day === day);
   const filteredCompleteShifts = completeShifts.filter((shift: { day: number; }) => shift.day === day);
   return { availableShifts: filteredAvailableShifts, completeShifts: filteredCompleteShifts };
+}
+
+export function saltAndHashCredential(credential: string) {
 }

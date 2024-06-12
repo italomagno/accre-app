@@ -1,5 +1,5 @@
 
-import { auth, signOut } from 'lib/auth';
+import { auth, signOut } from 'app/auth';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 

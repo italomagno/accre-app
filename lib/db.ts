@@ -1,6 +1,6 @@
+'use server'
 import { completeShifts } from 'types';
 import { availableShifts } from './../types';
-import 'server-only';
 import { google } from "googleapis";
 import { GoogleSpreadsheet } from "google-spreadsheet";
 import { ShiftsStatusProps } from 'types';
@@ -68,7 +68,6 @@ export async function getShiftsControlers() {
 
 
   
-//verificar o counter para aamnhã
 export async function getShiftsCounter() {
   const shiftCounter: { [key: string]: number } = {};
   const dataFromControllers = (await getShiftsControlers())

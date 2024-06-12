@@ -10,7 +10,8 @@ export default async function IndexPage({
   const search = searchParams.q ?? '';
   const offset = searchParams.offset ?? 0;
  
-  const {users,newOffset} = await getUsers(search, Number(offset)) 
+  const {users,newOffset:oldOffset} = await getUsers(search, Number(offset))
+  const Offset = oldOffset ?? 10;
   return (
     <main className="flex flex-1 flex-col p-4 md:p-6">
       <div className="flex items-center mb-8">
@@ -19,7 +20,7 @@ export default async function IndexPage({
       <div className="w-full mb-4">
         <Search value={searchParams.q} />
       </div>
-      <CustomTable values={users} offset={newOffset} />
+      <CustomTable values={users} offset={Offset} />
     </main>
   );
 }
