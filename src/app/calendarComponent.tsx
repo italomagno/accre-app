@@ -52,7 +52,7 @@ export function CalendarComponent({ proposal, options,shiftsStatus }: { proposal
                                     <Dialog>
                                         <DialogTrigger asChild>
                                             <Button variant={"ghost"}>
-                                                {handleProposal(props.date.getDate())}
+                                                {handleProposal(props.date.getDate())? handleProposal(props.date.getDate()): "-"}
                                             </Button>
                                         </DialogTrigger>
                                             <DialogComponent

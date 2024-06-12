@@ -2,14 +2,20 @@ import { NextRequest, NextResponse } from "next/server"
 
 export default async function middleware(req: NextRequest) {
   const isAuthenticated = req.cookies.getAll().find((cookie) => cookie.name === "authjs.session-token")
-  const allowedPaths = ['/', "/lancamento"]
-  
+  const shifts = req.cookies.get("shifts")?.value
+
+  const allowedPaths = ['/', "/lancamento/*"]
+    console.log(req.url)
   if (!isAuthenticated && !allowedPaths.includes(req.url) && !req.url.includes("/login")) {
-    return NextResponse.redirect(new URL('/login', req.url))
+    const loginURL = new URL('/login', req.url)
+    return NextResponse.redirect(loginURL)
   }
   
   if (isAuthenticated && req.url.includes("/login")) {
-    return NextResponse.redirect(new URL('/lancamento', req.url))
+    const firstUrl = new URL(`/lancamento`, req.url)
+    if(shifts)
+    firstUrl.searchParams.set("turnos",shifts )
+    return NextResponse.redirect(firstUrl)
   }
 }
 

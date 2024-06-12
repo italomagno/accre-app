@@ -12,10 +12,10 @@ import { Input } from '@/src/components/ui/input';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useToast } from '@/src/components/ui/use-toast';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/src/components/ui/form';
 import Image from 'next/image';
 import { signInOnServerActions } from "./login/_actions";
+import { LoadingComponentForLoginPage } from "./loadingComponentForLoginPage";
 
 
 export function LoginPageComponent() {
@@ -68,6 +68,7 @@ function handleFinishSubmit(){
   const onSubmit = async(data:FormValues) => {
     setIsSubmitted(true)
     const result = await signInOnServerActions(data);
+
   };
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -97,7 +98,8 @@ function handleFinishSubmit(){
 
   return (
        
-        <div className="grid grid-cols-[1fr_1fr] min-h-screen w-full">
+        <div className="relative grid grid-cols-[1fr_1fr] min-h-screen w-full">
+          {isSubmitted && <LoadingComponentForLoginPage/>}
           <div className={`relative flex-1 overflow-hidden block sm:hidden md:block lg:block xl:block  w-full`}>
           <Image
             alt="Authentication Hero"

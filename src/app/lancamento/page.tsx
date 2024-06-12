@@ -1,17 +1,19 @@
 
 import { getShiftsControlers, getShiftsCounter } from '@/src/lib/db';
-import { getShiftsStatus } from '@/src/lib/utils';
 import { CalendarComponent } from '@/src/app/calendarComponent';
 import { optionsProps } from '@/src/types';
 import { LayoutComponent } from '../LayoutComponent';
+import { auth } from '../auth';
+import { getShiftsFromUser, saveProposal } from './_actions';
+import { Button } from '@/src/components/ui/button';
 
 export default async function lancamento({
     searchParams
 }: {
     searchParams: { turnos: string; };
 }) {
-
-    const [controllers, { shiftStatus }] = await Promise.all([ getShiftsControlers(), getShiftsCounter()])
+    const session = await auth();
+    const [controllers, { shiftStatus },shifts] = await Promise.all([ getShiftsControlers(), getShiftsCounter(),getShiftsFromUser(session?.user.email as string)])
     const [abscences, shiftsNames, combinations] = controllers.reduce(
         (acc, controller) => {
             controller.abscences && acc[0].push(controller.abscences);
@@ -26,8 +28,20 @@ export default async function lancamento({
         { optionTitle: "Turnos", optionValues: [...shiftsNames, ...combinations] },
         { optionTitle: "Afastamentos", optionValues: abscences }
     ]
-
-    const proposal = searchParams.turnos 
+    const shiftsInVector = shifts?.shifts?.split(",").map((shift) => {
+        const [day, shiftName] = shift.split(":");
+        return { day: parseInt(day), shiftName };
+    })
+    if(!searchParams.turnos) searchParams.turnos = ""
+    const searchParamsInvector = searchParams.turnos.split(",").map((shift) => {
+        const [day, shiftName] = shift.split(":");
+        return { day: parseInt(day), shiftName };
+    })
+    const newProposal = shiftsInVector?.map((shift) => {
+        const shiftName = searchParamsInvector.find((searchShift) => searchShift.day === shift.day)?.shiftName;
+        return `${shift.day}:${shiftName || shift.shiftName}`.replaceAll("undefined", "-");
+    }).join(",");
+    const proposal = newProposal || "";
    
 
     return (
@@ -41,9 +55,15 @@ export default async function lancamento({
                     proposal={proposal}
                     options={options}
                     shiftsStatus={shiftStatus}
-                
                 />
             </div>
+            <form action={saveProposal} className='mt-2 w-[345px] mx-auto'>
+            <Button variant="destructive" className='w-full max-w-screen-sm bg-green-400 hover:bg-green-400/40' type='submit'>
+                Salvar Proposição
+            </Button>
+            </form>
+          
+
         </main>
         </LayoutComponent>
 

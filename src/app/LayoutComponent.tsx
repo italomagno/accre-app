@@ -4,7 +4,7 @@ import { User } from './user';
 import { NavMenu } from './NavMenu';
 import { TriggerButton } from './TriggerButton';
 import { ToggleThemeProviderButton } from '@/src/components/theme/toggleThemeProviderButton';
-import React from 'react';
+import React, { Suspense } from 'react';
 type LayoutComponentProps={
     children:React.ReactNode
     isLogin?:boolean
@@ -14,8 +14,9 @@ export function LayoutComponent({children,isLogin = false}:LayoutComponentProps)
            <>
             {
             isLogin?
-                children
+              children
                 :
+
             <div className="grid min-h-screen w-dvw max-w-dvw lg:grid-cols-[280px_1fr]">
               <div className="hidden border-r bg-gray-100/40 lg:block dark:bg-gray-800/40">
                 <div className="flex h-full max-h-screen flex-col gap-2">

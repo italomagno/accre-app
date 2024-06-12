@@ -1,7 +1,23 @@
-import NextAuth,{ NextAuthConfig }  from "next-auth";
+import NextAuth,{ DefaultSession, NextAuthConfig }  from "next-auth";
 import Credentials from "next-auth/providers/credentials"
 import { ZodError } from "zod";
-import { getUserFromDb } from "./login/_actions";
+import { getUserByCredentials, getUserByEmail } from "./login/_actions";
+import { cookies } from "next/headers";
+
+declare module "next-auth" {
+interface Session {
+  user: {
+    /** The user's postal address. */
+    address: string
+    /**
+     * By default, TypeScript merges new interface properties and overwrites existing ones.
+     * In this case, the default session user properties will be overwritten,
+     * with the new ones defined above. To keep the default session user properties,
+     * you need to add them back into the newly declared interface.
+     */
+  } & DefaultSession["user"]
+}
+}
 
 export const AuthOptions:NextAuthConfig = { 
     providers: [
@@ -20,7 +36,7 @@ export const AuthOptions:NextAuthConfig = {
           
               const srmHash = credentials.saram as string
               const cpfHash = credentials.CPF as string
-              user = await getUserFromDb(srmHash, cpfHash)
+              user = await getUserByCredentials(srmHash, cpfHash)
      
               if (!user) {
                 throw new Error("User not found.")
@@ -35,5 +51,16 @@ export const AuthOptions:NextAuthConfig = {
           },
         }),
       ],
+      callbacks: {
+        async session({ session, token, user }) {
+          const newUser = await getUserByEmail(session.user.email)
+          // `session.user.address` is now a valid property, and will be type-checked
+          // in places like `useSession().data.user` or `auth().user`
+          return {
+            ...session,
+            user: newUser
+          }
+        },
+      }
  }
 export const { handlers, auth ,signIn,signOut} = NextAuth(AuthOptions)
