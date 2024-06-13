@@ -4,8 +4,32 @@ import { Dialog, DialogTrigger } from '@/src/components/ui/dialog';
 import { ShiftsStatusProps, optionsProps } from '@/src/types';
 import { DialogComponent } from './DialogComponent';
 import { Button } from '@/src/components/ui/button';
+import { useToast } from '../components/ui/use-toast';
 
-export function CalendarComponent({ proposal, options,shiftsStatus }: { proposal: string, options: optionsProps[],shiftsStatus:ShiftsStatusProps }) {
+export function CalendarComponent({ proposal, options,shiftsStatus,errors,sucess }: {  errors: string | null;
+    sucess: boolean | null, proposal: string, options: optionsProps[],shiftsStatus:ShiftsStatusProps }) {
+        const { toast } = useToast()
+
+        if(errors){
+            const hascomma = errors.includes(",")
+            if(hascomma){
+                errors.split(",").map(error=>toast({
+                    title: "Erro",
+                    description: error,
+                }))
+        }else{
+            toast({
+                title: "Erro",
+                description: errors,
+            })
+        }
+    }
+    if(sucess){
+        toast({
+            title: "Sucesso",
+            description: "Proposta salva com sucesso",
+        })}
+        
 
     function handleProposal(DayOfMonth: number) {
         const proposals = proposal ? proposal.split(",") : [];

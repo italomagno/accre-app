@@ -21,6 +21,11 @@ export type ShiftsStatusProps = {
     availableShifts:availableShifts[],
     completeShifts: completeShifts[]
 }
+export interface Error {
+    error: string;
+    code: number;
+}
+
 export const LoginSchema = z.object({
     CPF: z.string().min(11, 'O CPF deve conter 11 dígitos.').refine(value => value !== '', 'CPF é obrigatório.'),
     saram: z.string().min(7, 'O Saram deve conter 7 dígitos.').refine(value => value !== '', 'Saram é obrigatório.'),

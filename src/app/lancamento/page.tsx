@@ -4,13 +4,18 @@ import { CalendarComponent } from '@/src/app/calendarComponent';
 import { optionsProps } from '@/src/types';
 import { LayoutComponent } from '../LayoutComponent';
 import { auth } from '../auth';
-import { getShiftsFromUser, saveProposal } from './_actions';
+import { getShiftsFromUser, handleSaveShifts } from './_actions';
 import { Button } from '@/src/components/ui/button';
+import { Error as ErrorType} from '@/src/types';
+import { redirect } from 'next/navigation';
 
 export default async function lancamento({
     searchParams
 }: {
-    searchParams: { turnos: string; };
+    searchParams: { turnos: string,
+        errors: string | null;
+        sucess: boolean | null;
+     };
 }) {
     const session = await auth();
     const [controllers, { shiftStatus },shifts] = await Promise.all([ getShiftsControlers(), getShiftsCounter(),getShiftsFromUser(session?.user.email as string)])
@@ -42,6 +47,20 @@ export default async function lancamento({
         return `${shift.day}:${shiftName || shift.shiftName}`.replaceAll("undefined", "-");
     }).join(",");
     const proposal = newProposal || "";
+
+    async function saveProposal() {
+        const result = await handleSaveShifts(proposal)
+        if((result as ErrorType).error){
+            redirect(`/lancamento?errors=${(result as ErrorType).error}`)
+
+        }
+        if((result as ErrorType[])[0].error){
+            redirect(`/lancamento?errors=${(result as ErrorType[]).map(error=>error.error).join(",")}`)
+        }
+
+        redirect(`/lancamento?sucess=true`)
+           
+    }
    
 
     return (
@@ -52,6 +71,8 @@ export default async function lancamento({
             </div>
             <div className='mx-auto'>
                 <CalendarComponent
+                errors={searchParams.errors}
+                sucess={searchParams.sucess}
                     proposal={proposal}
                     options={options}
                     shiftsStatus={shiftStatus}
@@ -62,8 +83,6 @@ export default async function lancamento({
                 Salvar Proposição
             </Button>
             </form>
-          
-
         </main>
         </LayoutComponent>
 

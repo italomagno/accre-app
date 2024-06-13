@@ -1,5 +1,10 @@
 "use server"
 import { getDataFromTab } from "@/src/lib/db"
+import { Error } from "@/src/types"
+import { GoogleSpreadsheet, GoogleSpreadsheetRow } from 'google-spreadsheet';
+import { google } from "googleapis"
+import { auth } from "../auth";
+import { error } from "console";
 
 export async function getShiftsFromUser(userEmail:string) {
     const [shifts,users] = await Promise.all([getDataFromTab("escala", 1000), getDataFromTab("users", 1000)])
@@ -26,17 +31,6 @@ export async function saveProposal() {
     
 }
 
-import { GoogleSpreadsheet, GoogleSpreadsheetRow } from 'google-spreadsheet';
-import { google } from "googleapis"
-
-// Assuming you have a global 'doc' object representing your Google Spreadsheet
-// (e.g., initialized with your spreadsheet ID and credentials)
-
-
-interface Error {
-    error: string;
-    code: number;
-}
 
 export const updateUserShifts = async (
   saram: string,
@@ -125,5 +119,97 @@ export const updateUserShifts = async (
     }
   }
 };
+
+
+export async function handleSaveShifts(proposal:string): Promise<Error| Error[] | GoogleSpreadsheetRow<Record<string, any>>> {
+    const session = await auth();
+    if (!session) {
+      return {
+        error: "Usuário não autenticado.",
+        code: 401 
+      };
+    }
+    const user = session.user;
+    const controls = await getDataFromTab("shiftsControl", 1000) as unknown as {shiftName:string,abscences:string,minQuantityOfMilitary:number,block_changes:boolean | "TRUE" | "FALSE"}[];
+    
+    const minShiftsPerDay = controls.map((control) => ({shift:control.shiftName,minimunQnt:control.minQuantityOfMilitary}));
+    const block_changes = controls[0].block_changes;
+    const [abscences] = controls.reduce(
+        (acc: string[], controller) => {
+            controller.abscences && acc.push(controller.abscences);
+            return acc;
+        },
+        []
+    );
+    // Check for global block
+    if (block_changes === true || block_changes === "TRUE") {
+        return{
+            error:"Adição de turnos Travadas!",
+            code:400
+        }
+    }
+  
+    // Check for individual block
+    //@ts-ignore
+    if (user.block_changes === true || user.block_changes === "TRUE") {
+        return{
+            error:"Adição de turnos Travadas!",
+            code:400
+        }
+    }
+  
+
+    //@ts-ignore
+    if(user.isExpediente === true || user.isExpediente === "TRUE"){
+    //@ts-ignore
+        const result = await updateUserShifts(user.saram, proposal);
+        return result;
+    }
+    const proposalSplitted = proposal.split(",").map((shift) => {
+        const [day, shiftName] = shift.split(":");
+        return { day: parseInt(day), shift: shiftName };
+    })
+    const hasAbscence = proposalSplitted.some((shift) => abscences.includes(shift.shift));
+
+    if (hasAbscence) {
+    //@ts-ignore
+        const result = await updateUserShifts(user.saram, proposal);
+        return result;
+    }
+
+    const qntOfEveryShiftsOnProposal:{[key:string]:number} = proposalSplitted.reduce((acc: {[key:string]:number}, shift) => {
+        
+        if(!acc[shift.shift]){
+            acc[shift.shift] = 1;
+        }else{
+            acc[shift.shift] += 1;
+        }
+        return acc;
+    },{});
+    const hasLessShiftsThanMin = minShiftsPerDay.map((shift) => {
+        const hasLess = qntOfEveryShiftsOnProposal[shift.shift] < shift.minimunQnt;
+        if(hasLess){
+            return {
+                error: `O turno ${shift.shift} não atingiu a quantidade mínima de ${shift.minimunQnt} turnos. ${shift.minimunQnt - qntOfEveryShiftsOnProposal[shift.shift] > 1 ? `Faltam ${shift.minimunQnt - qntOfEveryShiftsOnProposal[shift.shift]} turnos` : `Falta ${shift.minimunQnt - qntOfEveryShiftsOnProposal[shift.shift]} turno`}`,
+            }
+        }
+    }).filter((shift)=>shift !== undefined);
+
+    if(hasLessShiftsThanMin.length > 0){
+        return hasLessShiftsThanMin as Error[]; 
+    }
+
+
+    //@ts-ignore
+    const result = await updateUserShifts(user.saram, proposal);
+    return result;
+
+}
+  
+    
+
+  
+
+
 
 

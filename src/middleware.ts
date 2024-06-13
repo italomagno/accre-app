@@ -5,7 +5,6 @@ export default async function middleware(req: NextRequest) {
   const shifts = req.cookies.get("shifts")?.value
 
   const allowedPaths = ['/', "/lancamento/*"]
-    console.log(req.url)
   if (!isAuthenticated && !allowedPaths.includes(req.url) && !req.url.includes("/login")) {
     const loginURL = new URL('/login', req.url)
     return NextResponse.redirect(loginURL)
