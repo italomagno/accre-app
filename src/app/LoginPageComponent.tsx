@@ -10,7 +10,6 @@ import { FormValues, LoginSchema } from '../types';
 import { Input } from '@/src/components/ui/input';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/src/components/ui/form';
 import Image from 'next/image';
@@ -19,7 +18,6 @@ import { LoadingComponentForLoginPage } from "./loadingComponentForLoginPage";
 
 
 export function LoginPageComponent() {
-  const router = useRouter()
   const [isSubmitted, setIsSubmitted] = useState(false);
 
    function applyCpfMask(value: string): string {
@@ -93,7 +91,6 @@ function handleFinishSubmit(){
       CPF: "",
       saram: "",
     },
-
   });
 
   return (

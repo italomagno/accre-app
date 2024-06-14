@@ -1,24 +1,20 @@
 
-import { getShiftsControlers, getShiftsCounter } from '@/src/lib/db';
+import { getShiftsControlers, getShiftsCounter } from '@/src/lib/db/googleSheets';
 import { CalendarComponent } from '@/src/app/calendarComponent';
 import { optionsProps } from '@/src/types';
 import { LayoutComponent } from '../LayoutComponent';
 import { auth } from '../auth';
-import { getShiftsFromUser, handleSaveShifts } from './_actions';
-import { Button } from '@/src/components/ui/button';
-import { Error as ErrorType} from '@/src/types';
-import { redirect } from 'next/navigation';
+import { getProposalFromCookies, getShiftsFromUser, handleSaveProposal } from './_actions';
 
 export default async function lancamento({
     searchParams
 }: {
-    searchParams: { turnos: string,
-        errors: string | null;
-        sucess: boolean | null;
-     };
+    searchParams: { turnos: string, };
 }) {
     const session = await auth();
-    const [controllers, { shiftStatus },shifts] = await Promise.all([ getShiftsControlers(), getShiftsCounter(),getShiftsFromUser(session?.user.email as string)])
+    const proposalFromCookies = await getProposalFromCookies()
+    //@ts-ignore
+    const [controllers, { shiftStatus },shifts] = await Promise.all([ getShiftsControlers(), getShiftsCounter(),proposalFromCookies ? {shifts:proposalFromCookies} : getShiftsFromUser(session?.user.email as string)])
     const [abscences, shiftsNames, combinations] = controllers.reduce(
         (acc, controller) => {
             controller.abscences && acc[0].push(controller.abscences);
@@ -28,6 +24,11 @@ export default async function lancamento({
         },
         [[], [], []]
     );
+    if(shifts && proposalFromCookies !== shifts.shifts){
+        console.log("oxe porra")
+        await handleSaveProposal(shifts.shifts)
+        console.log("o erro foi aqui")
+    }
     
     const options:optionsProps[] = [
         { optionTitle: "Turnos", optionValues: [...shiftsNames, ...combinations] },
@@ -48,20 +49,6 @@ export default async function lancamento({
     }).join(",");
     const proposal = newProposal || "";
 
-    async function saveProposal() {
-        const result = await handleSaveShifts(proposal)
-        if((result as ErrorType).error){
-            redirect(`/lancamento?errors=${(result as ErrorType).error}`)
-
-        }
-        if((result as ErrorType[])[0].error){
-            redirect(`/lancamento?errors=${(result as ErrorType[]).map(error=>error.error).join(",")}`)
-        }
-
-        redirect(`/lancamento?sucess=true`)
-           
-    }
-   
 
     return (
         <LayoutComponent>
@@ -71,18 +58,11 @@ export default async function lancamento({
             </div>
             <div className='mx-auto'>
                 <CalendarComponent
-                errors={searchParams.errors}
-                sucess={searchParams.sucess}
                     proposal={proposal}
                     options={options}
                     shiftsStatus={shiftStatus}
                 />
             </div>
-            <form action={saveProposal} className='mt-2 w-[345px] mx-auto'>
-            <Button variant="destructive" className='w-full max-w-screen-sm bg-green-400 hover:bg-green-400/40' type='submit'>
-                Salvar Proposição
-            </Button>
-            </form>
         </main>
         </LayoutComponent>
 

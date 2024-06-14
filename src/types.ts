@@ -22,9 +22,20 @@ export type ShiftsStatusProps = {
     completeShifts: completeShifts[]
 }
 export interface Error {
+    success?:string
     error: string;
     code: number;
 }
+export type User = {
+    cpf: string,
+    saram: string,
+    name: string,
+    email: string,
+    block_changes: 'FALSE' | 'TRUE',
+    is_expediente: 'TRUE' | "FALSE",
+    shifts: string
+  }
+
 
 export const LoginSchema = z.object({
     CPF: z.string().min(11, 'O CPF deve conter 11 dígitos.').refine(value => value !== '', 'CPF é obrigatório.'),
@@ -32,3 +43,9 @@ export const LoginSchema = z.object({
   });
   
   export type FormValues = z.infer<typeof LoginSchema>;
+
+  export const proposalSchema = z.object({
+    proposal: z.string()
+  });
+  
+  export type ProposalValues = z.infer<typeof proposalSchema>;

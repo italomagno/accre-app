@@ -1,14 +1,13 @@
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/src/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/src/components/ui/card";
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/src/components/ui/dialog";
-import { navigationMenuTriggerStyle } from "@/src/components/ui/navigation-menu";
 import { filterShiftsByDay, generateUniqueKey } from "@/src/lib/utils";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink } from "@radix-ui/react-navigation-menu";
-import Link from "next/link";
 
 import { ShiftsStatusProps, optionsProps } from "@/src/types";
+import { handleSaveProposal } from "./lancamento/_actions";
 
 interface DialogComponentProps {
     day: string;
@@ -60,9 +59,6 @@ export function DialogComponent({ day, options, proposal,shiftsStatus }: DialogC
 
                     </div>
                     <Separator className="my-6"/>
-                    
-
-
                     <NavigationMenu>
                         <NavigationMenuList className="flex w-full py-5 gap-4">
                             {options.map((option) => (
@@ -72,9 +68,11 @@ export function DialogComponent({ day, options, proposal,shiftsStatus }: DialogC
                                     </NavigationMenuTrigger>
                                     <NavigationMenuContent className="mt-2">
                                         {option.optionValues.map((optionValue) => (
-                                            <Link key={generateUniqueKey()} href={`?turnos=${proposalModified?`${proposalModified},`:proposalModified}${day}:${optionValue}`.replace("undefined","")} passHref>
-                                                <NavigationMenuLink className={navigationMenuTriggerStyle()}>{optionValue}</NavigationMenuLink>
-                                            </Link>
+                                            <Button key={generateUniqueKey()} variant={"link"} onClick={async ()=>{
+                                                handleSaveProposal(`${proposalModified?`${proposalModified},`:proposalModified}${day}:${optionValue}`.replace("undefined",""))
+                                            }}>
+                                                {optionValue}
+                                            </Button>
                                         ))}
                                     </NavigationMenuContent>
                                 </NavigationMenuItem>
@@ -85,8 +83,10 @@ export function DialogComponent({ day, options, proposal,shiftsStatus }: DialogC
                 </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-                <Button variant="destructive"className="w-full">
-                <Link className="w-full" href={`?turnos=${proposalModified?`${proposalModified},` :proposalModified}`.replace("undefined","")}><span>Apagar proposição do dia {day}</span></Link>
+                <Button variant="destructive"className="w-full" onClick={async ()=>{
+                    handleSaveProposal(`${proposalModified?`${proposalModified},` :proposalModified}`.replace("undefined",""))
+                }}>
+                 <span className="w-full">Apagar proposição do dia {day}</span>
                 </Button>
 
             </DialogFooter>

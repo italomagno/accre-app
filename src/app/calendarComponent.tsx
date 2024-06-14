@@ -1,34 +1,23 @@
 'use client'
 import { Calendar } from '@/src/components/ui/calendar';
 import { Dialog, DialogTrigger } from '@/src/components/ui/dialog';
-import { ShiftsStatusProps, optionsProps } from '@/src/types';
+import { Error, ProposalValues, ShiftsStatusProps, optionsProps, proposalSchema } from '@/src/types';
 import { DialogComponent } from './DialogComponent';
 import { Button } from '@/src/components/ui/button';
 import { useToast } from '../components/ui/use-toast';
+import { useEffect, useState,  } from 'react';
+import { handleSaveShifts } from './lancamento/_actions';
 
-export function CalendarComponent({ proposal, options,shiftsStatus,errors,sucess }: {  errors: string | null;
-    sucess: boolean | null, proposal: string, options: optionsProps[],shiftsStatus:ShiftsStatusProps }) {
-        const { toast } = useToast()
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-        if(errors){
-            const hascomma = errors.includes(",")
-            if(hascomma){
-                errors.split(",").map(error=>toast({
-                    title: "Erro",
-                    description: error,
-                }))
-        }else{
-            toast({
-                title: "Erro",
-                description: errors,
-            })
-        }
-    }
-    if(sucess){
-        toast({
-            title: "Sucesso",
-            description: "Proposta salva com sucesso",
-        })}
+
+export function CalendarComponent({ proposal, options,shiftsStatus,}: { proposal: string, options: optionsProps[],shiftsStatus:ShiftsStatusProps }) {
+    //@ts-ignore
+    const { toast } = useToast()
+    const [response,setResponse] = useState<Error | Error[] | null >(null)
+    const [isPending, setIsPeding] = useState(false)
+
         
 
     function handleProposal(DayOfMonth: number) {
@@ -40,6 +29,46 @@ export function CalendarComponent({ proposal, options,shiftsStatus,errors,sucess
         return matchingProposal ? matchingProposal.split(":")[1] : "-";
     }
 
+    const form = useForm<ProposalValues>({
+        resolver: zodResolver(proposalSchema),
+        defaultValues: {
+          proposal: proposal,
+        },
+      });
+
+
+
+    useEffect(() => {
+        if(response){
+        if((response as unknown as Error).error){
+            toast({
+                title: "Erro",
+                description:((response as unknown as Error).error)
+            })
+            return 
+        }
+        if((response as unknown as Error[])[0].error){
+            (response as unknown as Error[]).map(error=>(
+                toast({
+                    title: "Erro",
+                    description:error.error
+                })
+            ))
+            return
+        }
+        toast({
+            title: "Sucesso!",
+            description: "Turnos salvos com sucesso."
+        })
+    }
+
+    setIsPeding(false)
+    setResponse(null)
+
+    }, [response]);
+
+
+    
     return (
         <>
             <Calendar
@@ -93,6 +122,16 @@ export function CalendarComponent({ proposal, options,shiftsStatus,errors,sucess
                     }
                 }}
             />
+
+       <Button disabled={isPending} onClick={async()=>{
+        setIsPeding(true)
+        const result = (await handleSaveShifts(proposal))
+        console.log(result)
+        setResponse(result)
+       }}variant="destructive" className='w-full max-w-screen-sm bg-green-400 hover:bg-green-400/40' type='submit'>
+    Salvar Proposição
+  </Button>
+
         </>
     );
 }

@@ -1,12 +1,13 @@
 "use server"
-import { getDataFromTab } from "@/src/lib/db"
-import { Error } from "@/src/types"
-import { GoogleSpreadsheet, GoogleSpreadsheetRow } from 'google-spreadsheet';
-import { google } from "googleapis"
+import { getDataFromTab } from "@/src/lib/db/googleSheets"
+import { Error, User } from "@/src/types"
+import { GoogleSpreadsheet} from 'google-spreadsheet';
 import { auth } from "../auth";
-import { error } from "console";
+import { cookies } from 'next/headers';
+
 
 export async function getShiftsFromUser(userEmail:string) {
+  
     const [shifts,users] = await Promise.all([getDataFromTab("escala", 1000), getDataFromTab("users", 1000)])
     const user = users.find((user: any) => user.email === userEmail)
     const shiftsOfUser = shifts.filter((shift: any) => shift.saram === user.saram)
@@ -27,15 +28,12 @@ export async function getShiftsFromUser(userEmail:string) {
         return {shifts: shiftsOfUserString}
 }
 
-export async function saveProposal() {
-    
-}
 
 
 export const updateUserShifts = async (
   saram: string,
   shifts: string
-): Promise<GoogleSpreadsheetRow | Error> => {
+): Promise<Error> => {
     if (!saram) {
         return {
             error:"Saram não informado.",
@@ -65,13 +63,8 @@ export const updateUserShifts = async (
   try {
     const client_email = (process.env.NEXT_PUBLIC_CLIENT_EMAIL as string).replace(/\\n/g, '\n')
   const private_key = (process.env.NEXT_PUBLIC_PRIVATE_KEY as string).replace(/\\n/g, '\n')
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: client_email,
-      private_key: private_key,
-    },
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-  });
+  const auth:any | null = cookies().get("google")? JSON.parse(cookies().get("google")?.value as string):null
+
   
   const doc = new GoogleSpreadsheet(process.env.NEXT_PUBLIC_SPREADSHEET_ID as string, auth)
 
@@ -92,7 +85,7 @@ export const updateUserShifts = async (
     // Find the row matching the 'saram'
     const rows = await leadsSheet.getRows({ offset: 0 });
     const rowDataIndex = rows.findIndex(
-      (r) => r.get('saram')?.replace(/\D/g, '') === saram
+      (r) => r.get('saram')?.replace(/\D/g, '') === saram.replace(/\D/g, '')
     );
     const rowData = rows[rowDataIndex];
 
@@ -111,7 +104,11 @@ export const updateUserShifts = async (
     rowData['_rawData'] = newRawData;
     await rowData.save();
 
-    return rowData; 
+    return {
+      error:"",
+      code:200,
+      success:`Turnos salvos com sucesso.`
+    } 
   } catch (error) {
     return {
         error:"Ocorreu um erro ao atualizar os turnos.",
@@ -121,22 +118,22 @@ export const updateUserShifts = async (
 };
 
 
-export async function handleSaveShifts(proposal:string): Promise<Error| Error[] | GoogleSpreadsheetRow<Record<string, any>>> {
-    const session = await auth();
+export async function handleSaveShifts(proposal:string): Promise<Error| Error[]> {
+  const session = await auth();
     if (!session) {
       return {
         error: "Usuário não autenticado.",
         code: 401 
       };
     }
-    const user = session.user;
-    const controls = await getDataFromTab("shiftsControl", 1000) as unknown as {shiftName:string,abscences:string,minQuantityOfMilitary:number,block_changes:boolean | "TRUE" | "FALSE"}[];
+    const user = session.user as unknown as User;
+    const controls = await getDataFromTab("shiftsControl", 1000) as unknown as {shiftName:string,abscences_without_restrictions:string,minQuantityOfMilitary:number,block_changes:boolean | "TRUE" | "FALSE"}[];
     
     const minShiftsPerDay = controls.map((control) => ({shift:control.shiftName,minimunQnt:control.minQuantityOfMilitary}));
     const block_changes = controls[0].block_changes;
-    const [abscences] = controls.reduce(
+    const [abscences_without_restrictions] = controls.reduce(
         (acc: string[], controller) => {
-            controller.abscences && acc.push(controller.abscences);
+            controller.abscences_without_restrictions && acc.push(controller.abscences_without_restrictions);
             return acc;
         },
         []
@@ -144,14 +141,13 @@ export async function handleSaveShifts(proposal:string): Promise<Error| Error[] 
     // Check for global block
     if (block_changes === true || block_changes === "TRUE") {
         return{
-            error:"Adição de turnos Travadas!",
+            error:"Proposição de escala travada!",
             code:400
         }
     }
-  
     // Check for individual block
-    //@ts-ignore
-    if (user.block_changes === true || user.block_changes === "TRUE") {
+    
+    if (user.block_changes === "TRUE") {
         return{
             error:"Adição de turnos Travadas!",
             code:400
@@ -159,9 +155,9 @@ export async function handleSaveShifts(proposal:string): Promise<Error| Error[] 
     }
   
 
-    //@ts-ignore
-    if(user.isExpediente === true || user.isExpediente === "TRUE"){
-    //@ts-ignore
+    
+    if(user.is_expediente === "TRUE"){
+    
         const result = await updateUserShifts(user.saram, proposal);
         return result;
     }
@@ -169,10 +165,10 @@ export async function handleSaveShifts(proposal:string): Promise<Error| Error[] 
         const [day, shiftName] = shift.split(":");
         return { day: parseInt(day), shift: shiftName };
     })
-    const hasAbscence = proposalSplitted.some((shift) => abscences.includes(shift.shift));
+    const hasAbscence = proposalSplitted.some((shift) => abscences_without_restrictions.includes(shift.shift));
 
     if (hasAbscence) {
-    //@ts-ignore
+    
         const result = await updateUserShifts(user.saram, proposal);
         return result;
     }
@@ -200,12 +196,22 @@ export async function handleSaveShifts(proposal:string): Promise<Error| Error[] 
     }
 
 
-    //@ts-ignore
+    
     const result = await updateUserShifts(user.saram, proposal);
     return result;
 
 }
   
+
+export async function handleSaveProposal(proposal:string){
+  "use server"
+  cookies().set("proposal",proposal)
+}
+
+export async function getProposalFromCookies(){
+  "use server"
+  return cookies().get("proposal")?.value
+}
     
 
   

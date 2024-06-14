@@ -1,25 +1,31 @@
 'use server'
 import { completeShifts } from '@/src/types';
-import { availableShifts } from '../types';
+import { availableShifts } from '../../types';
 import { google } from "googleapis";
 import { GoogleSpreadsheet } from "google-spreadsheet";
 import { ShiftsStatusProps } from '@/src/types';
-import { generateUniqueKey } from './utils';
+import { generateUniqueKey } from '../utils';
+import { auth } from '@/src/app/auth';
+
+
 
 
 
 export async function getDataFromTab(tabName: string, limit: number = 10) {
+  "use server"
   const client_email = (process.env.NEXT_PUBLIC_CLIENT_EMAIL as string).replace(/\\n/g, '\n')
-  const private_key = (process.env.NEXT_PUBLIC_PRIVATE_KEY as string).replace(/\\n/g, '\n')
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: client_email,
-      private_key: private_key,
-    },
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-  });
+    const private_key = (process.env.NEXT_PUBLIC_PRIVATE_KEY as string).replace(/\\n/g, '\n')
+    const authGoogle = new google.auth.GoogleAuth({
+      credentials: {
+        client_email: client_email,
+        private_key: private_key,
+      },
+      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+    });
+
+
   
-  const doc = new GoogleSpreadsheet(process.env.NEXT_PUBLIC_SPREADSHEET_ID as string, auth)
+  const doc = new GoogleSpreadsheet(process.env.NEXT_PUBLIC_SPREADSHEET_ID as string, authGoogle)
   await doc.loadInfo();
 
   const leadsSheets = doc.sheetsByTitle
@@ -47,6 +53,7 @@ export async function getDataFromTab(tabName: string, limit: number = 10) {
 }
 
 export async function getUsers(search: string, offset: number) {
+
   const users = await getDataFromTab("users", offset);
   if (search) {
     const filteredUsers = users.filter((user: any) => {
@@ -61,6 +68,7 @@ export async function getUsers(search: string, offset: number) {
   return { users, newOffset };
 }
 export async function getShiftsControlers() {
+
   const shiftsControllers = await getDataFromTab("shiftsControl", 1000);
   return shiftsControllers;
 }
@@ -71,13 +79,14 @@ export async function getShiftsControlers() {
 export async function getShiftsCounter() {
   const shiftCounter: { [key: string]: number } = {};
   const dataFromControllers = (await getShiftsControlers())
+
   const shiftsKeys = dataFromControllers.map((controler) => {
     shiftCounter[controler.shiftName] = 0;
     return controler.shiftName;
   }).filter((shift)=>shift!=="");
   const { shifts: ShiftsMil } = await getShiftsMil("", 1000);
 
-  const filteredShifts = ShiftsMil.map(shift=>{
+  const filteredShifts = ShiftsMil.map((shift: { [x: string]: any; })=>{
     delete shift["name"]
     delete shift["saram"]
     return shift
@@ -86,7 +95,7 @@ export async function getShiftsCounter() {
   for (var col = 1; col <= Object.keys(filteredShifts[0]).length; col++) {
     const newArrayObj: { day: number, [key: string]: number } = { day: col, ...shiftCounter };
     newVector.push(newArrayObj);
-    filteredShifts.forEach(row => {
+    filteredShifts.forEach((row) => {
       const shift = row[col];
       if (!shift) return;
       const hasBar = shift.includes("/");
@@ -172,6 +181,8 @@ return {vectorToReturn,vectorToReturnWithColors,shiftStatus}
 
 
 export async function getShiftsMil(search: string, offset: number) {
+  const session = await auth();
+  if(!session) return {shifts:[],newOffset:null}
   const shiftsOld = await getDataFromTab("escala", offset);
   const shifts = shiftsOld.map((shift: any) => {if(!shift){return "-"}else{return shift}});
   if (search) {

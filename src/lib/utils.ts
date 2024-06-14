@@ -55,5 +55,5 @@ export function filterShiftsByDay(shiftsStatus:{availableShifts:availableShifts[
   return { availableShifts: filteredAvailableShifts, completeShifts: filteredCompleteShifts };
 }
 
-export function saltAndHashCredential(credential: string) {
-}
+
+

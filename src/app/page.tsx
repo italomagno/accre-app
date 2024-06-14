@@ -1,5 +1,5 @@
 
-import { getShiftsCounter, getShiftsMil } from '@/src/lib/db';
+import { getShiftsCounter, getShiftsMil } from '@/src/lib/db/googleSheets';
 import { Search } from './search';
 import { CustomTable } from './customTable';
 import { ShiftsTable } from './shiftsTable';
@@ -48,7 +48,7 @@ export default async function IndexPage({
       </div>
       <div className='w-screen'>
 
-      <CustomTable values={shifts} offset={newOffset} />
+      <CustomTable values={shifts} offset={newOffset? newOffset : 0} />
       </div>
       </div>
     </main>

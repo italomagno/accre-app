@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model Department {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  created_at     DateTime @default(now())
+  name           String
+  users          User[]
+  rosters        Roster[]
+  shifts         Shift[]
+
+}
+
+enum Role {
+  ADMIN
+  USER
+  GM
+}
+
+enum Function {
+  EST
+  OPE
+  COR
+  SUP
+}
+
+
+
+model User {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  saram          String   @unique
+  created_at     DateTime @default(now())
+  name           String
+  email          String   @unique
+  block_changes  Boolean  @default(false)
+  isOffice       Boolean @default(false)
+  function       Function @default(OPE)
+  role           Role     @default(USER)
+  roster         Roster? @relation(fields: [rosterId], references: [id])
+  rosterId       String @db.ObjectId
+  department     Department @relation(fields: [departmentId], references: [id])
+  departmentId   String @db.ObjectId
+}
+
+enum Months {
+  JAN
+  FEB
+  MAR
+  APR
+  MAY
+  JUN
+  JUL
+  AUG
+  SEP
+  OCT
+  NOV
+  DEC
+}
+
+model Roster{
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  created_at     DateTime @default(now())
+  month          Months
+  year           Int
+  users          User[]
+  minWorkingHoursPerRoster Int?
+  maxWorkingHoursPerRoster Int?
+  department     Department @relation(fields: [departmentId], references: [id])
+  departmentId   String @db.ObjectId
+  shifts         Shift[]
+  blockChanges  Boolean @default(true)
+}
+
+model Shift {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  created_at     DateTime @default(now())
+  name           String 
+  start          DateTime
+  end            DateTime
+  quantity       Int @default(0)
+  minQuantity    Int  @default(0)
+  userId         String @db.ObjectId
+  roster         Roster @relation(fields: [rosterId], references: [id])
+  rosterId       String @db.ObjectId
+  department     Department @relation(fields: [departmentId], references: [id])
+  departmentId   String @db.ObjectId
+  isAvailable   Boolean @default(false)
+  isAbscence    Boolean @default(false)
+}
+
+
