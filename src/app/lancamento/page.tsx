@@ -1,5 +1,5 @@
 
-import { getShiftsControlers, getShiftsCounter } from '@/src/lib/db/googleSheets';
+import { getShiftsControlers, getShiftsCounter } from '@/src/lib/db/sheets/googleSheetsDataSource';
 import { CalendarComponent } from '@/src/app/calendarComponent';
 import { optionsProps } from '@/src/types';
 import { LayoutComponent } from '../LayoutComponent';

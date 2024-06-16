@@ -21,20 +21,13 @@ export type ShiftsStatusProps = {
     availableShifts:availableShifts[],
     completeShifts: completeShifts[]
 }
-export interface Error {
-    success?:string
-    error: string;
+export type ErrorTypes = {
     code: number;
+    message: string;
 }
-export type User = {
-    cpf: string,
-    saram: string,
-    name: string,
-    email: string,
-    block_changes: 'FALSE' | 'TRUE',
-    is_expediente: 'TRUE' | "FALSE",
-    shifts: string
-  }
+
+
+
 
 
 export const LoginSchema = z.object({

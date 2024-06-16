@@ -18,7 +18,7 @@ datasource db {
 model Department {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   created_at     DateTime @default(now())
-  name           String
+  name           String   @unique
   users          User[]
   rosters        Roster[]
   shifts         Shift[]
@@ -43,6 +43,7 @@ enum Function {
 model User {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   saram          String   @unique
+  cpf            String   @unique
   created_at     DateTime @default(now())
   name           String
   email          String   @unique
@@ -50,10 +51,11 @@ model User {
   isOffice       Boolean @default(false)
   function       Function @default(OPE)
   role           Role     @default(USER)
-  roster         Roster? @relation(fields: [rosterId], references: [id])
-  rosterId       String @db.ObjectId
+  roster         Roster?  @relation(fields: [rosterId], references: [id])
+  rosterId       String   @db.ObjectId
   department     Department @relation(fields: [departmentId], references: [id])
-  departmentId   String @db.ObjectId
+  departmentId   String   @db.ObjectId
+  workDay        WorkDay[]
 }
 
 enum Months {
@@ -74,27 +76,42 @@ enum Months {
 model Roster{
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   created_at     DateTime @default(now())
-  month          Months
-  year           Int
+  month          Months @unique
+  year           Int    @unique
   users          User[]
   minWorkingHoursPerRoster Int?
   maxWorkingHoursPerRoster Int?
   department     Department @relation(fields: [departmentId], references: [id])
   departmentId   String @db.ObjectId
   shifts         Shift[]
+  workDays       WorkDay[]
   blockChanges  Boolean @default(true)
 }
 
+model WorkDay {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  day DateTime
+  user User @relation(fields: [userId],references: [id])
+  userId String @db.ObjectId
+  roster    Roster @relation(fields: [rosterId],references: [id])
+  rosterId String @db.ObjectId
+  shifts    Shift[]  
+}
+
+
+// ajeitar esse model, preciso verificar ver se vale a pena dividir esse model em dois, pois eu não sei se eu como vou fazer a lógica para por os dias de trabalho
 model Shift {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   created_at     DateTime @default(now())
-  name           String 
+  name           String  @unique
+  workDay        WorkDay? @relation(fields: [workDayId],references: [id])
+  workDayId      String @db.ObjectId
   start          DateTime
   end            DateTime
   quantity       Int @default(0)
   minQuantity    Int  @default(0)
   userId         String @db.ObjectId
-  roster         Roster @relation(fields: [rosterId], references: [id])
+  roster         Roster? @relation(fields: [rosterId], references: [id])
   rosterId       String @db.ObjectId
   department     Department @relation(fields: [departmentId], references: [id])
   departmentId   String @db.ObjectId

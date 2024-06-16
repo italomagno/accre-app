@@ -1,6 +1,6 @@
 import { CustomTable } from '../customTable';
 import { Search } from '../search';
-import { getUsers } from '@/src/lib/db';
+import { getUsers } from '@/src/lib/db/sheets/googleSheetsDataSource';
 
 export default async function IndexPage({
   searchParams

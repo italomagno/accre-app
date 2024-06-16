@@ -1,6 +1,6 @@
 "use server"
-import { getDataFromTab } from "@/src/lib/db/googleSheets"
-import { Error, User } from "@/src/types"
+import { getDataFromTab } from "@/src/lib/db/sheets/googleSheetsDataSource"
+import { ErrorTypes, User } from "@/src/types"
 import { GoogleSpreadsheet} from 'google-spreadsheet';
 import { auth } from "../auth";
 import { cookies } from 'next/headers';
@@ -33,16 +33,16 @@ export async function getShiftsFromUser(userEmail:string) {
 export const updateUserShifts = async (
   saram: string,
   shifts: string
-): Promise<Error> => {
+): Promise<ErrorTypes> => {
     if (!saram) {
         return {
-            error:"Saram não informado.",
+            message:"Saram não informado.",
             code:400
         }
     }
     if (!shifts) {
         return {
-            error:"Turnos não informados.",
+            message:"Turnos não informados.",
             code:400
         }
     }
@@ -75,8 +75,9 @@ export const updateUserShifts = async (
     if (!sheetShiftsMonth) {
       console.error("Sheet with 'escala' in the title not found.");
       return {
-        error:"Não foi encontrado a aba de escala no arquivo de planilha.",
+        message:"Não foi encontrado a aba de escala no arquivo de planilha.",
         code:404
+      
       }; 
     }
 
@@ -91,7 +92,7 @@ export const updateUserShifts = async (
 
     if (!rowData) {
       return {
-        error:`Não foi encontrado a linha com o saram ${saram}.`,
+        message:`Não foi encontrado a linha com o saram ${saram}.`,
         code:404
       } 
     }
@@ -105,24 +106,23 @@ export const updateUserShifts = async (
     await rowData.save();
 
     return {
-      error:"",
       code:200,
-      success:`Turnos salvos com sucesso.`
+      message:`Turnos salvos com sucesso.`
     } 
   } catch (error) {
     return {
-        error:"Ocorreu um erro ao atualizar os turnos.",
+        message:"Ocorreu um erro ao atualizar os turnos.",
         code:500
     }
   }
 };
 
 
-export async function handleSaveShifts(proposal:string): Promise<Error| Error[]> {
+export async function handleSaveShifts(proposal:string): Promise<ErrorTypes| ErrorTypes[]> {
   const session = await auth();
     if (!session) {
       return {
-        error: "Usuário não autenticado.",
+        message: "Usuário não autenticado.",
         code: 401 
       };
     }
@@ -141,22 +141,22 @@ export async function handleSaveShifts(proposal:string): Promise<Error| Error[]>
     // Check for global block
     if (block_changes === true || block_changes === "TRUE") {
         return{
-            error:"Proposição de escala travada!",
+            message:"Proposição de escala travada!",
             code:400
         }
     }
     // Check for individual block
     
-    if (user.block_changes === "TRUE") {
+    if (user.block_changes as unknown as string === "TRUE" || user.block_changes === true) {
         return{
-            error:"Adição de turnos Travadas!",
+            message:"Adição de turnos Travadas!",
             code:400
         }
     }
   
 
-    
-    if(user.is_expediente === "TRUE"){
+    //@ts-ignore
+    if(user.is_expediente === "TRUE" || user.isOffice === true){
     
         const result = await updateUserShifts(user.saram, proposal);
         return result;
@@ -186,13 +186,14 @@ export async function handleSaveShifts(proposal:string): Promise<Error| Error[]>
         const hasLess = qntOfEveryShiftsOnProposal[shift.shift] < shift.minimunQnt;
         if(hasLess){
             return {
-                error: `O turno ${shift.shift} não atingiu a quantidade mínima de ${shift.minimunQnt} turnos. ${shift.minimunQnt - qntOfEveryShiftsOnProposal[shift.shift] > 1 ? `Faltam ${shift.minimunQnt - qntOfEveryShiftsOnProposal[shift.shift]} turnos` : `Falta ${shift.minimunQnt - qntOfEveryShiftsOnProposal[shift.shift]} turno`}`,
+              code: 400,
+                message: `O turno ${shift.shift} não atingiu a quantidade mínima de ${shift.minimunQnt} turnos. ${shift.minimunQnt - qntOfEveryShiftsOnProposal[shift.shift] > 1 ? `Faltam ${shift.minimunQnt - qntOfEveryShiftsOnProposal[shift.shift]} turnos` : `Falta ${shift.minimunQnt - qntOfEveryShiftsOnProposal[shift.shift]} turno`}`,
             }
         }
     }).filter((shift)=>shift !== undefined);
 
     if(hasLessShiftsThanMin.length > 0){
-        return hasLessShiftsThanMin as Error[]; 
+        return hasLessShiftsThanMin as ErrorTypes[]; 
     }
 
 
