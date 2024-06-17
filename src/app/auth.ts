@@ -1,21 +1,12 @@
 import NextAuth,{ DefaultSession, NextAuthConfig }  from "next-auth";
 import Credentials from "next-auth/providers/credentials"
-import { ZodError } from "zod";
-import { getUserByCredentials, getUserByEmail } from "./login/_actions";
-import { cookies } from "next/headers";
+import { googleSheetsDataSource } from "../lib/db/sheets/googleSheetsDataSource";
+import { ErrorTypes } from "../types";
+import { User } from "@prisma/client";
 
 declare module "next-auth" {
 interface Session {
-  user: {
-    /** The user's postal address. */
-    address: string
-    /**
-     * By default, TypeScript merges new interface properties and overwrites existing ones.
-     * In this case, the default session user properties will be overwritten,
-     * with the new ones defined above. To keep the default session user properties,
-     * you need to add them back into the newly declared interface.
-     */
-  } & DefaultSession["user"]
+  user: User & DefaultSession["user"]
 }
 }
 
@@ -28,30 +19,25 @@ export const AuthOptions:NextAuthConfig = {
             CPF: {},
             saram: {},
           },
+          //@ts-ignore de alguma manira nao ta idefentificando o problema
           authorize: async (credentials) => {
             try {
-              let user = null
-
-
-          
+              const GoogleSheetsDataSource = new googleSheetsDataSource()
               const srmHash = credentials.saram as string
               const cpfHash = credentials.CPF as string
-              user = await getUserByCredentials(srmHash, cpfHash)
-     
-              if (!user) {
+              const user =  GoogleSheetsDataSource.getUser(srmHash,cpfHash)
+              if (!user || (user as unknown as ErrorTypes).code) {
                 throw new Error("User not found.")
               }
-              return user
+              return user 
             } catch (error) {
-              if (error instanceof ZodError) {
-                // Return `null` to indicate that the credentials are invalid
-                return null
-              }
+              // Always return null if an error occurs
+              return null
             }
           },
         }),
       ],
-      callbacks: {
+      /* callbacks: {
         async session({ session, token, user }) {
           const newUser = await getUserByEmail(session.user.email)
           // `session.user.address` is now a valid property, and will be type-checked
@@ -61,6 +47,6 @@ export const AuthOptions:NextAuthConfig = {
             user: newUser
           }
         },
-      }
+      } */
  }
 export const { handlers, auth ,signIn,signOut} = NextAuth(AuthOptions)

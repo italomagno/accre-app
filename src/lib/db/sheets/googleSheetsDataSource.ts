@@ -1,13 +1,12 @@
-import { $Enums } from '@prisma/client';
-'use server'
+import {  Roster, Shift, User, WorkDay } from '@prisma/client';
 
-import { auth } from '@/src/app/auth';
 import { DataSource } from "../interfaces/dataSource";
 import getGoogleSheetsClient from './googleSheetsClient';
-import { ErrorTypes, Roster, Shift, User } from '@/src/types';
+import { ErrorTypes} from '@/src/types';
 
 
 async function getDataFromTab(tabName: string, limit: number = 10) {
+  
   const doc = await getGoogleSheetsClient();
   const leadsSheets = doc.sheetsByTitle
   const leadsSheetKey= Object.keys(leadsSheets).find(key=>key.toLowerCase().includes(tabName.toLowerCase()))
@@ -33,18 +32,16 @@ async function getDataFromTab(tabName: string, limit: number = 10) {
   return dataFromSheets
 }
 
+export  class googleSheetsDataSource implements DataSource {
 
-export class googleSheetsDataSource implements DataSource {
 
-
- //everything related to user
 
  async  createUser(user: User): Promise< User| ErrorTypes> {
   const doc = await getGoogleSheetsClient();
   const usersSheet = doc.sheetsByTitle["Central de usuários"]
   if(!usersSheet){
     const usersCentralSheet = doc.addSheet({ title: `Central de usuários` })
-    const emptyUser:User = {
+    const emptyUser = {
       id: '',
       saram: '',
       cpf: '',
@@ -61,6 +58,7 @@ export class googleSheetsDataSource implements DataSource {
     const headers = Object.keys(emptyUser);
     (await usersCentralSheet).setHeaderRow(headers)
   }
+  //@ts-ignore
   const userRowValues = Object.keys(user).map(key=>user[key])
   const addedRow = await usersSheet.addRow(userRowValues)
   if(!addedRow)
@@ -71,7 +69,7 @@ export class googleSheetsDataSource implements DataSource {
   return user
   
  }
- async  createUsers(users: User[]): Promise< User| ErrorTypes> {
+ async  createUsers(users: User[]): Promise< User[]| ErrorTypes> {
   const doc = await getGoogleSheetsClient();
   const usersSheet = doc.sheetsByTitle["Central de usuários"]
   if(!usersSheet){
@@ -80,6 +78,7 @@ export class googleSheetsDataSource implements DataSource {
       id: '',
       saram: '',
       cpf: '',
+  //@ts-ignore
       created_at: undefined,
       name: '',
       email: '',
@@ -93,6 +92,7 @@ export class googleSheetsDataSource implements DataSource {
     const headers = Object.keys(emptyUser);
     (await usersCentralSheet).setHeaderRow(headers)
   }
+  //@ts-ignore
   const userRowValues = users.map(user=>Object.keys(user).map(key=>user[key]))
   const addedRows = await usersSheet.addRows(userRowValues)
   if(!addedRows)
@@ -105,7 +105,7 @@ export class googleSheetsDataSource implements DataSource {
   
  }
 
-  async getuser(saram?: string,email?:string): Promise<User | ErrorTypes> {
+  async getUser(saram: string,cpf:string,email?:string): Promise<User | ErrorTypes> {
     const doc = await getGoogleSheetsClient();
     const usersSheet = doc.sheetsByTitle["Central de usuários"]
     if(!usersSheet){
@@ -114,6 +114,7 @@ export class googleSheetsDataSource implements DataSource {
         id: '',
         saram: '',
         cpf: '',
+  //@ts-ignore
         created_at: undefined,
         name: '',
         email: '',
@@ -146,14 +147,23 @@ export class googleSheetsDataSource implements DataSource {
                 code: 404
          };
       }
+
+      if(cpf){
+        const user:User = users.find((user: any) => user.cpf === cpf);
+        if (!user) {
+          return { message: `Usuário com o email ${email} não encontrado.`,
+                  code: 404
+           };
+        }
       return user;
-    }
-    return {
-      message: "Erro ao buscar usuário",
-      code : 404
     }
   
   }
+  return {
+    message: "Erro ao buscar usuário",
+    code : 404
+  }
+}
   async getUsers(search: string, offset: number): Promise<User[] | ErrorTypes> {
     const doc = await getGoogleSheetsClient();
     const usersSheet = doc.sheetsByTitle["Central de usuários"]
@@ -163,6 +173,7 @@ export class googleSheetsDataSource implements DataSource {
         id: '',
         saram: '',
         cpf: '',
+  //@ts-ignore
         created_at: undefined,
         name: '',
         email: '',
@@ -184,10 +195,9 @@ export class googleSheetsDataSource implements DataSource {
           );
         });
         const newOffset = null;
-        return { users: filteredUsers, newOffset };
+        return filteredUsers as User[]
       }
-      const newOffset = users.length >= offset + 20 ? offset + 20 : null;
-      return { users, newOffset };
+      return users as User[]
     }
 
 
@@ -200,6 +210,8 @@ export class googleSheetsDataSource implements DataSource {
           id: '',
           saram: '',
           cpf: '',
+
+//@ts-ignore
           created_at: undefined,
           name: '',
           email: '',
@@ -230,6 +242,8 @@ export class googleSheetsDataSource implements DataSource {
         id: '',
         saram: '',
         cpf: '',
+//@ts-ignore
+
         created_at: undefined,
         name: '',
         email: '',
@@ -242,15 +256,17 @@ export class googleSheetsDataSource implements DataSource {
       }
       const headers = Object.keys(emptyUser);
 
-      const updatedUser:User  = {}
+      const updatedUser:{[key:string]:any} = {}
 
       headers.forEach(key=>{
+        
         updatedUser[key] = userFromUserSheet.get(key)
       })
-      
-      return updatedUser
+
+      return updatedUser as User
       
      }
+  
 
   async deleteUser(saram: string): Promise<User | ErrorTypes> {
     const users = await getDataFromTab("users", 1000);
@@ -267,8 +283,7 @@ export class googleSheetsDataSource implements DataSource {
 
 
 
-  
-
+  //everything related to Rosters
   async createRoster(roster:Roster): Promise<ErrorTypes | Roster> {
   const doc = await getGoogleSheetsClient();
 
@@ -302,117 +317,296 @@ export class googleSheetsDataSource implements DataSource {
   
   return newRoster;
   }
- 
-   getUserShiftsByRoster(saram: string,month:string,year:number): Promise<ErrorTypes | WorkDay[]> {
-    /* const users = await getDataFromTab("users", 1000);
-    const user:User = users.find((user: any) => user.saram === saram);
-    if (!user) {
-      return { message: "User not found",
+  async getRoster(rosterId: string): Promise<ErrorTypes | Roster> {
+    const doc = await getGoogleSheetsClient();
+    const rosterSheet = doc.sheetsByTitle["Central de Escalas"]
+    if(!rosterSheet){
+      doc.addSheet({ title: `Central de Escalas` })
+    }
+    const rosters = await getDataFromTab("Central de Escalas", 1000);
+    const roster = rosters.find((roster: any) => roster.id === rosterId);
+    if (!roster) {
+      return { message: "Escala não encontrada",
               code: 404
        };
     }
-    
-    const shifts = await getDataFromTab(`Escala_${month}_${year}`, 1000);
-    if(!shifts){
-    return {
-      message: "Turnos Não encontrados",
-      code: 404
-    
+    return roster;
+  }
+
+  async deleteRoster(rosterId:string): Promise<Roster | ErrorTypes>{
+    const doc = await getGoogleSheetsClient();
+    const rosterSheet = doc.sheetsByTitle["Central de Escalas"]
+    if(!rosterSheet){
+      doc.addSheet({ title: `Central de Escalas` })
     }
+    const roster = (await rosterSheet.getRows()).find(roster=>roster.get("id") === rosterId)
+    if(!roster){
+      return { message: "Escala não encontrada",
+      code: 404}
     }
-    const userShifts = shifts.filter((shift: any) => shift.saram === saram)
-    if(!userShifts){
+    roster.delete()
+    doc.sheetsByTitle[`Escala_${roster.get("month")}_${roster.get("year")}`].delete()
+
+    const deletedRoster = {
+      id: roster.get("id"),
+      created_at: roster.get("created_at"),
+      month: roster.get("month"),
+      year: roster.get("year"),
+      minWorkingHoursPerRoster: roster.get("minWorkingHoursPerRoster"),
+      maxWorkingHoursPerRoster: roster.get("maxWorkingHoursPerRoster"),
+      departmentId: roster.get("departmentId"),
+      blockChanges: roster.get("blockChanges")
+    }
+    return deletedRoster
+  }
+
+
+  async createShift(shift:Shift): Promise<Shift | ErrorTypes>{
+    const doc = await getGoogleSheetsClient();
+    const shiftsSheet = doc.sheetsByTitle["Central de Turnos"]
+    if(!shiftsSheet){
+      const shiftsCentralSheet = doc.addSheet({ title: `Central de Turnos` })
+//@ts-ignore
+      const emptyShift:Shift = {
+        id: '',
+        name: '',
+        start: new Date(),
+        end: new Date(),
+        quantity: 0,
+        minQuantity: 0,
+        rosterId: '',
+        isAvailable: false,
+        isAbscence: false,
+        created_at: new Date(),
+      }
+      const headers = Object.keys(emptyShift);
+      (await shiftsCentralSheet).setHeaderRow(headers)
+    }
+    //@ts-ignore
+    const shiftRowValues = Object.keys(shift).map(key=>shift[key])
+    const addedRow = await shiftsSheet.addRow(shiftRowValues)
+    if(!addedRow)
       return {
-        message: `Turnos do saram: ${saram} não encontrados.`,
-        code: 404
-      
+          code:404,
+          message:"Não foi possível criar turno"
+        }
+    return shift
+  }
+
+  async getShift(shiftId:string): Promise<Shift | ErrorTypes>{
+    const doc = await getGoogleSheetsClient();
+    const shiftsSheet = doc.sheetsByTitle["Central de Turnos"]
+    if(!shiftsSheet){
+      const shiftsCentralSheet = doc.addSheet({ title: `Central de Turnos` })
+//@ts-ignore
+      const emptyShift:Shift = {
+        id: '',
+        name: '',
+        start: new Date(),
+        end: new Date(),
+        quantity: 0,
+        minQuantity: 0,
+        rosterId: '',
+        isAvailable: false,
+        isAbscence: false,
+        created_at: new Date(),
       }
+      const headers = Object.keys(emptyShift);
+      (await shiftsCentralSheet).setHeaderRow(headers)
     }
-
-    const  shiftsData:Shift[] = (await getDataFromTab("shiftsControl", 1000)).map((shift: any) => {
-      const newShift:Shift = {
-        name: shift.name,
-        start: shift.start ?? new Date(),
-        end: shift.end ?? new Date(),
-        quantity: shift.quantity ?? 0,
-        minQuantity: shift.minQuantity ?? 0,
-        userId: shift.userId ?? user.saram,
-        rosterId: shift.rosterId,
-        departmentId: shift.departmentId,
-        isAvailable: shift.isAvailable,
-        isAbscence: shift.isAbscence,
-        id: shift.id ?? shift.id.toString(),
-        created_at: shift.created_at ?? new Date(),
-        day: shift.day ?? ''
+    const shifts = await getDataFromTab("Central de Turnos", 1000);
+    const shift = shifts.find((shift: any) => shift.id === shiftId);
+    if (!shift) {
+      return { message: "Turno não encontrado",
+              code: 404
+       };
+    }
+    return shift;
+  }
+    
+  async updateShift(shift:Shift): Promise<Shift | ErrorTypes>{
+    const doc = await getGoogleSheetsClient();
+    const shiftsSheet = doc.sheetsByTitle["Central de Turnos"]
+    if(!shiftsSheet){
+      const shiftsCentralSheet = doc.addSheet({ title: `Central de Turnos` })
+//@ts-ignore 
+      const emptyShift:Shift = {
+        id: '',
+        name: '',
+        start: new Date(),
+        end: new Date(),
+        quantity: 0,
+        minQuantity: 0,
+        rosterId: '',
+        isAvailable: false,
+        isAbscence: false,
+        created_at: new Date(),
       }
-      return newShift;
-
+      const headers = Object.keys(emptyShift);
+      (await shiftsCentralSheet).setHeaderRow(headers)
     }
+    const shiftFromShiftsSheet = (await shiftsSheet.getRows()).find(shiftFromSheets=>shiftFromSheets.get("id") === shift.id)
+    if(!shiftFromShiftsSheet)
+      {
+        return {
+          code:404,
+          message:"Turno não encontrado"
+        }
+      }
+    shiftFromShiftsSheet.assign(shift)
+//@ts-ignore
+    const emptyShift:Shift = {
+      id: '',
+      name: '',
+      start: new Date(),
+      end: new Date(),
+      quantity: 0,
+      minQuantity: 0,
+      rosterId: '',
+      isAvailable: false,
+      isAbscence: false,
+      created_at: new Date(),
+    }
+    const headers = Object.keys(emptyShift);
 
+    const updatedShift:{[key:string]:any}  = {}
 
-    const newShifts = userShifts.filter((shift: any) => shift !== isNaN(parseFloat(shift))).map((shift: any) => {
-          const newShift
+    headers.forEach(key=>{
+      updatedShift[key] = shiftFromShiftsSheet.get(key)
     })
 
-    return userShifts; */
-    throw new Error('Method not implemented.');
+    return updatedShift as Shift
   }
 
-  getRosterByMonthAndDepartment(month: string, year: number, departmentId: string): Promise<ErrorTypes | { id: string; created_at: Date; month: $Enums.Months; year: number; minWorkingHoursPerRoster: number | null; maxWorkingHoursPerRoster: number | null; departmentId: string; blockChanges: boolean; }> {
-    throw new Error('Method not implemented.');
-  }
-
-
-  
-
-  async getShiftsControlers() {
-    const shiftsControllers = await getDataFromTab("shiftsControl", 1000);
-    return shiftsControllers;
-  }
-  async getShiftsMil(search: string, offset: number) {
-    const session = await auth();
-    if(!session) return {shifts:[],newOffset:null}
-    const shiftsOld = await getDataFromTab("escala", offset);
-    const shifts = shiftsOld.map((shift: any) => {if(!shift){return "-"}else{return shift}});
-    if (search) {
-      const filteredShifts = shifts.filter((shift: any) => {
-        return Object.keys(shift).some((key) =>
-          shift[key] && shift[key].toLowerCase().includes(search.toLowerCase())
-        );
-      });
-      const newOffset = shifts.length <= offset + 10  ? offset + 10  : shifts.length -1
-      return { shifts: filteredShifts, newOffset };
+  async deleteShift(shiftId: string): Promise<Shift | ErrorTypes>{
+    const doc = await getGoogleSheetsClient();
+    const shiftsSheet = doc.sheetsByTitle["Central de Turnos"]
+    if(!shiftsSheet){
+      const shiftsCentralSheet = doc.addSheet({ title: `Central de Turnos` })
+//@ts-ignore
+      const emptyShift:Shift = {
+        id: '',
+        name: '',
+        start: new Date(),
+        end: new Date(),
+        quantity: 0,
+        minQuantity: 0,
+        rosterId: '',
+        isAvailable: false,
+        isAbscence: false,
+        created_at: new Date(),
+      }
+      const headers = Object.keys(emptyShift);
+      (await shiftsCentralSheet).setHeaderRow(headers)
     }
-    const newOffset = shifts.length >= offset + 10 ? offset + 10 : offset + 10
-    return { shifts, newOffset };
+    const shift = (await shiftsSheet.getRows()).find(shift=>shift.get("id") === shiftId)
+    if(!shift){
+      return { message: "Turno não encontrado",
+      code: 404}
+    }
+    shift.delete()
+    const deletedShift = {
+      id: shift.get("id"),
+      name: shift.get("name"),
+      start: shift.get("start"),
+      end: shift.get("end"),
+      quantity: shift.get("quantity"),
+      minQuantity: shift.get("minQuantity"),
+      rosterId: shift.get("rosterId"),
+      isAvailable: shift.get("isAvailable"),
+      isAbscence: shift.get("isAbscence"),
+      created_at: shift.get("created_at"),
+    }
+    return deletedShift as Shift
   }
-}
 
+  //everything related to workDays
 
-export async function getShifts() {
-
-  const shiftsControllers = await getDataFromTab("shiftsControl", 1000);
-  return shiftsControllers;
-}
-  
-
-
-
-export async function getShiftsMil(search: string, offset: number) {
-  const session = await auth();
-  const shiftsOld = await getDataFromTab("escala", offset);
-  const shifts = shiftsOld.map((shift: any) => {if(!shift){return "-"}else{return shift}});
-  if (search) {
-    const filteredShifts = shifts.filter((shift: any) => {
-      return Object.keys(shift).some((key) =>
-        shift[key] && shift[key].toLowerCase().includes(search.toLowerCase())
-      );
-    });
-    const newOffset = shifts.length <= offset + 10  ? offset + 10  : shifts.length -1
-    return { shifts: filteredShifts, newOffset };
+  async updateWorkDay(workDay: { id: string; day: Date; userId: string; rosterId: string; shiftId: string; }): Promise<{ id: string; day: Date; userId: string; rosterId: string; shiftId: string; } | ErrorTypes> {
+    const doc = await getGoogleSheetsClient();
+    const workDaysSheet = doc.sheetsByTitle["Central de Dias trabalhados"]
+    if(!workDaysSheet){
+      const workDaysCentralSheet = doc.addSheet({ title: `Central de Dias trabalhados` })
+    }
+    const workDayFromWorkDaysSheet = (await workDaysSheet.getRows()).find(workDayFromSheets=>workDayFromSheets.get("day") === workDay.day && workDayFromSheets.get("userId") === workDay.userId && workDayFromSheets.get("rosterId") === workDay.rosterId)
+    if(!workDayFromWorkDaysSheet)
+      {
+        return {
+          code:404,
+          message:"Dia de trabalho não encontrado"
+        }
+      }
+    workDayFromWorkDaysSheet.assign(workDay)
+    const updatedWorkDay = {
+      id: workDayFromWorkDaysSheet.get("id"),
+      day: workDayFromWorkDaysSheet.get("day"),
+      userId: workDayFromWorkDaysSheet.get("userId"),
+      rosterId: workDayFromWorkDaysSheet.get("rosterId"),
+      shiftId: workDayFromWorkDaysSheet.get("shiftId")
+    }
+    return updatedWorkDay
   }
-  const newOffset = shifts.length >= offset + 10 ? offset + 10 : offset + 10
-  return { shifts, newOffset };
+  async createWorkDay(workDay:WorkDay): Promise<WorkDay | ErrorTypes>{
+    const doc = await getGoogleSheetsClient();
+    const workDaysSheet = doc.sheetsByTitle["Central de Dias trabalhados"]
+    if(!workDaysSheet){
+      const workDaysCentralSheet = doc.addSheet({ title: `Central de Dias trabalhados` })
+    }
+    const workDayFromWorkDaysSheet = (await workDaysSheet.getRows()).find(workDayFromSheets=>workDayFromSheets.get("day") === workDay.day && workDayFromSheets.get("userId") === workDay.userId && workDayFromSheets.get("rosterId") === workDay.rosterId)
+    if(workDayFromWorkDaysSheet && workDayFromWorkDaysSheet.get("shiftId") === workDay.shiftId)
+      {
+        return {
+          code:404,
+          message:"Dia de trabalho já existente"
+        }
+      }
+
+      //@ts-ignore
+  const workDayRowValues = Object.keys(workDay).map(key=>workDay[key])
+  await workDaysSheet.addRow(workDayRowValues)
+
+  return workDay
+  }
+
+  async deleteWorkDay(workDayId: string): Promise<WorkDay | ErrorTypes>{
+    const doc = await getGoogleSheetsClient();
+    const workDaysSheet = doc.sheetsByTitle["Central de Dias trabalhados"]
+    if(!workDaysSheet){
+      const workDaysCentralSheet = doc.addSheet({ title: `Central de Dias trabalhados` })
+    }
+    const workDay = (await workDaysSheet.getRows()).find(workDay=>workDay.get("id") === workDayId)
+    if(!workDay){
+      return { message: "Dia de trabalho não encontrado",
+      code: 404}
+    }
+    workDay.delete()
+    const deletedWorkDay = {
+      id: workDay.get("id"),
+      day: workDay.get("day"),
+      userId: workDay.get("userId"),
+      rosterId: workDay.get("rosterId"),
+      shiftId: workDay.get("shiftId")
+    }
+    return deletedWorkDay as WorkDay
+  }
+
+  async getWorkDays(userId:string,rosterId:string): Promise<WorkDay[] | ErrorTypes>{
+    const doc = await getGoogleSheetsClient();
+    const workDaysSheet = doc.sheetsByTitle["Central de Dias trabalhados"]
+    if(!workDaysSheet){
+      const workDaysCentralSheet = doc.addSheet({ title: `Central de Dias trabalhados` })
+    }
+    const workDays = await getDataFromTab("Central de Dias trabalhados", 1000);
+    const workDay = workDays.filter((workDay: any) => workDay.userId === userId && workDay.rosterId === rosterId);
+    if (!workDay) {
+      return { message: "Dia de trabalho não encontrado",
+              code: 404
+       };
+    }
+    return workDay;
+  }
+
+
 }
 
 

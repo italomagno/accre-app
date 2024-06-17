@@ -1,5 +1,5 @@
-
-import { getShiftsCounter, getShiftsMil } from '@/src/lib/db/googleSheets';
+/* 
+import { getShiftsCounter, getShiftsMil } from '@/src/lib/db/googleSheets'; */
 import { Search } from './search';
 import { CustomTable } from './customTable';
 import { ShiftsTable } from './shiftsTable';
@@ -10,7 +10,7 @@ export default async function IndexPage({
 }: {
   searchParams: { q: string; offset: string };
 }) {
-  const search = searchParams.q ?? '';
+/*   const search = searchParams.q ?? '';
   const offset = searchParams.offset ?? 10;
  
   const {shifts:oldShifts,newOffset} = await getShiftsMil(search, Number(offset))
@@ -27,6 +27,9 @@ export default async function IndexPage({
   });
   const {vectorToReturn:counter, vectorToReturnWithColors} = await getShiftsCounter()
 
+ */
+const emptyCounter:any[] = []
+const emptyVectorToReturnWithColors: any[] = []
 
     return (
       <LayoutComponent>
@@ -36,7 +39,7 @@ export default async function IndexPage({
         <h1 className="font-semibold text-lg md:text-2xl">Turnos</h1>
       </div>
       <div className='w-screen'>
-        <ShiftsTable values={counter} valuesWithColors={vectorToReturnWithColors} offset={100} />
+        <ShiftsTable values={emptyCounter} valuesWithColors={emptyVectorToReturnWithColors} offset={100} />
       </div>
       </div>
       <div className="flex flex-1 flex-col p-4 md:p-6 sw-screen">
@@ -48,7 +51,7 @@ export default async function IndexPage({
       </div>
       <div className='w-screen'>
 
-      <CustomTable values={shifts} offset={newOffset? newOffset : 0} />
+      <CustomTable values={emptyCounter} offset={0} />
       </div>
       </div>
     </main>
