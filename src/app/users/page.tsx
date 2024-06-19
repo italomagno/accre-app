@@ -1,5 +1,5 @@
 import { prismaORMDataSource } from '@/src/lib/db/prisma/prismaORMDataSource';
-import { CustomTable } from '../customTable';
+import { CustomTable } from '../../components/tables/customTable';
 import { Search } from '../search';
 import { ErrorTypes } from '@/src/types';
 import { User } from '@prisma/client';

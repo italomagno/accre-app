@@ -11,40 +11,7 @@ export default async function lancamento({
 }: {
     searchParams: { turnos: string, };
 }) {
-    /* const session = await auth();
-    const proposalFromCookies = await getProposalFromCookies()
-    //@ts-ignore
-    const [controllers, { shiftStatus },shifts] = await Promise.all([ getShiftsControlers(), getShiftsCounter(),proposalFromCookies ? {shifts:proposalFromCookies} : getShiftsFromUser(session?.user.email as string)])
-    const [abscences, shiftsNames, combinations] = controllers.reduce(
-        (acc, controller) => {
-            controller.abscences && acc[0].push(controller.abscences);
-            controller.shiftName && acc[1].push(controller.shiftName);
-            controller.combinations && acc[2].push(controller.combinations);
-            return acc;
-        },
-        [[], [], []]
-    );
    
-    
-    const options:optionsProps[] = [
-        { optionTitle: "Turnos", optionValues: [...shiftsNames, ...combinations] },
-        { optionTitle: "Afastamentos", optionValues: abscences }
-    ]
-    const shiftsInVector = shifts?.shifts?.split(",").map((shift) => {
-        const [day, shiftName] = shift.split(":");
-        return { day: parseInt(day), shiftName };
-    })
-    if(!searchParams.turnos) searchParams.turnos = ""
-    const searchParamsInvector = searchParams.turnos.split(",").map((shift) => {
-        const [day, shiftName] = shift.split(":");
-        return { day: parseInt(day), shiftName };
-    })
-    const newProposal = shiftsInVector?.map((shift) => {
-        const shiftName = searchParamsInvector.find((searchShift) => searchShift.day === shift.day)?.shiftName;
-        return `${shift.day}:${shiftName || shift.shiftName}`.replaceAll("undefined", "-");
-    }).join(",");
-    const proposal = newProposal || "";
- */
 const emptyProposal = ""
 const emptyShiftStatus = {availableShifts:[],completeShifts:[]}
 const emptyOptions = [{optionTitle:"",optionValues:[]}]

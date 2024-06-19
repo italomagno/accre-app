@@ -35,33 +35,7 @@ export function LoginPageComponent() {
       .replace(/(\d{6})(\d)/, '$1-$2')
       .replace(/(-\d)\d+?$/, '$1');
   }
-   async function handleSubmitForm (values: FormValues){
-  
-   /*  if (response && response.ok === false) {
-      toast({
-      title: 'Pau no login!',
-      description: "Verifique seu CPF ou Saram.",
-      duration: 3000,
 
-      })
-    }
-    if (response && response.ok === true) {
-      toast({
-      title: 'Login realizado com sucesso!',
-      description: "Aguarde redirecionamento.",
-      duration: 3000,
-
-      })
-        router.push('/lancamento')
-    }
-   
-    setTimeout(() => {
-      handleFinishSubmit()
-    }, 3000); */
-}
-function handleFinishSubmit(){
-  setIsSubmitted(false);
-}
 
   const onSubmit = async(data:FormValues) => {
     setIsSubmitted(true)

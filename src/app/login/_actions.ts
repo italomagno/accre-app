@@ -1,5 +1,5 @@
 "use server"
-import { signIn } from "@/src/app/auth";
+import { signIn, signOut } from "@/src/app/auth";
 import { FormValues, LoginSchema } from "@/src/types";
 
 
@@ -14,4 +14,8 @@ export async function signInOnServerActions(data: FormValues){
         return null
     }
 
+}
+
+export async function handleLogOut(){
+          await signOut()
 }

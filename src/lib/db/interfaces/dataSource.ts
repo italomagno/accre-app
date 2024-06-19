@@ -35,6 +35,12 @@ export interface DataSource {
 
     //getWorkDaysByUserAndRoster(saram:string,rosterId:string): Promise<WorkDay[] | ErrorTypes>;
 
+    //everything related to departments
+    createDepartment(department:Department): Promise<Department | ErrorTypes>;
+    getDepartment(departmentId:string): Promise<Department | ErrorTypes>;
+    deleteDepartment(departmentId:string): Promise<Department | ErrorTypes>;
+    //updateDepartment(department:Department): Promise<Department | ErrorTypes>;
+
 
 
 

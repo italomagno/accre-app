@@ -1,4 +1,4 @@
-import {  Roster, Shift, User, WorkDay } from '@prisma/client';
+import {  Department, Roster, Shift, User, WorkDay } from '@prisma/client';
 
 import { DataSource } from "../interfaces/dataSource";
 import getGoogleSheetsClient from './googleSheetsClient';
@@ -605,6 +605,25 @@ export  class googleSheetsDataSource implements DataSource {
     }
     return workDay;
   }
+
+
+  //everything related to departments
+
+  async createDepartment(department:Department): Promise<Department | ErrorTypes>{
+
+    throw new Error("Method not implemented.");
+  }
+
+  async getDepartment(departmentId:string): Promise<Department | ErrorTypes>{
+    throw new Error("Method not implemented.");
+  }
+
+  async deleteDepartment(departmentId:string): Promise<Department | ErrorTypes>{
+    throw new Error("Method not implemented.");
+  }
+
+
+
 
 
 }

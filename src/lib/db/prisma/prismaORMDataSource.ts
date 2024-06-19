@@ -2,16 +2,19 @@
 import { DataSource } from "../interfaces/dataSource";
 import { ErrorTypes } from "../../../types";
 import  prisma  from "@/src/lib/db/prisma/prismaClient";
-import { PrismaClient,$Enums, User, Roster, Shift, WorkDay } from "@prisma/client";
+import { PrismaClient, User, Roster, Shift, WorkDay, Department } from "@prisma/client";
 
 
 
 export class prismaORMDataSource implements DataSource {
-
+    
     private prisma: PrismaClient;
 
     constructor() {
         this.prisma = prisma;
+    }
+    createDepartment(department: { id: string; created_at: Date; name: string; spreadSheetId: string | null; }): Promise<{ id: string; created_at: Date; name: string; spreadSheetId: string | null; } | ErrorTypes> {
+        throw new Error("Method not implemented.");
     }
     async createUser(user: User): Promise<ErrorTypes | User> {
         const newUser = await this.prisma.user.create({
@@ -318,6 +321,41 @@ export class prismaORMDataSource implements DataSource {
         }
         return workDay;
     }
+
+    //everything related to departments
+
+    
+
+    async getDepartment(departmentId:string): Promise<Department | ErrorTypes>{
+        const department = await this.prisma.department.findFirst({
+            where:{
+                id:departmentId
+            }
+        });
+        if (!department) {
+            return {
+                code: 500,
+                message: "Erro de busca de departamento."
+            }
+        }
+        return department;
+    }
+
+    async deleteDepartment(departmentId:string): Promise<Department | ErrorTypes>{
+        const department = await this.prisma.department.delete({
+            where:{
+                id:departmentId
+            }
+        });
+        if (!department) {
+            return {
+                code: 500,
+                message: "Erro de remoção de departamento."
+            }
+        }
+        return department;
+    }
+
 
 
     async disconnect(): Promise<void> {

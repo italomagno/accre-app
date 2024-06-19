@@ -1,35 +1,96 @@
+'use client';
 import image from "../assets/loginImage.jpg"
 import { UseFormSetValue, useForm} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/src/components/ui/button';
-import { FormValues, registerDepartmentSchema ,RegisterDepartmentValues} from '../types';
+import { ErrorTypes, registerDepartmentSchema ,RegisterDepartmentValues} from '../types';
 import { Input } from '@/src/components/ui/input';
 import { useState } from 'react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/src/components/ui/form';
 import Image from 'next/image';
-import { signInOnServerActions } from "./login/_actions";
 import { LoadingComponentForLoginPage } from "./loadingComponentForLoginPage";
 import { applyCpfMask, applySaramMask } from "../lib/utils";
 import { Separator } from "../components/ui/separator";
+import { Department } from "@prisma/client";
+import { useToast } from "../components/ui/use-toast";
+import { createDepartment } from "./cadastrarOrgao/actions";
 
 
 export function DepartmentFormComponent() {
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const {toast} = useToast();
 
-  const onSubmit = async(data:FormValues) => {
-    setIsSubmitted(true)
+  const onSubmit = async(data:RegisterDepartmentValues) => {
     //criar função para cadastrar o departamento
 
+    //function to extract googlesheets id
+    const extractSpreadSheetId = (spreadSheetUrl: string) => {
+      spreadSheetUrl = "https://docs.google.com/spreadsheets/d/1-vM5aufIZ-0-5XxBdbKu8QCr4Lc8lsnpqvYOiuYtAEY/edit"
+      const regex = /(?<=\/d\/)(.*?)(?=\/)/;
+      const result = spreadSheetUrl.match(regex);
+      console.log(result)
+      return result ? result[0] : "";
+    };
+    console.log(data.spreadSheetId)
+
+    data.spreadSheetId = extractSpreadSheetId(data.spreadSheetId);
+    if(!data.spreadSheetId){
+      toast({
+        title: "Erro ao cadastrar SpreadSheet do Órgão",
+        description: "Verifique a URL da planilha e tente novamente.",
+      })
+      
+    }
+   
+
+    const newData = {
+      name: data.departmentName,
+      spreadSheetId: data.spreadSheetId,
+      users: 
+        {
+          name: data.name,
+          email: data.email,
+          cpf: data.CPF,
+          saram: data.saram,
+          role: "ADMIN"
+        }
       
 
-    //criar função para cadastrar o usuário no departamento
+    }
 
-    const result = await signInOnServerActions(data);
+    //criar função para cadastrar o usuário no departamento
+    const result = await createDepartment(newData as unknown as Department);
+
+    if(result){
+      if((result as ErrorTypes).code){
+        toast({
+          title: "Erro ao cadastrar Órgão",
+          description: (result as ErrorTypes).message,
+        })
+        
+        return;
+      }
+      toast({title: "Órgão cadastrado com sucesso!", 
+      description: "Agora você pode acessar o ShiftApp com o usuário criado."
+        });
+      
+      return;
+    }else{
+
+      toast({
+        title: "Erro ao cadastrar Órgão",
+        description: "Verifique os dados e tente novamente.",
+      })
+      
+      return;
+    }
+
+    
+
   };
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     maskFunction: (value: string) => string,
-    fieldName: keyof FormValues,
+    fieldName: keyof RegisterDepartmentValues,
     setValue: UseFormSetValue<{
       CPF: string;
       saram: string;
@@ -57,11 +118,10 @@ export function DepartmentFormComponent() {
       name: "",
     },
   });
-
   return (
        
         <div className="relative grid grid-cols-[1fr_1fr] min-h-screen w-full">
-          {isSubmitted && <LoadingComponentForLoginPage/>}
+          {/* isSubmitted && <LoadingComponentForLoginPage/> */}
           <div className={`relative flex-1 overflow-hidden block sm:hidden md:block lg:block xl:block  w-full`}>
           <Image
             alt="Authentication Hero"
@@ -194,7 +254,7 @@ export function DepartmentFormComponent() {
             </FormItem>
           )}
         />
-        <Button disabled={isSubmitted} className='w-full' type="submit">Fazer Login</Button>
+        <Button disabled={form.formState.isSubmitting} className='w-full' type="submit">Fazer Cadastro</Button>
       </form>
       </Form>
           </div>
