@@ -1,6 +1,6 @@
 "use server"
 
-import { auth } from "../app/auth"
+import { auth } from "./auth"
 
 export default auth(async (req) => {
     if (!req.auth && req.nextUrl.pathname !== "/login") {

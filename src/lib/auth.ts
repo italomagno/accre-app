@@ -1,8 +1,8 @@
 import NextAuth,{ DefaultSession, NextAuthConfig }  from "next-auth";
 import Credentials from "next-auth/providers/credentials"
-import { googleSheetsDataSource } from "../lib/db/sheets/googleSheetsDataSource";
 import { ErrorTypes } from "../types";
 import { User } from "@prisma/client";
+import { getUser } from "../app/login/_actions";
 
 declare module "next-auth" {
 interface Session {
@@ -19,17 +19,19 @@ export const AuthOptions:NextAuthConfig = {
             CPF: {},
             saram: {},
           },
-          //@ts-ignore de alguma manira nao ta idefentificando o problema
           authorize: async (credentials) => {
             try {
-              const GoogleSheetsDataSource = new googleSheetsDataSource()
               const srmHash = credentials.saram as string
               const cpfHash = credentials.CPF as string
-              const user =  GoogleSheetsDataSource.getUser(srmHash,cpfHash)
-              if (!user || (user as unknown as ErrorTypes).code) {
+              const userFromDB =  await getUser(srmHash,cpfHash)
+              if (!userFromDB || (userFromDB as unknown as ErrorTypes).code) {
                 throw new Error("User not found.")
               }
-              return user 
+              return {
+                email: (userFromDB as User).email,
+                id: (userFromDB as User).id,
+                name: (userFromDB as User).name,
+              } ?? null
             } catch (error) {
               // Always return null if an error occurs
               return null
@@ -37,16 +39,19 @@ export const AuthOptions:NextAuthConfig = {
           },
         }),
       ],
-      /* callbacks: {
+      callbacks: {
         async session({ session, token, user }) {
-          const newUser = await getUserByEmail(session.user.email)
           // `session.user.address` is now a valid property, and will be type-checked
           // in places like `useSession().data.user` or `auth().user`
           return {
             ...session,
-            user: newUser
+            user: {
+              ...session.user,
+            }
           }
         },
-      } */
+      }
  }
 export const { handlers, auth ,signIn,signOut} = NextAuth(AuthOptions)
+
+

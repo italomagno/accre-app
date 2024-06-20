@@ -37,6 +37,17 @@ export const registerDepartmentSchema = z.object({
     name: z.string().min(3, 'O nome deve conter no mínimo 3 caracteres.').refine(value => value !== '', 'Nome é obrigatório.'),
 })
 
+export const registerUserSchema = z.object({
+    name: z.string().min(3, 'O nome deve conter no mínimo 3 caracteres.').refine(value => value !== '', 'Nome é obrigatório.'),
+    email: z.string().email('E-mail inválido.').refine(value => value !== '', 'E-mail é obrigatório.'),
+    CPF: z.string().min(11, 'O CPF deve conter 11 dígitos.').refine(value => value !== '', 'CPF é obrigatório.'),
+    saram: z.string().min(7, 'O Saram deve conter 7 dígitos.').refine(value => value !== '', 'Saram é obrigatório.'),
+    function: z.string().refine(value => value !== '', 'Função Operacional é obrigatório.'),
+    departmentId: z.string().refine(value => value !== '', 'Departamento é obrigatório.'),
+})
+
+export type RegisterUserValues = z.infer<typeof registerUserSchema>;
+
 export type RegisterDepartmentValues = z.infer<typeof registerDepartmentSchema>;
 
 
@@ -52,3 +63,4 @@ export const LoginSchema = z.object({
   });
   
   export type ProposalValues = z.infer<typeof proposalSchema>;
+

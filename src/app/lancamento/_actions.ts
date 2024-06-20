@@ -1,7 +1,7 @@
 "use server"
 import { ErrorTypes } from "@/src/types"
 import { GoogleSpreadsheet} from 'google-spreadsheet';
-import { auth } from "../auth";
+import { auth } from "../../lib/auth";
 import { cookies } from 'next/headers';
 
 

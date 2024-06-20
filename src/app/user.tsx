@@ -1,5 +1,5 @@
 
-import { auth, signOut } from '@/src/app/auth';
+import { auth, signOut } from '@/src/lib/auth';
 
 export async function User() {
   const session = await auth();

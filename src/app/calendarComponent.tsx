@@ -126,7 +126,6 @@ export function CalendarComponent({ proposal, options,shiftsStatus,}: { proposal
        <Button disabled={isPending} onClick={async()=>{
         setIsPeding(true)
         const result = (await handleSaveShifts(proposal))
-        console.log(result)
         setResponse(result)
        }}variant="destructive" className='w-full max-w-screen-sm bg-green-400 hover:bg-green-400/40' type='submit'>
     Salvar Proposição

@@ -2,7 +2,7 @@
 import { DataSource } from "../interfaces/dataSource";
 import { ErrorTypes } from "../../../types";
 import  prisma  from "@/src/lib/db/prisma/prismaClient";
-import { PrismaClient, User, Roster, Shift, WorkDay, Department } from "@prisma/client";
+import { PrismaClient, User, Roster, Shift, WorkDay, Department, $Enums } from "@prisma/client";
 
 
 
@@ -12,6 +12,9 @@ export class prismaORMDataSource implements DataSource {
 
     constructor() {
         this.prisma = prisma;
+    }
+    getUser(saram: string, cpf: string, email?: string | undefined): Promise<{ id: string; saram: string; cpf: string; created_at: Date; name: string; email: string; block_changes: boolean; isOffice: boolean; function: $Enums.Function; role: $Enums.Role; rosterId: string; departmentId: string; } | ErrorTypes> {
+        throw new Error("Method not implemented.");
     }
     createDepartment(department: { id: string; created_at: Date; name: string; spreadSheetId: string | null; }): Promise<{ id: string; created_at: Date; name: string; spreadSheetId: string | null; } | ErrorTypes> {
         throw new Error("Method not implemented.");
@@ -58,31 +61,7 @@ export class prismaORMDataSource implements DataSource {
 
 
     }
-    async getUser(saram:string,cpf:string,email?:string): Promise<User | ErrorTypes>{
-        const user = await this.prisma.user.findFirst({
-            where:{
-                OR:[
-                    {
-                        saram:saram
-                    },
-                    {
-                        cpf:cpf
-                    },
-                    {
-                        email:email
-                    }
-                ]
-            }
-        });
-        if(!user){
-            return {
-                code: 404,
-                message: "User not found"
-            }
-        }
-        return user;
-    
-    }
+   
     async getUsers(search: string, offset: number,departmentId:string): Promise<User[] | ErrorTypes>{
         const users = await this.prisma.user.findMany(
             {

@@ -1,7 +1,5 @@
 "use client";
 
-
-
 import image from "../assets/loginImage.jpg"
 import { UseFormSetValue, useForm} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,7 +7,6 @@ import { Button } from '@/src/components/ui/button';
 import { FormValues, LoginSchema } from '../types';
 import { Input } from '@/src/components/ui/input';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/src/components/ui/form';
 import Image from 'next/image';
@@ -18,7 +15,6 @@ import { LoadingComponentForLoginPage } from "./loadingComponentForLoginPage";
 
 
 export function LoginPageComponent() {
-  const [isSubmitted, setIsSubmitted] = useState(false);
 
    function applyCpfMask(value: string): string {
     return value
@@ -38,7 +34,6 @@ export function LoginPageComponent() {
 
 
   const onSubmit = async(data:FormValues) => {
-    setIsSubmitted(true)
     const result = await signInOnServerActions(data);
 
   };
@@ -53,12 +48,9 @@ export function LoginPageComponent() {
   ) => {
     const value = e.target.value;
     const maskedValue = maskFunction ? maskFunction(value) : value;
-    setValue(fieldName, maskedValue, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
+    console.log(maskedValue);
+    setValue(fieldName, maskedValue);
   };
-  //TypeError: Cannot read properties of undefined (reading 'parseAsync')
   const form = useForm<FormValues>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -70,7 +62,7 @@ export function LoginPageComponent() {
   return (
        
         <div className="relative grid grid-cols-[1fr_1fr] min-h-screen w-full">
-          {isSubmitted && <LoadingComponentForLoginPage/>}
+          {form.formState.isLoading && <LoadingComponentForLoginPage/>}
           <div className={`relative flex-1 overflow-hidden block sm:hidden md:block lg:block xl:block  w-full`}>
           <Image
             alt="Authentication Hero"
@@ -142,7 +134,7 @@ export function LoginPageComponent() {
             </FormItem>
           )}
         />
-        <Button disabled={isSubmitted} className='w-full' type="submit">Fazer Login</Button>
+        <Button disabled={form.formState.isSubmitting} className='w-full' type="submit">Fazer Login</Button>
       </form>
       </Form>
           </div>
@@ -150,13 +142,13 @@ export function LoginPageComponent() {
               <div>
               <p className="text-center text-sm text-gray-500 dark:text-gray-400 mb-4">
                 Não está cadastrado?
-                <Link href="#" className="ml-2 font-medium text-gray-900 hover:underline dark:text-gray-50" prefetch={false}>
+                <Link href="/cadastrarUsuario" className="ml-2 font-medium text-gray-900 hover:underline dark:text-gray-50" prefetch={false}>
                   Clique aqui.
                 </Link>
               </p>
               <p className="text-center text-sm text-gray-500 dark:text-gray-400">
                 Orgão sem Cadastro?
-                <Link href="#" className="ml-2 font-medium text-gray-900 hover:underline dark:text-gray-50" prefetch={false}>
+                <Link href="/cadastrarOrgao" className="ml-2 font-medium text-gray-900 hover:underline dark:text-gray-50" prefetch={false}>
                   Registre-se!
                 </Link>
               </p>

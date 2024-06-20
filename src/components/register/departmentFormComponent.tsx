@@ -1,19 +1,17 @@
 'use client';
-import image from "../assets/loginImage.jpg"
+import image from "@/src/assets/loginImage.jpg"
 import { UseFormSetValue, useForm} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/src/components/ui/button';
-import { ErrorTypes, registerDepartmentSchema ,RegisterDepartmentValues} from '../types';
+import { ErrorTypes, registerDepartmentSchema ,RegisterDepartmentValues} from '../../types';
 import { Input } from '@/src/components/ui/input';
-import { useState } from 'react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/src/components/ui/form';
 import Image from 'next/image';
-import { LoadingComponentForLoginPage } from "./loadingComponentForLoginPage";
-import { applyCpfMask, applySaramMask } from "../lib/utils";
-import { Separator } from "../components/ui/separator";
+import { applyCpfMask, applySaramMask } from "../../lib/utils";
 import { Department } from "@prisma/client";
-import { useToast } from "../components/ui/use-toast";
-import { createDepartment } from "./cadastrarOrgao/actions";
+import { useToast } from "../ui/use-toast";
+import { createDepartment } from "../../app/cadastrarOrgao/actions";
+import { Separator } from "../ui/separator";
 
 
 export function DepartmentFormComponent() {
@@ -27,10 +25,8 @@ export function DepartmentFormComponent() {
       spreadSheetUrl = "https://docs.google.com/spreadsheets/d/1-vM5aufIZ-0-5XxBdbKu8QCr4Lc8lsnpqvYOiuYtAEY/edit"
       const regex = /(?<=\/d\/)(.*?)(?=\/)/;
       const result = spreadSheetUrl.match(regex);
-      console.log(result)
       return result ? result[0] : "";
     };
-    console.log(data.spreadSheetId)
 
     data.spreadSheetId = extractSpreadSheetId(data.spreadSheetId);
     if(!data.spreadSheetId){
@@ -258,9 +254,6 @@ export function DepartmentFormComponent() {
       </form>
       </Form>
           </div>
-              
-      
-              
             </div>
         </div>
     
