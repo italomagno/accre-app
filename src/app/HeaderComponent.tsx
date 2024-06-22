@@ -25,24 +25,14 @@ export function HeaderComponent( {children}:HeaderComponentProps ){
     return(
     <header  className="fixed top-0 w-full">
     <div ref={ref} className={`flex h-14 lg:h-[60px] duration-200 inset-x-0 border-b z-[100] backdrop-blur ${!isIntersecting?"dark:bg-gray-800/0 border-transparent": "dark:bg-gray-800/70 border-gray-700"} top-0 items-center gap-4 px-6 dark:bg-gray-800/40 justify-between  lg:justify-end`}>
-    <div className={'hidden w-full lg:block'}>
+    <div className={' w-full'}>
         <div className="flex gap-2 items-center justify-start">
         <Logo />
         <span className="">Shift-App</span>
         </div>
       </div>
-      <div className='hidden lg:block'>
-        <div className={` gap-2 items-center justify-center ${!isIntersecting?"hidden": "flex"} ` }>
-        <TriggerButton children={<NavMenu />} />
-        <ToggleThemeProviderButton />
-        </div>
-      </div>
-      <div className={'flex gap-2 items-center justify-center lg:hidden'}>
-        <Logo />
-        <span className="">Shift-App</span>
-      </div>
       <div>
-        <div className='flex gap-2 items-center justify-center lg:hidden'>
+        <div className='flex gap-2 items-center justify-center'>
             {children}
         </div>
       </div>

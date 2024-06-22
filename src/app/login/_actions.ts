@@ -84,7 +84,7 @@ export async function getUserByEmail(email: string): Promise<User | ErrorTypes> 
 
 export async function handleLogOut() {
     try {
-        await signOut();
+        await signOut({redirectTo:"/login"});
     } catch (error) {
         console.error("Erro ao tentar fazer logout:", error);
     }

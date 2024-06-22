@@ -48,7 +48,6 @@ export function LoginPageComponent() {
   ) => {
     const value = e.target.value;
     const maskedValue = maskFunction ? maskFunction(value) : value;
-    console.log(maskedValue);
     setValue(fieldName, maskedValue);
   };
   const form = useForm<FormValues>({

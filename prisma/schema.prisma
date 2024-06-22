@@ -76,11 +76,11 @@ enum Months {
 model Roster{
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   created_at     DateTime @default(now())
-  month          Months @unique
-  year           Int    @unique
+  month          Months 
+  year           Int    
   users          User[]
-  minWorkingHoursPerRoster Int?
-  maxWorkingHoursPerRoster Int?
+  minWorkingHoursPerRoster Int? 
+  maxWorkingHoursPerRoster Int? 
   department     Department @relation(fields: [departmentId], references: [id])
   departmentId   String @db.ObjectId
   shifts         Shift[]
