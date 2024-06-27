@@ -1,15 +1,15 @@
 'use client'
-import { Calendar } from '@/src/components/ui/calendar';
 import { Dialog, DialogTrigger } from '@/src/components/ui/dialog';
-import { Error, ProposalValues, ShiftsStatusProps, optionsProps, proposalSchema } from '@/src/types';
+import {  ProposalValues, ShiftsStatusProps, optionsProps, proposalSchema } from '@/src/types';
 import { DialogComponent } from './DialogComponent';
 import { Button } from '@/src/components/ui/button';
 import { useToast } from '../components/ui/use-toast';
 import { useEffect, useState,  } from 'react';
-import { handleSaveShifts } from './lancamento/_actions';
+import { handleSaveShifts} from './lancamento/_actions';
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Calendar } from '../components/ui/calendar';
 
 
 export function CalendarComponent({ proposal, options,shiftsStatus,}: { proposal: string, options: optionsProps[],shiftsStatus:ShiftsStatusProps }) {
@@ -73,28 +73,7 @@ export function CalendarComponent({ proposal, options,shiftsStatus,}: { proposal
         <>
             <Calendar
                 mode='default'
-                className='text-lg'
-                styles={{
-                    months: { 
-                        fontSize: "1.5rem",
-                        lineHeight: "2rem"
-                    },
-                    row: { 
-                        fontSize: "1.5rem",
-                        lineHeight: "2rem",
-                    },
-                    head_cell: { 
-                        width: "50px",
-                        height: "50px",
-                        fontSize: "1.5rem",
-                        lineHeight: "2rem"
-                    },
-                    cell: { 
-                        width: "50px",
-                        height: "75px",
-                    },
-                    
-                }}
+                className='text-'
                 components={{
                     Day: (props) => 
                     {

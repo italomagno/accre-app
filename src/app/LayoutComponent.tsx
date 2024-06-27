@@ -1,4 +1,5 @@
 
+"use client"
 import { NavMenu } from './NavMenu';
 import React from 'react';
 import { HeaderComponent } from './HeaderComponent';
@@ -7,8 +8,8 @@ import { TriggerButton } from './TriggerButton';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from '@/src/components/ui/dropdown-menu';
 import { CircleUser } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { handleLogOut } from './login/_actions';
 import { LogOutButton } from '../components/ui/LogOutButton';
+import Link from 'next/link';
 type LayoutComponentProps={
     children:React.ReactNode
     isLogin?:boolean
@@ -33,11 +34,11 @@ export function LayoutComponent({children,isLogin = false}:LayoutComponentProps)
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+              <DropdownMenuLabel><Link href="/settings/myAccount">Minha Conta</Link></DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Configurações</DropdownMenuItem>
+              <DropdownMenuItem><Link href="/settings">Configurações</Link></DropdownMenuItem>
               <DropdownMenuItem>Contato</DropdownMenuItem>
-              <DropdownMenuSeparator />
+              <DropdownMenuSeparator/>
               <DropdownMenuItem>
                 <LogOutButton />
               </DropdownMenuItem>

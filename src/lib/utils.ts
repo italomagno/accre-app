@@ -10,6 +10,12 @@ export function generateUniqueKey(): string {
   return Math.random().toString(36).substring(2, 15);
 }
 
+export  const extractSpreadSheetId = (spreadSheetUrl: string) => {
+  spreadSheetUrl = "https://docs.google.com/spreadsheets/d/1-vM5aufIZ-0-5XxBdbKu8QCr4Lc8lsnpqvYOiuYtAEY/edit"
+  const regex = /(?<=\/d\/)(.*?)(?=\/)/;
+  const result = spreadSheetUrl.match(regex);
+  return result ? result[0] : "";
+};
 
 export function handleSearchParamsForLaunches(searchParams: string) {
   return `${new URLSearchParams({turnos:searchParams})}`

@@ -1,38 +1,92 @@
 "use client"
+import { Separator } from "@/src/components/ui/separator";
+import { $Enums } from "@prisma/client";
+import { sub } from "date-fns";
 import Link from "next/link"
 import { usePathname } from "next/navigation";
 
-
-export function SettingsNavigation() {
+interface SettingsNavigationProps{
+    role: $Enums.Role
+}
+export async function SettingsNavigation( {role}:SettingsNavigationProps ) {
     const pathName = usePathname();
     const settingsNavigationLinks = [
         {
-            href: "/settings/createRoster",
-            label: "Criar Escala Operacional",
+            href: "/settings",
+            label: "Geral",
+            availableFor: "USER"
+        },
+        {
+            href: "/settings/myAccount",
+            label: "Minha conta",
+            availableFor: "USER"
+        },
+        {
+            href: "/settings/contact",
+            label: "Contato",
+            availableFor: "USER"
         },
         {
             href: "/settings/integrations",
-            label: "Integrations",
+            label: "Integração com Google Sheets",
+            availableFor: "ADMIN"
         },
         {
-            href: "/settings/support",
-            label: "Support",
+            href: "/settings/roster",
+            label: "Escala Operacional",
+            availebleFor: "ADMIN",
+            subLinks: [
+                {
+                    href: "/settings/roster",
+                    label: "Geral",
+                    availebleFor: "ADMIN"
+                },
+                {
+                    href: "/settings/roster/createRoster",
+                    label: "Criar Escala Operacional",
+                    availebleFor: "ADMIN"
+                },
+            ]
         },
-        {
-            href: "/settings/organizations",
-            label: "Organizations",
-        },
-        {
-            href: "/settings/advanced",
-            label: "Advanced",
-        },
+        
     ]
     return (
         <nav
         className="grid gap-4 text-sm text-muted-foreground" x-chunk="dashboard-04-chunk-0"
         >
             {
-                settingsNavigationLinks.map((link) => (
+                    role === "ADMIN" ? 
+                    <>
+                       { settingsNavigationLinks.filter((link) => link.availableFor === "USER").map((link) => (
+                        <Link href={link.href} key={link.href} className={`${pathName === link.href ? "font-semibold text-primary" : ""}`}>
+                            {link.label}
+                        </Link>
+                    ))}
+                        <Separator/>
+                       { settingsNavigationLinks.filter((link) => link.availableFor !== "USER").map((link) => (
+                        link.subLinks ?
+                        <details key={link.href}>
+                            <summary className={`${pathName === link.href ? "font-semibold text-primary" : ""} cursor-pointer`}>
+                                {link.label}
+                            </summary>
+                            <div className="ml-4 flex flex-col gap-4 mt-4">
+                                {
+                                    link.subLinks.map((subLink) => (
+                                        <Link href={subLink.href} key={subLink.href} className={`${pathName === subLink.href ? "font-semibold text-primary" : ""}`}>
+                                            {subLink.label}
+                                        </Link>
+                                    ))
+                                }
+                            </div>
+                        </details>
+                        :
+                        <Link href={link.href} key={link.href} className={`${pathName === link.href ? "font-semibold text-primary" : ""}`}>
+                            {link.label}
+                        </Link>
+                    ))}
+                    </>
+                    :
+                settingsNavigationLinks.filter((link) => link.availableFor === "USER").map((link) => (
                     <Link href={link.href} key={link.href} className={`${pathName === link.href ? "font-semibold text-primary" : ""}`}>
                         {link.label}
                     </Link>

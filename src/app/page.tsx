@@ -1,5 +1,4 @@
-/* 
-import { getShiftsCounter, getShiftsMil } from '@/src/lib/db/googleSheets'; */
+
 import { Search } from './search';
 import { CustomTable } from '../components/tables/customTable';
 import { ShiftsTable } from '../components/tables/shiftsTable';
@@ -11,24 +10,7 @@ export default async function IndexPage({
 }: {
   searchParams: { q: string; offset: string };
 }) {
-/*   const search = searchParams.q ?? '';
-  const offset = searchParams.offset ?? 10;
- 
-  const {shifts:oldShifts,newOffset} = await getShiftsMil(search, Number(offset))
-  const shifts = oldShifts.map((shift: any) => {
-    const keys = Object.keys(shift)
-    const obj:{[x:string]:string|number} = {};
-    keys.forEach((key) => {
-      obj[key] = shift[key] ?? '-';
-    });
-    delete obj["saram"]
-    const newObj = {...obj,name:obj['name']
-    }
-    return newObj;
-  });
-  const {vectorToReturn:counter, vectorToReturnWithColors} = await getShiftsCounter()
 
- */
 const values = null
 const month = null
 const emptyVectorToReturnWithColors: any[] = []

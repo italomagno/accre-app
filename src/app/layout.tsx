@@ -1,10 +1,8 @@
-import './globals.css';
-
+import "../styles/globals.css";
 import { Analytics } from '@vercel/analytics/react';
 
 import { ThemeProvider } from '@/src/components/theme/theme-provider';
 import { Toaster } from '@/src/components/ui/toaster';
-import { LayoutComponent } from './LayoutComponent';
 
 
 export const metadata = {

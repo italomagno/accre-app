@@ -7,7 +7,7 @@ import { ErrorTypes, registerDepartmentSchema ,RegisterDepartmentValues} from '.
 import { Input } from '@/src/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/src/components/ui/form';
 import Image from 'next/image';
-import { applyCpfMask, applySaramMask } from "../../lib/utils";
+import { applyCpfMask, applySaramMask, extractSpreadSheetId } from "../../lib/utils";
 import { Department } from "@prisma/client";
 import { useToast } from "../ui/use-toast";
 import { createDepartment } from "../../app/cadastrarOrgao/actions";
@@ -18,15 +18,7 @@ export function DepartmentFormComponent() {
   const {toast} = useToast();
 
   const onSubmit = async(data:RegisterDepartmentValues) => {
-    //criar função para cadastrar o departamento
-
-    //function to extract googlesheets id
-    const extractSpreadSheetId = (spreadSheetUrl: string) => {
-      spreadSheetUrl = "https://docs.google.com/spreadsheets/d/1-vM5aufIZ-0-5XxBdbKu8QCr4Lc8lsnpqvYOiuYtAEY/edit"
-      const regex = /(?<=\/d\/)(.*?)(?=\/)/;
-      const result = spreadSheetUrl.match(regex);
-      return result ? result[0] : "";
-    };
+   
 
     data.spreadSheetId = extractSpreadSheetId(data.spreadSheetId);
     if(!data.spreadSheetId){
