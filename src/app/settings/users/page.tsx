@@ -7,6 +7,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/src
 import { TableHeader, TableRow, TableHead, TableBody, TableCell,Table } from '@/src/components/ui/table';
 import { generateUniqueKey } from '@/src/lib/utils';
 import { EmptySettingsComponent } from '@/src/components/empytySettingsComponent';
+import { ScrollArea, ScrollBar } from '@/src/components/ui/scroll-area';
 
 export default async function IndexPage({
   searchParams
@@ -60,7 +61,8 @@ export default async function IndexPage({
         <div className="w-full">
           <Search value={searchParams.q} />
         </div>
-        <Table>
+        <ScrollArea className='w-96 lg:w-full'>
+        <Table >
                       <TableHeader>
                           <TableRow>
                               {
@@ -71,7 +73,7 @@ export default async function IndexPage({
                               }
                           </TableRow>
                       </TableHeader>
-                      <TableBody>
+                      <TableBody >
                           {users.map(user => (
                               <TableRow key={user.id}>
                                   {
@@ -94,6 +96,11 @@ export default async function IndexPage({
                           ))}
                       </TableBody>
                   </Table>
+                  <ScrollBar orientation="horizontal" />
+                  <ScrollBar orientation="vertical" />
+
+        </ScrollArea>
+
           
         </CardContent>
       </Card>
