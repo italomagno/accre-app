@@ -1,7 +1,7 @@
 "use client"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/src/components/ui/accordion";
 import { Separator } from "@/src/components/ui/separator";
 import { $Enums } from "@prisma/client";
-import { sub } from "date-fns";
 import Link from "next/link"
 import { usePathname } from "next/navigation";
 
@@ -83,20 +83,25 @@ export async function SettingsNavigation( {role}:SettingsNavigationProps ) {
                         <Separator/>
                        { settingsNavigationLinks.filter((link) => link.availableFor !== "USER").map((link) => (
                         link.subLinks ?
-                        <details key={link.href}>
-                            <summary className={`${pathName === link.href ? "font-semibold text-primary" : ""} cursor-pointer`}>
-                                {link.label}
-                            </summary>
-                            <div className="ml-4 flex flex-col gap-4 mt-4">
-                                {
+                        <Accordion type="single" collapsible>
+  <AccordionItem  className=" border-none"value={link.href}>
+    <AccordionTrigger className={`${pathName === link.href ? "font-semibold text-primary" : ""} cursor-pointer`}>{link.label}
+</AccordionTrigger>
+{
                                     link.subLinks.map((subLink) => (
+    <AccordionContent>
+
                                         <Link href={subLink.href} key={subLink.href} className={`${pathName === subLink.href ? "font-semibold text-primary" : ""}`}>
                                             {subLink.label}
                                         </Link>
+    </AccordionContent>
+
                                     ))
                                 }
-                            </div>
-                        </details>
+  </AccordionItem>
+</Accordion>
+
+                        
                         :
                         <Link href={link.href} key={link.href} className={`${pathName === link.href ? "font-semibold text-primary" : ""}`}>
                             {link.label}
