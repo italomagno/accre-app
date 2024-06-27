@@ -1,5 +1,5 @@
 
-import { Search } from './search';
+import { Search } from '../components/search';
 import { CustomTable } from '../components/tables/customTable';
 import { ShiftsTable } from '../components/tables/shiftsTable';
 import { LayoutComponent } from './LayoutComponent';

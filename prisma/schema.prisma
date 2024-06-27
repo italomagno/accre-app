@@ -52,7 +52,7 @@ model User {
   function       Function @default(OPE)
   role           Role     @default(USER)
   roster         Roster?  @relation(fields: [rosterId], references: [id])
-  rosterId       String?   @db.ObjectId
+  rosterId       String[]   @db.ObjectId
   department     Department @relation(fields: [departmentId], references: [id])
   departmentId   String   @db.ObjectId
   workDay        WorkDay[]

@@ -1,4 +1,5 @@
 'use server'
+import { auth } from "@/src/lib/auth";
 import prisma from "@/src/lib/db/prisma/prismaClient";
 import { ErrorTypes } from "@/src/types";
 import { Department, User } from "@prisma/client";
@@ -51,4 +52,61 @@ export async function createDepartment(department:Department): Promise<Departmen
 
     }); */
    
+}
+
+export async function getDepartments(): Promise<Department[] | ErrorTypes>{
+    try {
+        const departments = await prisma.department.findMany();
+        if (!departments) {
+            await prisma.$disconnect();
+            return {
+                code: 500,
+                message: "Erro ao buscar departamentos."
+            }
+        }
+        await prisma.$disconnect();
+        return departments;
+        
+    } catch (error) {
+        return {
+            code:404,
+            message:`Erro ao buscar departamentos.`
+        }
+        
+    }
+}
+
+export async function getDepartmentBySession(): Promise<Department | ErrorTypes>{
+    try {
+        const session = await auth()
+        const user = await prisma.user.findUnique({
+            where:{
+                email:session?.user.email
+            }
+        })
+        if(!user){
+            return {
+                code: 404,
+                message: "Usuário não encontrado"
+            }
+        }
+        const department = await prisma.department.findUnique({
+            where:{
+                id: user.departmentId
+            }
+        })
+        if(!department){
+            return {
+                code: 404,
+                message: "Departamento não encontrado"
+            }
+        }
+        return department
+    } catch (error) {
+        return {
+            code: 500,
+            message: "Erro ao buscar departamento"
+        }
+    }
+    
 }

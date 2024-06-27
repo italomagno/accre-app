@@ -2,7 +2,7 @@
 
 import { Input } from '@/src/components/ui/input';
 import { SearchIcon, Spinner } from '@/src/components/icons';
-import { useRouter } from 'next/navigation';
+import { useRouter,usePathname } from 'next/navigation';
 import { useTransition, useEffect, useRef, useState } from 'react';
 
 export function Search(props: { value?: string }) {
@@ -10,6 +10,7 @@ export function Search(props: { value?: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState(props.value);
   const [isPending, startTransition] = useTransition();
+  const pathName = usePathname();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -24,7 +25,7 @@ export function Search(props: { value?: string }) {
     startTransition(() => {
       // All navigations are transitions automatically
       // But wrapping this allow us to observe the pending state
-      router.replace(`/?${params.toString()}`);
+      router.replace(`${pathName}?${params.toString()}`);
     });
   }, [router, value]);
 
@@ -38,8 +39,8 @@ export function Search(props: { value?: string }) {
           setValue(e.currentTarget.value);
         }}
         spellCheck={false}
-        className="w-full bg-white shadow-none appearance-none pl-8"
-        placeholder="Procurar militares..."
+        className="w-full  shadow-none appearance-none pl-8"
+        placeholder="Buscar Informações..."
       />
       {isPending && <Spinner />}
     </div>

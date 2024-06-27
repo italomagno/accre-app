@@ -5,6 +5,7 @@ import { SkeletonTable } from "@/src/components/tables/SkeletonTable"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/src/components/ui/card"
 import { generateUniqueKey } from "@/src/lib/utils"
 import { Roster } from "@prisma/client"
+import { EmptySettingsComponent } from "@/src/components/empytySettingsComponent"
 
 
 
@@ -20,6 +21,7 @@ export default async function RosterPage() {
             />
         )
     }
+    const pageTitle = "Escalas"
     
     
     return(
@@ -28,7 +30,7 @@ export default async function RosterPage() {
             rosters.length > 0 ? (
                 <Card x-chunk="dashboard-04-chunk-1">
                     <CardHeader>
-                        <CardTitle>Escalas</CardTitle>
+                        <CardTitle>{pageTitle}</CardTitle>
                         <CardDescription>
                         </CardDescription>
                     </CardHeader>
@@ -62,17 +64,10 @@ export default async function RosterPage() {
                
             ) : 
             (
-                <Card x-chunk="dashboard-04-chunk-1">
-                    <CardHeader>
-                        <CardTitle>Escalas</CardTitle>
-                        <CardDescription>
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <p>Não há escalas cadastradas</p>
-                    </CardContent>
-                </Card>
-                
+                <EmptySettingsComponent
+                pageTitle={pageTitle}
+                pageSubtitle="Não há escalas cadastradas."
+                />
             )
         }
         </>
