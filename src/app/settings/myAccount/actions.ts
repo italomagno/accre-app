@@ -1,13 +1,12 @@
-'use server'
+"use server"
 
 import { auth } from "@/src/lib/auth"
 import prisma from "@/src/lib/db/prisma/prismaClient"
 import { ErrorTypes } from "@/src/types"
-import { $Enums } from "@prisma/client"
+import { User } from "@prisma/client"
 
 
-
-export async function getUserRole():Promise<$Enums.Role| ErrorTypes> {
+export async function getUserProfile(): Promise<User | ErrorTypes>{
     const session = await auth()
     if(!session){
         return {
@@ -15,19 +14,19 @@ export async function getUserRole():Promise<$Enums.Role| ErrorTypes> {
             message: "Usuário não autenticado"
         }
     }
-
+    const email = session.user.email
     const user = await prisma.user.findUnique({
         where:{
-            email:session.user.email
+            email
         }
     })
     if(!user){
-        prisma.$disconnect();
         return {
             code: 404,
             message: "Usuário não encontrado"
         }
     }
     prisma.$disconnect();
-    return user.role 
+    return user
+
 }

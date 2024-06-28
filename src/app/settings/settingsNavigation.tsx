@@ -1,12 +1,13 @@
 "use client"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/src/components/ui/accordion";
 import { Separator } from "@/src/components/ui/separator";
+import { ErrorTypes } from "@/src/types";
 import { $Enums } from "@prisma/client";
 import Link from "next/link"
 import { usePathname } from "next/navigation";
 
 interface SettingsNavigationProps{
-    role: $Enums.Role
+    role: $Enums.Role | ErrorTypes
 }
 export async function SettingsNavigation( {role}:SettingsNavigationProps ) {
     const pathName = usePathname();

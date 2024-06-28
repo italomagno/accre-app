@@ -12,14 +12,18 @@ export async function getSpreadSheetId(){
             message: "Usuário não autenticado"
         }
     }
-
-    const email = session.user.email
-    const user = await prisma.user.findUnique({
-        where:{
-            email
+    const users = await prisma.user.findMany()
+    if(!users){
+        prisma.$disconnect();
+        return {
+            code: 404,
+            message: "Usuários não encontrados"
         }
-    })
+    }
+    const user = users.find(user => user.email === session.user.email)
+  
     if(!user){
+        prisma.$disconnect();
         return {
             code: 404,
             message: "Usuário não encontrado"
@@ -31,11 +35,14 @@ export async function getSpreadSheetId(){
         }
     })
     if(!department){
+        prisma.$disconnect();
+
         return {
             code: 404,
             message: "Órgão não encontrado"
         }
     }
+    prisma.$disconnect();
     return department.spreadSheetId
 }
 export async function updateSpreadSheetId( spreadSheetId: string):Promise<ErrorTypes>{
@@ -47,19 +54,26 @@ export async function updateSpreadSheetId( spreadSheetId: string):Promise<ErrorT
         }
     }
 
-    const email = session.user.email
-    const user = await prisma.user.findUnique({
-        where:{
-            email
+    const users = await prisma.user.findMany()
+    if(!users){
+        prisma.$disconnect();
+        return {
+            code: 404,
+            message: "Usuários não encontrados"
         }
-    })
+    }
+    const user = users.find(user => user.email === session.user.email)
+   
     if(!user){
+        prisma.$disconnect();
         return {
             code: 404,
             message: "Usuário não encontrado"
         }
     }
     if(user.role !== 'ADMIN'){
+        prisma.$disconnect();
+
         return {
             code: 403,
             message: "Usuário não autorizado"
@@ -74,12 +88,13 @@ export async function updateSpreadSheetId( spreadSheetId: string):Promise<ErrorT
         }
     })
     if(!updatedSpreadSheetId){
+        prisma.$disconnect();
         return {
             code: 500,
             message: "Erro ao atualizar planilha"
         }
     }
-
+    prisma.$disconnect();
     return {
         code: 200,
         message: "Planilha atualizada com sucesso"

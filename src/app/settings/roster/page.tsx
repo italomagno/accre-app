@@ -1,7 +1,6 @@
 import { ErrorComponent } from "@/src/components/errorComponent"
 import { getRosters } from "./actions"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table"
-import { SkeletonTable } from "@/src/components/tables/SkeletonTable"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/src/components/ui/card"
 import { generateUniqueKey } from "@/src/lib/utils"
 import { Roster } from "@prisma/client"

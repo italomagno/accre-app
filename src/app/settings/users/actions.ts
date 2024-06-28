@@ -15,7 +15,6 @@ export async function getUsersWithFilter(query:string):Promise<ErrorTypes|User[]
     }
   }
   const email = session.user.email
-    
   try{
     const admin = await prisma.user.findUnique({
       where:{
@@ -23,12 +22,14 @@ export async function getUsersWithFilter(query:string):Promise<ErrorTypes|User[]
       }
     })
     if(!admin){
+      prisma.$disconnect();
       return {
         code: 404,
         message: "Usuário não encontrado"
       }
     }
     if(admin.role !== "ADMIN"){
+      prisma.$disconnect();
       return {
         code: 403,
         message: "Usuário não autorizado"
@@ -62,17 +63,18 @@ export async function getUsersWithFilter(query:string):Promise<ErrorTypes|User[]
       },
       select:{
         name: true,
-        cpf: true,
-        saram: true,
-        email: true,
         function: true,
         role: true,
         block_changes: true,
         isOffice: true,
       }
     })
+    prisma.$disconnect();
+
     return users
   } catch(e){
+    prisma.$disconnect();
+
     return {
       code: 500,
       message: "Erro ao buscar usuários"

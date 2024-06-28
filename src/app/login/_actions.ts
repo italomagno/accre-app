@@ -1,4 +1,5 @@
 "use server"
+import { compareCredential } from '@/src/lib/bcrypt';
 import { auth, signIn, signOut } from "@/src/lib/auth";
 import prisma from "@/src/lib/db/prisma/prismaClient";
 import { ErrorTypes, FormValues, LoginSchema } from "@/src/types";
@@ -31,21 +32,26 @@ export async function signInOnServerActions(data: FormValues){
 
 export async function getUser(saram: string, cpf: string): Promise<User | ErrorTypes> {
     try {
-        const user = await prisma.user.findFirst({
-            where: {
-              saram: saram,
-              cpf: cpf
-            },
-          });
-        if(!user){
+        const users = await prisma.user.findMany()
+        if(!users){
+            await prisma.$disconnect();
             return {
                 code: 404,
-                message: "User not found"
+                message: "Error ao buscar usuários."
             };
         }
+        const user = users.find(user => compareCredential(saram,user.saram) && compareCredential(cpf,user.cpf))
+        if(!user){
+            await prisma.$disconnect();
+            return {
+                code: 404,
+                message: "Usuário não encontrado."
+            };
+        }
+        await prisma.$disconnect();
         return user;
     } catch (error) {
-        console.error("Erro ao buscar usuário:", error);
+        await prisma.$disconnect();
         return {
             code: 500,
             message: "Erro de busca de usuário."

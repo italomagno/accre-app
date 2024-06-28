@@ -1,5 +1,6 @@
 'use server'
 import { auth } from "@/src/lib/auth";
+import { compareCredential, hashCredential } from "@/src/lib/bcrypt";
 import prisma from "@/src/lib/db/prisma/prismaClient";
 import { ErrorTypes } from "@/src/types";
 import { Department, User } from "@prisma/client";
@@ -15,9 +16,9 @@ export async function createDepartment(department:Department): Promise<Departmen
                 users: {
                     create: {
                         name: ((department as any ).users as unknown as User).name,
-                        email: ((department as any ).users as unknown as User).email,
-                        cpf: ((department as any ).users as unknown as User).cpf,
-                        saram: ((department as any ).users as unknown as User).saram,
+                        email: hashCredential(((department as any ).users as unknown as User).email),
+                        cpf: hashCredential(((department as any ).users as unknown as User).cpf),
+                        saram: hashCredential(((department as any ).users as unknown as User).saram),
                         role: "ADMIN"
                     }
                 }
@@ -36,6 +37,7 @@ export async function createDepartment(department:Department): Promise<Departmen
         return newDepartment;
         
     } catch (error) {
+        await prisma.$disconnect();
         return {
             code:404,
             message:`Erro na criação do Departamento: O usuário, ou o Órgão já foi criado anteriormente.`
@@ -68,6 +70,7 @@ export async function getDepartments(): Promise<Department[] | ErrorTypes>{
         return departments;
         
     } catch (error) {
+        await prisma.$disconnect();
         return {
             code:404,
             message:`Erro ao buscar departamentos.`
@@ -79,12 +82,24 @@ export async function getDepartments(): Promise<Department[] | ErrorTypes>{
 export async function getDepartmentBySession(): Promise<Department | ErrorTypes>{
     try {
         const session = await auth()
-        const user = await prisma.user.findUnique({
-            where:{
-                email:session?.user.email
+        if(!session){
+            return {
+                code: 404,
+                message: "Sessão não encontrada"
             }
-        })
+        }
+        const users = await prisma.user.findMany()
+        if(!users){
+            await prisma.$disconnect();
+            return {
+                code: 404,
+                message: "Usuários não encontrados"
+            }
+        }
+        const user = users.find(user => compareCredential(session?.user.email,user.email))
+       
         if(!user){
+            await prisma.$disconnect();
             return {
                 code: 404,
                 message: "Usuário não encontrado"
@@ -96,13 +111,17 @@ export async function getDepartmentBySession(): Promise<Department | ErrorTypes>
             }
         })
         if(!department){
+            await prisma.$disconnect();
             return {
                 code: 404,
                 message: "Departamento não encontrado"
             }
         }
+
+        await prisma.$disconnect();
         return department
     } catch (error) {
+        await prisma.$disconnect();
         return {
             code: 500,
             message: "Erro ao buscar departamento"

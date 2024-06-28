@@ -32,12 +32,12 @@ export default async function MyAccountPage() {
   </TableHeader>
   <TableBody>
     <TableRow>
-      <TableCell> {user.name}</TableCell>
+     {/*  <TableCell> {user.name}</TableCell>
         <TableCell >{user.cpf}</TableCell>
         <TableCell>{user.email}</TableCell>
         <TableCell>{user.isOffice}</TableCell>
         <TableCell>{user.function}</TableCell>
-        <TableCell>{user.block_changes}</TableCell>
+        <TableCell>{user.block_changes}</TableCell> */}
     </TableRow>
   </TableBody>
 </Table>

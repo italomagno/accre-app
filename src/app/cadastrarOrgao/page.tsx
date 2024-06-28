@@ -1,5 +1,6 @@
+import { DepartmentFormComponent } from "@/src/components/register/department/departmentFormComponent";
 import { LayoutComponent } from "../LayoutComponent";
-import { DepartmentFormComponent } from "../../components/register/departmentFormComponent";
+
 
 
 
