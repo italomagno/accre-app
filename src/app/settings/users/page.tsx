@@ -38,7 +38,6 @@ export default async function IndexPage({
 
   const pageTitle = `Usuários Cadastrados no ${department.name}`
 
-  console.log(users)
  
 
   return (

@@ -1,4 +1,4 @@
-import { CreateRosterComponent } from "@/src/components/register/CreateRosterComponent";
+import { CreateRosterComponent } from "@/src/components/register/roster/CreateRosterComponent";
 
 
 

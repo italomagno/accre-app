@@ -3,13 +3,13 @@ import image from "@/src/assets/loginImage.jpg"
 import { UseFormSetValue, useForm} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/src/components/ui/button';
-import { ErrorTypes, registerUserSchema ,RegisterUserValues} from '../../types';
+import { ErrorTypes, registerUserSchema ,RegisterUserValues} from '../../../types';
 import { Input } from '@/src/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/src/components/ui/form';
 import Image from 'next/image';
-import { applyCpfMask, applySaramMask, generateUniqueKey } from "../../lib/utils";
-import { useToast } from "../ui/use-toast";
-import { Separator } from "../ui/separator";
+import { applyCpfMask, applySaramMask, generateUniqueKey } from "../../../lib/utils";
+import { useToast } from "../../ui/use-toast";
+import { Separator } from "../../ui/separator";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/src/components/ui/select";
 import { Function, User } from "@prisma/client";
 import { registerUser } from "@/src/app/cadastrarUsuario/actions";

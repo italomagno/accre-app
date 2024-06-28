@@ -1,13 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
+import { Button } from "../../ui/button"
+import { Input } from "../../ui/input"
 import { CheckCheck, Pen } from "lucide-react"
-import { Label } from "../ui/label"
+import { Label } from "../../ui/label"
 import { updateSpreadSheetId } from "@/src/app/settings/integrations/actions"
 import { extractSpreadSheetId } from "@/src/lib/utils"
-import { useToast } from "../ui/use-toast";
+import { useToast } from "../../ui/use-toast";
 import React from "react"
 
 

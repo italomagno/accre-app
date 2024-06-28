@@ -35,7 +35,6 @@ export async function registerUser(data: RegisterUserValues):Promise<User | Erro
         }
         return user;
     }catch(err){
-        console.log(err)
         return {
             code: 500,
             message: `Usuário já cadastrado.  ${err}`
