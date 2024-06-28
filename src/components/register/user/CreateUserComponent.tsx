@@ -87,7 +87,7 @@ export function CreateUserComponent( {department}:RegisterUserProps){
         <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div>
-          <h1 className="text-3xl font-bold">Seus dados</h1>
+          <h1 className="text-3xl font-bold">Dados do Usuário</h1>
           </div>
           
           <FormField

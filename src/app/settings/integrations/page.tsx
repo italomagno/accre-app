@@ -1,11 +1,8 @@
-import { SpreadSheetIdButton } from "@/src/components/register/SpreadSheetIdButton";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { getSpreadSheetId } from "./actions";
-import { HoverCard, HoverCardTrigger, HoverCardContent } from "@radix-ui/react-hover-card";
-import { Button } from "@/src/components/ui/button";
-import { CircleHelp, Copy } from "lucide-react";
-import { Separator } from "@/src/components/ui/separator";
 import { InformationButton } from "@/src/components/informationButton";
+import { SpreadSheetIdButton } from "@/src/components/register/spreadSheet/SpreadSheetIdButton";
 
 
 

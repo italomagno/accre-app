@@ -8,7 +8,6 @@ interface SettingsLayoutProps {
 }
 export default async function SettingsLayout({children}:SettingsLayoutProps){
   const userRole = await getUserRole()
-  console.log(userRole)
     return(
     <LayoutComponent
     isLogin={false}

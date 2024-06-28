@@ -29,7 +29,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/middleware.ts"
+    "src/middleware.ts",
+    "src/components/register/spreadSheet/SpreadSheetIdButton.tsx"
   ],
   "exclude": ["node_modules"]
 }

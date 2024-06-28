@@ -19,7 +19,7 @@ export default async function createUser(){
           )
         }
       
-        const pageTitle = `Usuários Cadastrados no ${department.name}`
+        const pageTitle = `Criar usuários para o ${department.name}`
 
        
       
