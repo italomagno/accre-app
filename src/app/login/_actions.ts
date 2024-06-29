@@ -5,22 +5,27 @@ import prisma from "@/src/lib/db/prisma/prismaClient";
 import { ErrorTypes, FormValues, LoginSchema } from "@/src/types";
 import { User } from "@prisma/client";
 
-export async function signInOnServerActions(data: FormValues){
+export async function signInOnServerActions(data: FormValues):Promise<ErrorTypes>{
     "use server"
+    
     try {
         const result = await LoginSchema.parseAsync(data);
-        if(result){
-            const res = await signIn("credentials", data)
+        const email = result.email 
+        const password = result.password 
+        const userFromDB = await getUser(email, password)
+        if("code" in userFromDB){
             return {
-                code: 200,
-                message: "Login efetuado com sucesso"
-            };
-        } else {
-            return {
-                code: 500,
-                message: "Erro de login"
+                code: 404,
+                message: "Usuário ou senha incorretos."
             };
         }
+        await signIn("credentials", data)
+
+        return {
+            code: 200,
+            message: "Login efetuado com sucesso. Aguarde Redirecionamento"
+        };
+     
     } catch (error) {
         console.error("Erro ao tentar fazer login:", error);
         return {
@@ -30,17 +35,39 @@ export async function signInOnServerActions(data: FormValues){
     }
 }
 
-export async function getUser(saram: string, cpf: string): Promise<User | ErrorTypes> {
+export async function getUser(email: string, password: string): Promise<User | ErrorTypes> {
     try {
-        const users = await prisma.user.findMany()
-        if(!users){
-            await prisma.$disconnect();
+        const userHashedPassword = await prisma.user.findFirst({
+            where: {
+                email: email
+            }
+        })
+        if(!userHashedPassword){
             return {
                 code: 404,
-                message: "Error ao buscar usuários."
+                message: "Email ou senha incorretos."
             };
         }
-        const user = users.find(user => compareCredential(saram,user.saram) && compareCredential(cpf,user.cpf))
+        
+        if(!userHashedPassword.password){
+            return {
+                code: 404,
+                message: "Email ou senha incorretos."
+            };
+        }
+        const isCorrectPassword = compareCredential(password, userHashedPassword.password);
+        if(!isCorrectPassword){
+            return {
+                code: 404,
+                message: "Email ou senha incorretos."
+            };
+        }
+        const user = await prisma.user.findUnique({
+            where: {
+                email: email,
+            }
+        });
+
         if(!user){
             await prisma.$disconnect();
             return {
@@ -90,7 +117,7 @@ export async function getUserByEmail(email: string): Promise<User | ErrorTypes> 
 
 export async function handleLogOut() {
     try {
-        await signOut({redirectTo:"/login"});
+        await signOut();
     } catch (error) {
         console.error("Erro ao tentar fazer logout:", error);
     }

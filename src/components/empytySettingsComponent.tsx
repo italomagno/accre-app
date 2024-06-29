@@ -16,8 +16,8 @@ export function EmptySettingsComponent( {pageTitle, children, pageSubtitle}: Emp
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {pageSubtitle && <p className="mb-4">{pageSubtitle}</p>}
                         {children}
+                        {pageSubtitle && <p className="mb-4">{pageSubtitle}</p>}
                     </CardContent>
                 </Card>
     )

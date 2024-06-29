@@ -27,9 +27,8 @@ export async function registerUser(data: RegisterUserValues):Promise<User | Erro
         const user = await prisma.user.create({
             data:{
                 name: data.name,
-                email: hashCredential(data.email),
-                cpf: hashCredential(data.CPF),
-                saram: hashCredential(data.saram),
+                email: (data.email),
+                password: hashCredential(data.password),
                 role: "USER",
                 departmentId: data.departmentId,
                 function: data.function as Function

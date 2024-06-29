@@ -1,11 +1,15 @@
-"use client"
+
 
 
 import { Separator } from "@/src/components/ui/separator"
 import { InformationCreateManyUsersButton } from "../../informationCreateManyUsersButton"
 import { FileInput } from "../../ui/file-input"
 
-export function CreateManyUsersComponent() {
+type CreateManyUsersComponentProps = {
+    search: string
+}
+
+export function CreateManyUsersComponent({search}:CreateManyUsersComponentProps) {
 
     return (
         <>
@@ -17,7 +21,7 @@ export function CreateManyUsersComponent() {
         </div>
         <Separator/>
         <div className="mt-4">
-            <FileInput/>
+            <FileInput search={search}/>
         </div>
           </>
     )

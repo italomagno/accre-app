@@ -80,11 +80,9 @@ export function ShiftsTable({
 }
 interface shiftProps {
   shifts: {
-    //@ts-ignore
     turno?:string,
-    //@ts-ignore
     quantidade?:string
-    [key: string]: { value: number; color: string };
+    [key: string]:any
   };
   hasName: boolean;
   hasNumber: boolean;

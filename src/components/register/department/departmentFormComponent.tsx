@@ -1,21 +1,23 @@
 'use client';
 import image from "@/src/assets/loginImage.jpg"
-import { UseFormSetValue, useForm} from 'react-hook-form';
+import { useForm} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/src/components/ui/button';
-import { ErrorTypes, registerDepartmentSchema ,RegisterDepartmentValues} from '../../types';
+import { registerDepartmentSchema ,registerDepartmentType,RegisterDepartmentValues} from '@/src/types';
 import { Input } from '@/src/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/src/components/ui/form';
 import Image from 'next/image';
-import { applyCpfMask, applySaramMask, extractSpreadSheetId } from "../../lib/utils";
-import { Department } from "@prisma/client";
-import { useToast } from "../ui/use-toast";
-import { createDepartment } from "../../app/cadastrarOrgao/actions";
-import { Separator } from "../ui/separator";
+import {  extractSpreadSheetId } from "@/src/lib/utils";
+import {  User } from "@prisma/client";
+import { useToast } from "@/src/components/ui/use-toast";
+import { createDepartment } from "@/src/app/cadastrarOrgao/actions";
+import { Separator } from "@/src/components/ui/separator";
+import {  useRouter } from "next/navigation";
 
 
 export function DepartmentFormComponent() {
   const {toast} = useToast();
+  const router = useRouter()
 
   const onSubmit = async(data:RegisterDepartmentValues) => {
    
@@ -29,39 +31,36 @@ export function DepartmentFormComponent() {
       
     }
    
-
-    const newData = {
-      name: data.departmentName,
+   
+    const newData: registerDepartmentType & Pick<User,"name"|"email"|"password" | "role"> = {
+      departmentName: data.departmentName,
       spreadSheetId: data.spreadSheetId,
-      users: 
-        {
-          name: data.name,
-          email: data.email,
-          cpf: data.CPF,
-          saram: data.saram,
-          role: "ADMIN"
-        }
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      role: "ADMIN"
       
 
     }
 
     //criar função para cadastrar o usuário no departamento
-    const result = await createDepartment(newData as unknown as Department);
+    const result = await createDepartment(newData);
 
     if(result){
-      if((result as ErrorTypes).code){
+      if("code" in result){
         toast({
           title: "Erro ao cadastrar Órgão",
-          description: (result as ErrorTypes).message,
+          description: result.message,
         })
         
         return;
       }
+
       toast({title: "Órgão cadastrado com sucesso!", 
       description: "Agora você pode acessar o ShiftApp com o usuário criado."
         });
+        router.push("/login");
       
-      return;
     }else{
 
       toast({
@@ -75,34 +74,14 @@ export function DepartmentFormComponent() {
     
 
   };
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    maskFunction: (value: string) => string,
-    fieldName: keyof RegisterDepartmentValues,
-    setValue: UseFormSetValue<{
-      CPF: string;
-      saram: string;
-      departmentName: string;
-      spreadSheetId: string;
-      email: string;
-      name: string;
-  }>
-  ) => {
-    const value = e.target.value;
-    const maskedValue = maskFunction ? maskFunction(value) : value;
-    setValue(fieldName, maskedValue, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-  };
+ 
   const form = useForm<RegisterDepartmentValues>({
     resolver: zodResolver(registerDepartmentSchema),
     defaultValues: {
-      CPF: "",
-      saram: "",
       departmentName: "",
       spreadSheetId: "",
       email: "",
+      password: "",
       name: "",
     },
   });
@@ -211,13 +190,12 @@ export function DepartmentFormComponent() {
         />
         <FormField
           control={form.control}
-          name="CPF"
+          name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Cpf</FormLabel>
+              <FormLabel>Senha</FormLabel>
               <FormControl>
-                <Input placeholder="xxx.xxx.xxx-xx" {...field} 
-                onChange={(e) => handleChange(e, applyCpfMask,"CPF", form.setValue)}
+                <Input type= "password" placeholder="senha secreta" {...field} 
                 />
               </FormControl>
 
@@ -225,23 +203,9 @@ export function DepartmentFormComponent() {
             </FormItem>
           )}
         />
+      
 
-        <FormField
-          control={form.control}
-          name="saram"
-          render={({ field}) => (
-            <FormItem>
-              <FormLabel>Saram</FormLabel>
-              <FormControl
-              >
-                <Input placeholder="xxxxxx-x" {...field} 
-                onChange={(e) => handleChange(e, applySaramMask,"saram", form.setValue)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      
         <Button disabled={form.formState.isSubmitting} className='w-full' type="submit">Fazer Cadastro</Button>
       </form>
       </Form>

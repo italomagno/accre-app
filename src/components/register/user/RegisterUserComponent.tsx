@@ -37,22 +37,31 @@ export function RegisterUserComponent( {departments}:RegisterUserProps){
             description: "Verifique os dados e tente novamente.",
           })
         }
-        if((result as ErrorTypes).code){
+        if("code" in result){
           toast({
             title: "Erro ao cadastrar usuário",
             description: (result as ErrorTypes).message,
           })
+          return null
         }
-        if((result as User).id){
+        if(result.id){
             toast({
                 title: "Usuário cadastrado com sucesso",
                 description: "O usuário foi cadastrado com sucesso. VocÊ será redirecionado em breve.",
             })
+            if(!result.password){
+              toast({
+                title: "Usuário cadastrado com sucesso",
+                description: "O usuário foi cadastrado com sucesso. VocÊ será redirecionado em breve.",
+            })
+          return null
 
+            }
+            
             try{
               await signInOnServerActions({
-                CPF:(result as User).cpf,
-                saram: (result as User).saram
+                email:result.email,
+                password: result.password
             })
             router.push("/")
           
@@ -68,34 +77,14 @@ export function RegisterUserComponent( {departments}:RegisterUserProps){
 
     };
 
-    const handleChange = (
-      e: React.ChangeEvent<HTMLInputElement>,
-      maskFunction: (value: string) => string,
-      fieldName: keyof RegisterUserValues,
-      setValue: UseFormSetValue<{
-        name: string
-    email: string
-    CPF: string
-    saram: string
-    function: string
-    departmentId: string
-    }>
-    ) => {
-      const value = e.target.value;
-      const maskedValue = maskFunction ? maskFunction(value) : value;
-      setValue(fieldName, maskedValue, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    };
+    
     const form = useForm<RegisterUserValues>({
       resolver: zodResolver(registerUserSchema),
       defaultValues: {
-        CPF: "",
-        saram: "",
+        email: "",
+        password: "",
         departmentId: "",
         function: "",
-        email: "",
         name: "",
       },
     });
@@ -156,21 +145,7 @@ export function RegisterUserComponent( {departments}:RegisterUserProps){
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="CPF"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Seu Cpf</FormLabel>
-                <FormControl>
-                  <Input placeholder="xxx-xxx-xxx-xx" {...field} 
-                  onChange={(e) => handleChange(e, applyCpfMask,"CPF", form.setValue)}
-                  />
-                </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        
         <FormField
           control={form.control}
           name="email"
@@ -187,20 +162,19 @@ export function RegisterUserComponent( {departments}:RegisterUserProps){
         />
         <FormField
           control={form.control}
-          name="saram"
-          render={({ field}) => (
+          name="password"
+          render={({ field }) => (
             <FormItem>
-              <FormLabel>Saram</FormLabel>
-              <FormControl
-              >
-                <Input placeholder="xxxxxx-x" {...field} 
-                onChange={(e) => handleChange(e, applySaramMask,"saram", form.setValue)}
+              <FormLabel>Sua Senha</FormLabel>
+              <FormControl>
+                <Input type= "password" placeholder="Senha secreta" {...field} 
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+       
          <Separator/>
         <div>
          <h1 className="text-3xl font-bold">Orgão e Função Operacional</h1>
@@ -242,8 +216,7 @@ export function RegisterUserComponent( {departments}:RegisterUserProps){
   <SelectContent>
 
     {
-        //@ts-ignore
-        Object.keys(Function).map(key=>(<SelectItem key={generateUniqueKey()} value={Function[key]}>{Function[key]}</SelectItem>))
+        Object.keys(Function).map(key=>(<SelectItem key={generateUniqueKey()} value={key}>{key}</SelectItem>))
     }
   </SelectContent>
 </Select>

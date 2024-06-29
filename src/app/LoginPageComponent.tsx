@@ -1,7 +1,7 @@
 "use client";
 
 import image from "../assets/loginImage.jpg"
-import { UseFormSetValue, useForm} from 'react-hook-form';
+import { useForm} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/src/components/ui/button';
 import { FormValues, LoginSchema } from '../types';
@@ -12,49 +12,33 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import Image from 'next/image';
 import { signInOnServerActions } from "./login/_actions";
 import { LoadingComponentForLoginPage } from "./loadingComponentForLoginPage";
+import { useToast } from "../components/ui/use-toast";
 
 
 export function LoginPageComponent() {
+  const {toast} = useToast();
 
-   function applyCpfMask(value: string): string {
-    return value
-      .replace(/\D/g, '')
-      .replace(/(\d{3})(\d)/, '$1.$2')
-      .replace(/(\d{3})(\d)/, '$1.$2')
-      .replace(/(\d{3})(\d{1,2})/, '$1-$2')
-      .replace(/(-\d{2})\d+?$/, '$1');
-  }
-  
-   function applySaramMask(value: string): string {
-    return value
-      .replace(/\D/g, '')
-      .replace(/(\d{6})(\d)/, '$1-$2')
-      .replace(/(-\d)\d+?$/, '$1');
-  }
-
-
-  const onSubmit = async(data:FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     const result = await signInOnServerActions(data);
+    if (result.code === 200) {
+      showToast("Login efetuado com sucesso", "Aguarde Redirecionamento");
+    } else {
+      showToast("Erro ao fazer login", result.message);
+    }
+  };
 
+  const showToast = (title: string, description: string) => {
+    toast({
+      title: title,
+      description: description,
+    });
   };
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    maskFunction: (value: string) => string,
-    fieldName: keyof FormValues,
-    setValue: UseFormSetValue<{
-      CPF: string;
-      saram: string;
-  }>
-  ) => {
-    const value = e.target.value;
-    const maskedValue = maskFunction ? maskFunction(value) : value;
-    setValue(fieldName, maskedValue);
-  };
+
   const form = useForm<FormValues>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
-      CPF: "",
-      saram: "",
+      email: "",
+      password: "",
     },
   });
 
@@ -98,17 +82,16 @@ export function LoginPageComponent() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="CPF"
+          name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Cpf</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="xxx.xxx.xxx-xx" {...field} 
-                onChange={(e) => handleChange(e, applyCpfMask,"CPF", form.setValue)}
+                <Input type="email" placeholder="3spadrão@gmail.com" {...field} 
                 />
               </FormControl>
               <FormDescription>
-                Seu Cpf
+                Seu Email
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -116,18 +99,16 @@ export function LoginPageComponent() {
         />
         <FormField
           control={form.control}
-          name="saram"
+          name="password"
           render={({ field}) => (
             <FormItem>
-              <FormLabel>Saram</FormLabel>
+              <FormLabel>Senha</FormLabel>
               <FormControl
               >
-                <Input placeholder="xxxxxx-x" {...field} 
-                onChange={(e) => handleChange(e, applySaramMask,"saram", form.setValue)}
-                />
+                <Input type= "password" placeholder="Senha Secreta" {...field} />
               </FormControl>
               <FormDescription>
-                Seu Saram
+                Sua Senha
               </FormDescription>
               <FormMessage />
             </FormItem>

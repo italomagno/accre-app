@@ -5,7 +5,7 @@ import { RegisterUserValues, ErrorTypes, registerUserSchema } from "@/src/types"
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/src/components/ui/use-toast";
-import { applyCpfMask, applySaramMask, generateUniqueKey } from "@/src/lib/utils";
+import {  generateUniqueKey } from "@/src/lib/utils";
 import { Separator } from "@/src/components/ui/separator";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/src/components/ui/select";
 import { Button } from "@/src/components/ui/button";
@@ -49,35 +49,16 @@ export function CreateUserComponent( {department}:RegisterUserProps){
 
 
     };
+    const functionHeadingKeys = Object.keys(Function)
 
-    const handleChange = (
-      e: React.ChangeEvent<HTMLInputElement>,
-      maskFunction: (value: string) => string,
-      fieldName: keyof RegisterUserValues,
-      setValue: UseFormSetValue<{
-        name: string
-    email: string
-    CPF: string
-    saram: string
-    function: string
-    departmentId: string
-    }>
-    ) => {
-      const value = e.target.value;
-      const maskedValue = maskFunction ? maskFunction(value) : value;
-      setValue(fieldName, maskedValue, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    };
+   
     const form = useForm<RegisterUserValues>({
       resolver: zodResolver(registerUserSchema),
       defaultValues: {
-        CPF: "",
-        saram: "",
         departmentId: department.name,
         function: "",
         email: "",
+        password: "",
         name: "",
       },
     });
@@ -105,21 +86,7 @@ export function CreateUserComponent( {department}:RegisterUserProps){
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="CPF"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cpf</FormLabel>
-                  <FormControl>
-                    <Input placeholder="xxx-xxx-xxx-xx" {...field} 
-                    onChange={(e) => handleChange(e, applyCpfMask,"CPF", form.setValue)}
-                    />
-                  </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        
           <FormField
             control={form.control}
             name="email"
@@ -136,14 +103,13 @@ export function CreateUserComponent( {department}:RegisterUserProps){
           />
           <FormField
             control={form.control}
-            name="saram"
+            name="password"
             render={({ field}) => (
               <FormItem>
-                <FormLabel>Saram</FormLabel>
+                <FormLabel>Senha</FormLabel>
                 <FormControl
                 >
-                  <Input placeholder="xxxxxx-x" {...field} 
-                  onChange={(e) => handleChange(e, applySaramMask,"saram", form.setValue)}
+                  <Input type= "password" placeholder="Senha secreta" {...field} 
                   />
                 </FormControl>
                 <FormMessage />
@@ -186,8 +152,9 @@ export function CreateUserComponent( {department}:RegisterUserProps){
     <SelectContent>
   
       {
-        //@ts-ignore
-          Object.keys(Function).map(key=>(<SelectItem key={generateUniqueKey()} value={Function[key as keyof Function]}>{Function[key]}</SelectItem>))
+          functionHeadingKeys.map(key=>(
+          <SelectItem key={generateUniqueKey()} value={key}>{key}</SelectItem>
+        ))
       }
     </SelectContent>
   </Select>

@@ -22,12 +22,14 @@ export async function getRosters():Promise<Roster[] | ErrorTypes>{
             }
         })
         if(!user){
+        prisma.$disconnect();
             return {
                 code: 404,
                 message: "Usuário não encontrado"
             }
         }
         if(user.role !== "ADMIN"){
+        prisma.$disconnect();
             return {
                 code: 403,
                 message: "Usuário não autorizado"
@@ -40,6 +42,7 @@ export async function getRosters():Promise<Roster[] | ErrorTypes>{
                 departmentId: user.departmentId
             }
         })
+        prisma.$disconnect();
         return rosters
     }catch(e){
         return {

@@ -1,13 +1,15 @@
-import bcrypt from 'bcrypt';
+
+import {genSaltSync,hashSync,compareSync} from 'bcrypt-ts';
 
 const saltRounds = 10;
 
 // Assume 'cpf' is the CPF number you got from the user
 let cpf = '123.456.789-00';
 export function hashCredential(credential: string): string {
-  return bcrypt.hashSync(credential, saltRounds);
+    const saltedCredential = genSaltSync(saltRounds);
+  return hashSync(credential, saltedCredential);
 }
 
 export function compareCredential(credential: string, hash: string): boolean {
-  return bcrypt.compareSync(credential, hash);
+  return compareSync(credential, hash);
 }

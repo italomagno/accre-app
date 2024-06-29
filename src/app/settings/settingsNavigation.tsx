@@ -1,6 +1,7 @@
 "use client"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/src/components/ui/accordion";
 import { Separator } from "@/src/components/ui/separator";
+import { generateUniqueKey } from "@/src/lib/utils";
 import { ErrorTypes } from "@/src/types";
 import { $Enums } from "@prisma/client";
 import Link from "next/link"
@@ -77,22 +78,22 @@ export async function SettingsNavigation( {role}:SettingsNavigationProps ) {
                     role === "ADMIN" ? 
                     <>
                        { settingsNavigationLinks.filter((link) => link.availableFor === "USER").map((link) => (
-                        <Link href={link.href} key={link.href} className={`${pathName === link.href ? "font-semibold text-primary" : ""}`}>
+                        <Link href={link.href} key={generateUniqueKey()} className={`${pathName === link.href ? "font-semibold text-primary" : ""}`}>
                             {link.label}
                         </Link>
                     ))}
                         <Separator/>
                        { settingsNavigationLinks.filter((link) => link.availableFor !== "USER").map((link) => (
                         link.subLinks ?
-                        <Accordion type="single" collapsible>
+                        <Accordion key={generateUniqueKey()} type="single" collapsible>
   <AccordionItem  className=" border-none"value={link.href}>
     <AccordionTrigger className={`${pathName === link.href ? "font-semibold text-primary" : ""} cursor-pointer`}>{link.label}
 </AccordionTrigger>
 {
                                     link.subLinks.map((subLink) => (
-    <AccordionContent>
+    <AccordionContent key={generateUniqueKey()}>
 
-                                        <Link href={subLink.href} key={subLink.href} className={`${pathName === subLink.href ? "font-semibold text-primary" : ""}`}>
+                                        <Link href={subLink.href} className={`${pathName === subLink.href ? "font-semibold text-primary" : ""}`}>
                                             {subLink.label}
                                         </Link>
     </AccordionContent>
@@ -104,14 +105,14 @@ export async function SettingsNavigation( {role}:SettingsNavigationProps ) {
 
                         
                         :
-                        <Link href={link.href} key={link.href} className={`${pathName === link.href ? "font-semibold text-primary" : ""}`}>
+                        <Link href={link.href} key={generateUniqueKey()} className={`${pathName === link.href ? "font-semibold text-primary" : ""}`}>
                             {link.label}
                         </Link>
                     ))}
                     </>
                     :
                 settingsNavigationLinks.filter((link) => link.availableFor === "USER").map((link) => (
-                    <Link href={link.href} key={link.href} className={`${pathName === link.href ? "font-semibold text-primary" : ""}`}>
+                    <Link href={link.href} key={generateUniqueKey()} className={`${pathName === link.href ? "font-semibold text-primary" : ""}`}>
                         {link.label}
                     </Link>
                 ))

@@ -7,8 +7,16 @@ import { CreateManyUsersComponent } from "@/src/components/register/user/CreateM
 
 
 
-export default async function createUser(){
-        
+export default async function createUser(
+  {
+    searchParams
+    
+  }: {
+    searchParams: { q: string; offset: string };
+    
+  }
+){
+        const search = searchParams.q ?? ""
         const department = await getDepartmentBySession()
         const hasErrorOnDepartment = "code" in department
         if(hasErrorOnDepartment){
@@ -37,7 +45,7 @@ export default async function createUser(){
     <TabsTrigger value="createManyUsers">Criar Vários usuários</TabsTrigger>
   </TabsList>
   <TabsContent value="createSingleUser"><CreateUserComponent department={department}/></TabsContent>
-  <TabsContent value="createManyUsers"><CreateManyUsersComponent/></TabsContent>
+  <TabsContent value="createManyUsers"><CreateManyUsersComponent search={search}/></TabsContent>
 </Tabs>
 
                 

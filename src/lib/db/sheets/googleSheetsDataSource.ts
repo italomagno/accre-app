@@ -5,7 +5,7 @@ import getGoogleSheetsClient from './googleSheetsClient';
 import { ErrorTypes} from '@/src/types';
 
 
-async function getDataFromTab(tabName: string, limit: number = 10) {
+/* async function getDataFromTab(tabName: string, limit: number = 10) {
   
   const doc = await getGoogleSheetsClient();
   const leadsSheets = doc.sheetsByTitle
@@ -18,10 +18,8 @@ async function getDataFromTab(tabName: string, limit: number = 10) {
 
   const rows = (await leadsSheet.getRows({ limit: limit })) // Add limit parameter to getRows() method
   const headers = leadsSheet.headerValues;
-  //@ts-ignore
   const dataFromSheets = rows.map(row => {
     const obj: any = {}
-    //@ts-ignore
     headers.forEach((header, i) => {
       obj[header] = row["_rawData"][i]
     })
@@ -30,13 +28,13 @@ async function getDataFromTab(tabName: string, limit: number = 10) {
   })
 
   return dataFromSheets
-}
+} */
 
-export  class googleSheetsDataSource implements DataSource {
+//export  class googleSheetsDataSource implements DataSource {
 
 
 
- async  createUser(user: User): Promise< User| ErrorTypes> {
+ /* async  createUser(user: User & {[key:string]:any}): Promise< User| ErrorTypes> {
   const doc = await getGoogleSheetsClient();
   const usersSheet = doc.sheetsByTitle["Central de usuários"]
   if(!usersSheet){
@@ -58,7 +56,6 @@ export  class googleSheetsDataSource implements DataSource {
     const headers = Object.keys(emptyUser);
     (await usersCentralSheet).setHeaderRow(headers)
   }
-  //@ts-ignore
   const userRowValues = Object.keys(user).map(key=>user[key])
   const addedRow = await usersSheet.addRow(userRowValues)
   if(!addedRow)
@@ -68,7 +65,8 @@ export  class googleSheetsDataSource implements DataSource {
       }
   return user
   
- }
+ } */
+ /* 
  async  createUsers(users: User[]): Promise< User[]| ErrorTypes> {
   const doc = await getGoogleSheetsClient();
   const usersSheet = doc.sheetsByTitle["Central de usuários"]
@@ -76,24 +74,21 @@ export  class googleSheetsDataSource implements DataSource {
     const usersCentralSheet = doc.addSheet({ title: `Central de usuários` })
     const emptyUser:User = {
       id: '',
-      saram: '',
-      cpf: '',
-  //@ts-ignore
-      created_at: undefined,
+      created_at: new Date(),
       name: '',
       email: '',
       block_changes: false,
       isOffice: false,
       function: 'EST',
       role: 'ADMIN',
-      rosterId: '',
+      rosterId: [''],
       departmentId: ''
     }
     const headers = Object.keys(emptyUser);
     (await usersCentralSheet).setHeaderRow(headers)
-  }
+  } */
   //@ts-ignore
-  const userRowValues = users.map(user=>Object.keys(user).map(key=>user[key]))
+ /*  const userRowValues = users.map(user=>Object.keys(user).map(key=>user[key]))
   const addedRows = await usersSheet.addRows(userRowValues)
   if(!addedRows)
     return {
@@ -104,8 +99,8 @@ export  class googleSheetsDataSource implements DataSource {
   return users
   
  }
-
-  async getUser(saram: string,cpf:string,email?:string): Promise<User | ErrorTypes> {
+ */
+ /*  async getUser(saram: string,cpf:string,email?:string): Promise<User | ErrorTypes> {
     const doc = await getGoogleSheetsClient();
     const usersSheet = doc.sheetsByTitle["Central de usuários"]
     if(!usersSheet){
@@ -114,7 +109,6 @@ export  class googleSheetsDataSource implements DataSource {
         id: '',
         saram: '',
         cpf: '',
-  //@ts-ignore
         created_at: undefined,
         name: '',
         email: '',
@@ -128,8 +122,8 @@ export  class googleSheetsDataSource implements DataSource {
       const headers = Object.keys(emptyUser);
       (await usersCentralSheet).setHeaderRow(headers)
     }
-    
-    const users = await getDataFromTab("Central de usuários", 1000);
+     */
+ /*    const users = await getDataFromTab("Central de usuários", 1000);
     if(saram){
       const user:User = users.find((user: any) => user.saram === saram);
       if (!user) {
@@ -163,8 +157,8 @@ export  class googleSheetsDataSource implements DataSource {
     message: "Erro ao buscar usuário",
     code : 404
   }
-}
-  async getUsers(search: string, offset: number): Promise<User[] | ErrorTypes> {
+} */
+ /*  async getUsers(search: string, offset: number): Promise<User[] | ErrorTypes> {
     const doc = await getGoogleSheetsClient();
     const usersSheet = doc.sheetsByTitle["Central de usuários"]
     if(!usersSheet){
@@ -210,9 +204,9 @@ export  class googleSheetsDataSource implements DataSource {
           id: '',
           saram: '',
           cpf: '',
-
+ */
 //@ts-ignore
-          created_at: undefined,
+ /*          created_at: undefined,
           name: '',
           email: '',
           block_changes: false,
@@ -232,19 +226,19 @@ export  class googleSheetsDataSource implements DataSource {
             code:404,
             message:"Usuário não encontrado"
           }
-        }
+        } */
        /*  const userValuesToUpdate = Object.keys(user).map(key=>({
           key,
           val:user[key]
         })) */
-       userFromUserSheet.assign(user)
+ /*       userFromUserSheet.assign(user)
        const emptyUser:User = {
         id: '',
         saram: '',
-        cpf: '',
+        cpf: '', */
 //@ts-ignore
 
-        created_at: undefined,
+/*         created_at: undefined,
         name: '',
         email: '',
         block_changes: false,
@@ -282,9 +276,9 @@ export  class googleSheetsDataSource implements DataSource {
 
 
 
-
+ */
   //everything related to Rosters
-  async createRoster(roster:Roster): Promise<ErrorTypes | Roster> {
+  /* async createRoster(roster:Roster): Promise<ErrorTypes | Roster> {
   const doc = await getGoogleSheetsClient();
 
   const createdRoster = await doc.addSheet({ title: `Escala_${roster.month}_${roster.year}` })
@@ -381,9 +375,9 @@ export  class googleSheetsDataSource implements DataSource {
       }
       const headers = Object.keys(emptyShift);
       (await shiftsCentralSheet).setHeaderRow(headers)
-    }
+    } */
     //@ts-ignore
-    const shiftRowValues = Object.keys(shift).map(key=>shift[key])
+  /*   const shiftRowValues = Object.keys(shift).map(key=>shift[key])
     const addedRow = await shiftsSheet.addRow(shiftRowValues)
     if(!addedRow)
       return {
@@ -398,8 +392,8 @@ export  class googleSheetsDataSource implements DataSource {
     const shiftsSheet = doc.sheetsByTitle["Central de Turnos"]
     if(!shiftsSheet){
       const shiftsCentralSheet = doc.addSheet({ title: `Central de Turnos` })
-//@ts-ignore
-      const emptyShift:Shift = {
+//@ts-ignore */
+  /*     const emptyShift:Shift = {
         id: '',
         name: '',
         start: new Date(),
@@ -518,11 +512,11 @@ export  class googleSheetsDataSource implements DataSource {
       created_at: shift.get("created_at"),
     }
     return deletedShift as Shift
-  }
+  } */
 
   //everything related to workDays
 
-  async updateWorkDay(workDay: { id: string; day: Date; userId: string; rosterId: string; shiftId: string; }): Promise<{ id: string; day: Date; userId: string; rosterId: string; shiftId: string; } | ErrorTypes> {
+  /* async updateWorkDay(workDay: { id: string; day: Date; userId: string; rosterId: string; shiftId: string; }): Promise<{ id: string; day: Date; userId: string; rosterId: string; shiftId: string; } | ErrorTypes> {
     const doc = await getGoogleSheetsClient();
     const workDaysSheet = doc.sheetsByTitle["Central de Dias trabalhados"]
     if(!workDaysSheet){
@@ -625,8 +619,8 @@ export  class googleSheetsDataSource implements DataSource {
 
 
 
-
-}
+ */
+//}
 
 
 

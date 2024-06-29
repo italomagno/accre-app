@@ -53,23 +53,23 @@ export function SpreadSheetIdButton(
         setIsDisabled(!isDisabled)
     }
     useEffect(()=>{
-            const handleClickOutside = () => {
+            const handleClickOutside = (event:MouseEvent) => {
         if (isDisabled === false) {
             if(inputRef && inputRef.current){
             //add focust to input if button is clicked
             inputRef.current.focus({
                 preventScroll: true
             })
-            }
 
-                //@ts-ignore
-                if (buttonRef.current && !buttonRef.current.contains(event.target) && !inputRef.current.contains(event.target) ){
+                if (buttonRef.current && !buttonRef.current.contains(event.target as Node) && !inputRef.current.contains(event.target as Node) ){
                     toast({
                         title: "Erro ao atualizar SpreadSheet do Órgão",
                         description: "Verifique a URL da planilha e tente novamente.",
                     });
                     setIsDisabled(true);
                 }
+            }
+
             }
             };
             

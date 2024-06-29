@@ -22,6 +22,7 @@ export async function getUsersWithFilter(query:string):Promise<ErrorTypes|User[]
       }
     })
     if(!admin){
+    console.log("aqui porra",admin)
       prisma.$disconnect();
       return {
         code: 404,
@@ -49,16 +50,7 @@ export async function getUsersWithFilter(query:string):Promise<ErrorTypes|User[]
           contains: query
         }
         },
-        {
-        saram:{
-          contains: query
-        }
-        },
-        {
-        cpf:{
-          contains: query
-        }
-        },
+      
       ]
       },
       select:{

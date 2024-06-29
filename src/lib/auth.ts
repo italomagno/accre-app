@@ -18,18 +18,18 @@ export const AuthOptions:NextAuthConfig = {
           // You can specify which fields should be submitted, by adding keys to the `credentials` object.
           // e.g. domain, username, password, 2FA token, etc.
           credentials: {
-            CPF: {
+            email: {
               
             },
-            saram: {
+            password: {
               
             },
           },
           authorize: async (credentials) => {
             try {
-              const srmHash = credentials.saram as string
-              const cpfHash = credentials.CPF as string
-              const userFromDB =  await getUser(srmHash,cpfHash)
+              const email = credentials.email as string
+              const password = credentials.password as string
+              const userFromDB = await getUser(email, password)
               if("code" in userFromDB){
                 throw new Error("Usuário não encontrado.")
               }
