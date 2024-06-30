@@ -1,11 +1,12 @@
 "use client"
-import { SVGProps, useEffect, useState } from "react"
+import { SVGProps, use, useEffect, useState } from "react"
 import { Button } from "./button"
 import { useFormState, useFormStatus } from "react-dom"
-import { handleFileInputForManyUsers } from "@/src/app/settings/users/createUser/actions"
+import { createManyUsers, handleFileInputForManyUsers } from "@/src/app/settings/users/createUser/actions"
 import { useToast } from "./use-toast"
 import { User } from "@prisma/client"
 import { UserTable } from "../tables/UserTable"
+import { ErrorTypes } from "@/src/types"
 
 type FileInputProps = {
   search:string
@@ -14,42 +15,67 @@ type FileInputProps = {
 export function FileInput({search}:FileInputProps) {
   const {toast} = useToast();
   const [users, setUsers] = useState<Pick<User, "name" | "email" | "function">[]>()
+  const [returnOfSaving, setreturnOfSaving] = useState<ErrorTypes>()
+  const [callBackFromFileUpload,formActionToUploadFile]= useFormState(handleFileInputForManyUsers,null)
 
-  const [state,formAction]= useFormState(handleFileInputForManyUsers,null)
+
   const {pending} = useFormStatus()
 
 
   useEffect(()=>{
-    if(state){
-      if(state.code === 200){
+    if(callBackFromFileUpload){
+      if(callBackFromFileUpload.code === 200){
         toast({
-          title: "Usuários cadastrados com sucesso",
-          description: "Aguarde Redirecionamento"
+          title: "Sucesso!",
+          description: callBackFromFileUpload.message
         })
-        //ToDo:create state to user
-        if("users" in state){
-          const {users} = state
+        //ToDo:create callBackFromFileUpload to user
+        if("users" in callBackFromFileUpload){
+          const {users} = callBackFromFileUpload
           setUsers(users)
         }
       }else{
         toast({
           title: "Erro ao cadastrar usuários",
-          description: state.message
+          description: callBackFromFileUpload.message
         })
       }
     }
   }
-  ,[state])
+  ,[callBackFromFileUpload])
+  useEffect(()=>{
+    if(returnOfSaving){
+      if(returnOfSaving.code === 200){
+        toast({
+          title: "Usuários cadastrados com sucesso",
+          description: returnOfSaving.message
+        })
+      }else{
+        toast({
+          title: "Erro ao cadastrar usuários",
+          description: returnOfSaving.message
+        })
+      }
+    }
+  }
+  ,[returnOfSaving])
 
   //ToDo: Implement file loading state
   return (
     <>
     {
-      users && users.length>0 ?
+      users && users.length > 0 ?
+      <>
       <UserTable users={users} search={search}  />
+      <Button disabled={pending} onClick={async ()=>{
+        const returnofsaving = await createManyUsers(users)
+        setreturnOfSaving(returnofsaving)
+      }}>Salvar Usuários</Button>
+      </>
+
         :
       <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto space-y-4">
-              <form action={formAction} >
+              <form action={formActionToUploadFile} >
           <div className="flex flex-col items-center justify-center w-full px-6 py-10 border-2 border-dashed border-primary rounded-md bg-background hover:bg-muted transition-colors relative pointer-events-none">
               <UploadIcon className="w-10 h-10 text-primary" />
               <h3 className="mt-4 text-lg font-medium">Faça o upload do arquivo .csv</h3>

@@ -1,5 +1,7 @@
 "use server"
+import { auth } from '@/src/lib/auth';
 
+import prisma from "@/src/lib/db/prisma/prismaClient"
 import { ErrorTypes, } from "@/src/types"
 import { $Enums, User,Function } from "@prisma/client"
 
@@ -63,10 +65,133 @@ export async function handleFileInputForManyUsers(prevState:any,formData: FormDa
             function: userFunction as Function
         }
     })
+
+    const filterUsersWithName = users.filter((user) => user.name)
+    const usersWithoutEmail = filterUsersWithName.filter((user) => !user.email)
+    if(usersWithoutEmail.length > 0){
+        return {
+            code: 400,
+            message: `"Usuários sem email": ${usersWithoutEmail.map((user) => user.name).join(', ')}`
+        }
+    }
+    const usersWithoutFunction = filterUsersWithName.filter((user) => !user.function)
+    if(usersWithoutFunction.length > 0){
+        return {
+            code: 400,
+            message: `"Usuários sem função": ${usersWithoutFunction.map((user) => user.name).join(', ')}`
+        }
+    }
+
     return {
         code: 200,
-        message: "Usuários cadastrados com sucesso",
-        users: users // Add the 'users' property to the object literal
+        message: "Upload de arquivo CSV bem sucedido",
+        users: filterUsersWithName // Add the 'users' property to the object literal
     }
+
+}
+
+
+export async function createManyUsers(users:Pick<User, "name" | "email" | "function">[]):Promise<ErrorTypes>{
+    const alreadyCreatedUsers = await prisma.user.findMany({
+        where: {
+            email: {
+                in: users.map((user) => user.email)
+            }
+        }
+    })
+    if(alreadyCreatedUsers.length > 0){
+        return {
+            code: 400,
+            message: `Usuários já existentes:  ${alreadyCreatedUsers.map((user,i) => ` ( ${i+1} ) nome: ${user.name} e email: ${user.email}`).join(`, \n\n`)}. Remova-os do arquivo CSV e tente novamente.`
+        }
+    }
+    const session = await auth()
+    if(!session){
+        return {
+            code: 401,
+            message: "Usuário não logado"
+        }
+    }
+
+    const admin = await prisma.user.findFirst({
+        where: {
+            email: session.user.email
+        }
+    })
+    if(!admin){
+        prisma.$disconnect()
+        return {
+            code: 401,
+            message: "Administrador não encontrado"
+        }
+    }
+    if(admin.role !== "ADMIN"){
+        prisma.$disconnect()
+        return {
+            code: 401,
+            message: "Usuário não é administrador"
+        }
+    }
+
+    const departmentId = admin.departmentId
+    if(!departmentId){
+        prisma.$disconnect()
+
+        return {
+            code: 401,
+            message: "Departamento do administrador não encontrado"
+        }
+    }
+
+    const newUsers= users.map((user) => {
+        prisma.$disconnect()
+        return {
+            ...user,
+            role:"USER" as $Enums.Role,
+            departmentId: departmentId
+        }
+    })
+    try{    
+        const createdUsers = await prisma.user.createMany({
+            data: newUsers
+        })
+        if(!createdUsers){
+        prisma.$disconnect()
+            return {
+                code: 500,
+                message: "Erro ao criar usuários"
+            }
+        }
+        if(createdUsers.count < users.length){
+        prisma.$disconnect()
+            return {
+                code: 500,
+                message: `Foram criados apenas ${createdUsers.count} usuários de ${users.length}`
+            }
+        }
+        if(createdUsers.count === users.length){
+        prisma.$disconnect()
+            return {
+                code: 200,
+                message: "Usuários criados com sucesso",
+            }
+        }
+
+
+        prisma.$disconnect()
+        return {
+            
+            code: 200,
+            message: "Usuários criados com sucesso",
+        }
+    }catch
+    (error){
+        prisma.$disconnect()
+        return {
+            code: 500,
+            message: "Erro ao criar usuários"
+        }
+    }
+
 
 }

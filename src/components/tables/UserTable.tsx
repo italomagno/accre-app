@@ -14,12 +14,18 @@ type UserTableProps = {
 export function UserTable({users,search}: UserTableProps ) {
     const headingKeys = Object.keys(users[0])
 
+    const filteredUsers = users.filter((user) => {
+        return Object.values(user).some((value) => {
+          return String(value).toLowerCase().includes(search.toLowerCase());
+        });
+      }
+    );
     return(
         <>
         <div className="w-full">
         <Search value={search} />
       </div>
-      <ScrollArea className='w-96 lg:w-full'>
+      <ScrollArea className='w-96 h-52 lg:w-full'>
       <Table >
                     <TableHeader>
                         <TableRow>
@@ -32,9 +38,9 @@ export function UserTable({users,search}: UserTableProps ) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {users.map((user) => (
+                      {filteredUsers.map((user) => (
                         <TableRow key={user.id}>
-                          {Object.keys(users[0]).map((key) => {
+                          {headingKeys.map((key) => {
                             return (
                               <TableCell key={generateUniqueKey()}>
                                 {
@@ -56,7 +62,6 @@ export function UserTable({users,search}: UserTableProps ) {
                       ))}
                     </TableBody>
                 </Table>
-                <ScrollBar orientation="horizontal" />
                 <ScrollBar orientation="vertical" />
 
       </ScrollArea>
