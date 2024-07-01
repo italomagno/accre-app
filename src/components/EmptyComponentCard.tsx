@@ -1,16 +1,20 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardTitle } from "@/src/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardTitle } from "@/src/components/ui/card"
 import { useToast } from "@/src/components/ui/use-toast"
 import { ErrorTypes } from "@/src/types"
 import { useEffect } from "react"
+import { Button } from "./ui/button"
+import Link from "next/link"
 
 
-interface errorComponentProps {
+interface EmptyComponentCardProps {
+    title: string;
     error: ErrorTypes
+    children: React.ReactNode
 }
 
-export function ErrorComponent( {error}: errorComponentProps) {
+export function EmptyComponentCard( {error,children,title}: EmptyComponentCardProps) {
     const {toast} = useToast()
     useEffect(() => {
         toast({
@@ -22,12 +26,15 @@ export function ErrorComponent( {error}: errorComponentProps) {
         <Card x-chunk="dashboard-04-chunk-1 p-4">
             <CardContent>
                 <CardTitle className="pt-4">
-                    Error
+                    {title}
                 </CardTitle>
                 <CardDescription className="pt-4">
-                Houver um erro ao carregar esta página. Por favor, tente novamente mais tarde.
+                {children}
                 </CardDescription>
             </CardContent>
+            <CardFooter>
+                <Button variant="link"><Link href={"/"}>Retornar à página inicial</Link></Button>
+            </CardFooter>
         </Card>
     )
 }

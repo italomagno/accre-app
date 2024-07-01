@@ -39,6 +39,23 @@ export function SettingsNavigation({ role }: SettingsNavigationProps) {
       availableFor: 'ADMIN'
     },
     {
+      href: '/settings/users',
+      label: 'Usuários',
+      availableFor: 'ADMIN',
+      subLinks: [
+        {
+          href: '/settings/users',
+          label: 'Geral',
+          availableFor: 'ADMIN'
+        },
+        {
+          href: '/settings/users/createUser',
+          label: 'Criar Usuário',
+          availableFor: 'ADMIN'
+        }
+      ]
+    },
+    {
       href: '/settings/shifts',
       label: 'Turnos',
       availableFor: 'ADMIN',
@@ -72,23 +89,7 @@ export function SettingsNavigation({ role }: SettingsNavigationProps) {
         }
       ]
     },
-    {
-      href: '/settings/users',
-      label: 'Usuários',
-      availableFor: 'ADMIN',
-      subLinks: [
-        {
-          href: '/settings/users',
-          label: 'Geral',
-          availableFor: 'ADMIN'
-        },
-        {
-          href: '/settings/users/createUser',
-          label: 'Criar Usuário',
-          availableFor: 'ADMIN'
-        }
-      ]
-    }
+  
   ];
   return (
     <nav

@@ -1,4 +1,4 @@
-import { ErrorComponent } from '@/src/components/errorComponent';
+
 import {
   Table,
   TableBody,
@@ -22,12 +22,15 @@ import { getShifts, removeShift } from './action';
 import ActionsCell from '@/src/components/tables/ActionsCell';
 import { UpdateShiftComponent } from '@/src/components/update/shift/UpdateShiftComponent';
 import { CreateShiftValues } from '@/src/types';
+import { EmptyComponentCard } from '@/src/components/EmptyComponentCard';
 
 export default async function shiftPage() {
   const shifts = await getShifts();
   const isErrorTypes = 'code' in shifts;
   if (isErrorTypes) {
-    return <ErrorComponent error={shifts} />;
+    return <EmptyComponentCard  title='Turnos' error={shifts} >
+      Não há turnos cadastrados.
+    </EmptyComponentCard>;
   }
   const pageTitle = 'Turnos';
 

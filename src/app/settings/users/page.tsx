@@ -1,4 +1,4 @@
-import { ErrorComponent } from '@/src/components/errorComponent';
+
 import { getUsersWithFilter } from './actions';
 import { getDepartmentBySession } from '../../cadastrarOrgao/actions';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/src/components/ui/card';
@@ -6,6 +6,9 @@ import { EmptySettingsComponent } from '@/src/components/empytySettingsComponent
 import { UserTable } from '@/src/components/tables/UserTable';
 import { Search } from '@/src/components/search';
 import { User } from '@prisma/client';
+import { EmptyComponentCard } from '@/src/components/EmptyComponentCard';
+import { Button } from '@/src/components/ui/button';
+import Link from 'next/link';
 
 export default async function IndexPage({
   searchParams
@@ -19,9 +22,13 @@ export default async function IndexPage({
   const hasError = "code" in users
   if(hasError){
     return(
-      <ErrorComponent
+      <EmptyComponentCard
+      title='Usuários'
       error={users}
-      />
+      >
+          <Search value={search} />
+        Não foi encontrado nenhum usuário.
+      </EmptyComponentCard>
     )
   }
   const department = await getDepartmentBySession()
@@ -29,9 +36,12 @@ export default async function IndexPage({
   const hasErrorOnDepartment = "code" in department
   if(hasErrorOnDepartment){
     return(
-      <ErrorComponent
+      <EmptyComponentCard
+      title='Erro'
       error={department}
-      />
+      >
+        Não foi possível carregar o Órgão.
+      </EmptyComponentCard>
     )
   }
 
@@ -47,7 +57,9 @@ export default async function IndexPage({
         pageTitle={pageTitle}
         pageSubtitle="Nenhum usuário cadastrado."
         >
-          <Search value={search} />
+          <div className="flex flex-col gap-4">
+            <div><Button><Link href={'/'} >Retornar para página inicial.</Link></Button></div>
+          </div>
         </EmptySettingsComponent>
 
       ) : 

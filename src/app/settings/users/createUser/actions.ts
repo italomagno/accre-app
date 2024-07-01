@@ -2,8 +2,9 @@
 import { auth } from '@/src/lib/auth';
 
 import prisma from "@/src/lib/db/prisma/prismaClient"
-import { ErrorTypes, } from "@/src/types"
+import { ErrorTypes, UpdateUserValues, } from "@/src/types"
 import { $Enums, User,Function } from "@prisma/client"
+import { revalidatePath } from 'next/cache';
 
 type SuccessResponse = ErrorTypes & {
     users:Pick<User, "name" | "email" | "function">[]
@@ -197,4 +198,56 @@ export async function createManyUsers(users:Pick<User, "name" | "email" | "funct
     }
 
 
+}
+
+
+
+export async function updateUser(id:string, data:UpdateUserValues):Promise<ErrorTypes>{
+    console.log(data)
+    const session = await auth()
+    if(!session){
+        return {
+            code: 401,
+            message: "Usuário não autenticado"
+        }
+    }
+    const email = session.user.email
+    const admin = await prisma.user.findFirst({
+        where: {
+            email
+        }
+    })
+    if(!admin){
+        return {
+            code: 401,
+            message: "Administrador não encontrado"
+        }
+    }
+    if(admin.role !== "ADMIN"){
+        return {
+            code: 401,
+            message: "Usuário não é administrador"
+        }
+    }
+    const updatedUser = await prisma.user.update({
+        where: {
+            id,
+            departmentId: admin.departmentId
+        },
+        data: {
+            ...data,
+            function: data.function as Function
+        }
+    })
+    if(!updatedUser){
+        return {
+            code: 500,
+            message: "Erro ao atualizar usuário"
+        }
+    }
+    revalidatePath("/settings/users")
+    return {
+        code: 200,
+        message: "Usuário atualizado com sucesso"
+    }
 }

@@ -64,6 +64,17 @@ export const registerUserSchema = z.object({
     function: z.string().refine(value => value !== '', 'Função Operacional é obrigatório.'),
     departmentId: z.string().refine(value => value !== '', 'Departamento é obrigatório.'),
 })
+export const updateUserSchema = z.object({
+  name: z.string().min(3, 'O nome deve conter no mínimo 3 caracteres.').refine(value => value !== '', 'Nome é obrigatório.'),
+  email: z.string().email('E-mail inválido.').refine(value => value !== '', 'E-mail é obrigatório.'),
+  password: z.string().min(6, 'A senha deve conter no mínimo 6 caracteres.').refine(value => value !== '', 'Senha é obrigatório.'),
+  function: z.string().refine(value => value !== '', 'Função Operacional é obrigatório.'),
+  departmentId: z.string().refine(value => value !== '', 'Departamento é obrigatório.'),
+  block_changes: z.boolean().default(false),
+  isOffice: z.boolean().default(false),
+})
+
+export type UpdateUserValues = z.infer<typeof updateUserSchema>;
 
 export type RegisterUserValues = z.infer<typeof registerUserSchema>;
 

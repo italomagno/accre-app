@@ -5,9 +5,12 @@ import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { ScrollBar } from "../ui/scroll-area";
 import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from "@/src/components/ui/table";
 import { Search } from "../search";
+import ActionsCell from "./ActionsCell";
+import { removeUser } from "@/src/app/settings/users/actions";
+import { UpdateUserComponent } from "../update/user/UpdateUserComponent";
 
 type UserTableProps = {
-    users: (Pick<User,"email"| "function" | "name"> & {[key:string]:any})[];
+    users: (Pick<User,"email"| "function" | "name" | "id" |"isOffice" | "block_changes"> & {[key:string]:any})[];
     search: string;
     } 
 
@@ -15,11 +18,18 @@ export function UserTable({users,search}: UserTableProps ) {
     const headingKeys = Object.keys(users[0])
 
     const filteredUsers = users.filter((user) => {
+      
         return Object.values(user).some((value) => {
           return String(value).toLowerCase().includes(search.toLowerCase());
         });
       }
     );
+
+    async function handleRemoveUser(id:string){
+      const result = await removeUser(id)
+      return result
+    }
+    
     return(
         <>
         <div className="w-full">
@@ -31,18 +41,23 @@ export function UserTable({users,search}: UserTableProps ) {
                         <TableRow>
                             {
                             headingKeys.map((key) => {
-                                return <TableHead key={generateUniqueKey()}>{key}</TableHead>
+
+                                return key === "id" || key === "role" ? null :<TableHead key={generateUniqueKey()}>{key}</TableHead>
                             }
                             )
                             }
+                            <TableHead>Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredUsers.map((user) => (
+                      {filteredUsers.map((user) => {
+                        
+                        
+                        return (
                         <TableRow key={user.id}>
                           {headingKeys.map((key) => {
                             return (
-                              <TableCell key={generateUniqueKey()}>
+                              key === "id" || key === "role"? null :<TableCell key={generateUniqueKey()}>
                                 {
                                   
                                 typeof user[key] === "object"
@@ -58,8 +73,13 @@ export function UserTable({users,search}: UserTableProps ) {
                               </TableCell>
                             );
                           })}
+                          <ActionsCell id={user.id} handleRemoveItem={handleRemoveUser}>
+                          <UpdateUserComponent
+                          user={user}
+                          />
+                          </ActionsCell>
                         </TableRow>
-                      ))}
+                      )})}
                     </TableBody>
                 </Table>
                 <ScrollBar orientation="vertical" />

@@ -1,10 +1,11 @@
-import { ErrorComponent } from "@/src/components/errorComponent"
+
 import { getRosters } from "./actions"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/src/components/ui/card"
 import { generateUniqueKey } from "@/src/lib/utils"
 import { Roster } from "@prisma/client"
 import { EmptySettingsComponent } from "@/src/components/empytySettingsComponent"
+import { EmptyComponentCard } from "@/src/components/EmptyComponentCard"
 
 
 
@@ -15,9 +16,12 @@ export default async function RosterPage() {
     const isErrorTypes = "code" in rosters
     if(isErrorTypes){
         return(
-            <ErrorComponent
+            <EmptyComponentCard
+            title="Escalas"
             error={rosters}
-            />
+            >
+                Não há escalas cadastradas.
+            </EmptyComponentCard>
         )
     }
     const pageTitle = "Escalas"

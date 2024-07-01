@@ -1,9 +1,10 @@
-import { ErrorComponent } from "@/src/components/errorComponent"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { getDepartmentBySession } from "../../../cadastrarOrgao/actions"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/src/components//ui/tabs"
 import { CreateUserComponent } from "@/src/components/register/user/CreateUserComponent"
 import { CreateManyUsersComponent } from "@/src/components/register/user/CreateManyUsersComponent"
+import { EmptyComponentCard } from "@/src/components/EmptyComponentCard"
 
 
 
@@ -21,9 +22,12 @@ export default async function createUser(
         const hasErrorOnDepartment = "code" in department
         if(hasErrorOnDepartment){
           return(
-            <ErrorComponent
+            <EmptyComponentCard
             error={department}
-            />
+            title="Erro"
+            >
+              Não foi possível carregar o Órgão.
+            </EmptyComponentCard>
           )
         }
       
