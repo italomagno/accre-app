@@ -1,5 +1,6 @@
 import { is } from "date-fns/locale";
 import { z } from "zod";
+import { DateStartEndSchema } from "./lib/date";
 
 export type  optionsProps ={
     optionTitle: string;
@@ -91,15 +92,14 @@ export const LoginSchema = z.object({
 
   export type CreateRosterValues = z.infer<typeof createRosterSchema>;
   
-
   export const createShiftSchema = z.object({
     name: z.string().refine(value => value !== '', 'Nome do turno é obrigatório.'),
-    start: z.string().refine(value => value !== '', 'Hora de início é obrigatório.'),
-    end: z.string().refine(value => value !== '', 'Hora de término é obrigatório.'),
     quantity: z.string().default('0'),
     minQuantity: z.string().default('0'),
     isAvailable: z.boolean().default(false),
     isAbscence: z.boolean().default(false),
+    dateStartEnd: DateStartEndSchema,
   })
+
 
   export type CreateShiftValues = z.infer<typeof createShiftSchema>;
