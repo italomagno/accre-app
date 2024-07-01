@@ -71,8 +71,16 @@ export type RegisterDepartmentValues = z.infer<typeof registerDepartmentSchema>;
 
 
 export const LoginSchema = z.object({
-    email: z.string().email('E-mail inválido.').refine(value => value !== '', 'E-mail é obrigatório.'),
-    password: z.string().min(6, 'A senha deve conter no mínimo 6 caracteres.').refine(value => value !== '', 'Senha é obrigatório.'),
+    email: z.string(
+      {
+        required_error: "E-mail é obrigatório"
+      }
+    ).email('E-mail inválido.').refine(value => value !== '', 'E-mail é obrigatório.'),
+    password: z.string(
+      {
+        required_error: "Senha é obrigatória"
+      }
+    ).min(6, 'A senha deve conter no mínimo 6 caracteres.').refine(value => value !== '', 'Senha é obrigatório.'),
   });
   
   export type FormValues = z.infer<typeof LoginSchema>;
@@ -84,20 +92,57 @@ export const LoginSchema = z.object({
 
 
   export const createRosterSchema = z.object({
-    month: z.string().refine(value => value !== '', 'Mês é obrigatório.'),
-    year: z.string().refine(value => value !== '', 'Ano é obrigatório.'),
-    minHours: z.string().refine(value => value !== '', 'Mínimo de horas é obrigatório.'),
-    maxHours: z.string().refine(value => value !== '', 'Máximo de horas é obrigatório.'),
+    month: z.string(
+      {
+        required_error: "Mês é obrigatório"
+      }
+    ).refine(value => value !== '', 'Mês é obrigatório.'),
+    year: z.string(
+      {
+        required_error: "Ano é obrigatório"
+      }
+    ).refine(value => value !== '', 'Ano é obrigatório.'),
+    minHours: z.string(
+
+      {
+        required_error: "Mínimo de horas é obrigatório"
+      }
+    ).refine(value => value !== '', 'Mínimo de horas é obrigatório.'),
+    maxHours: z.string(
+      {
+        required_error: "Máximo de horas é obrigatório"
+      }
+    ).refine(value => value !== '', 'Máximo de horas é obrigatório.'),
   })
 
   export type CreateRosterValues = z.infer<typeof createRosterSchema>;
   
   export const createShiftSchema = z.object({
-    name: z.string().refine(value => value !== '', 'Nome do turno é obrigatório.'),
-    quantity: z.string().default('0'),
-    minQuantity: z.string().default('0'),
-    isAvailable: z.boolean().default(false),
-    isAbscence: z.boolean().default(false),
+    name: z.string(
+      {
+        required_error: "Nome do turno é obrigatório"
+      }
+    ).refine(value => value !== '', 'Nome do turno é obrigatório.'),
+    quantity: z.string(
+      {
+        required_error: "Quantidade de turnos é obrigatório"
+      }      
+    ).default('0').refine(value => parseInt(value) < 100, 'Quantidade de turnos deve ser menor que 100').refine(value => parseInt(value) >= 0, 'Quantidade de turnos deve ser maior ou igual a 0'),
+    minQuantity: z.string(
+      {
+        required_error: "Quantidade mínima de turnos é obrigatório"
+      }
+    ).default('0').refine(value => parseInt(value) < 100, 'Quantidade mínima de turnos deve ser menor que 100').refine(value => parseInt(value) >= 0, 'Quantidade mínima de turnos deve ser maior ou igual a 0'),
+    isAvailable: z.boolean(
+      {
+        required_error: "Disponibilidade é obrigatória"
+      }
+    ).default(false),
+    isAbscence: z.boolean(
+      {
+        required_error: "Preencher se é um afastamento é obrigatório"
+      }
+    ).default(false),
     dateStartEnd: DateStartEndSchema,
   })
 

@@ -1,14 +1,18 @@
 import { z } from 'zod';
 
 export const DateStartEndSchema = z.object({
-  start: z.string().refine((value) => {
-    value !== '';
-  }, 'Hora de início é obrigatória, e deve ser no formato 24h. Ex: 00:00'),
-  end: z.string().refine((value) => {
-    value !== '';
-  }, 'Hora de término é obrigatória, e deve ser no formato 24h. Ex: 00:00'),
+  start: z.string(
+    {
+      required_error: "Hora de início é obrigatória"
+    }
+  ),
+  end: z.string({
+    required_error: "Hora de término é obrigatória"
+  }),
   isNextDay: z
-    .boolean()
+    .boolean({
+        required_error: "Confirme se o turno passa para o dia seguinte"
+    })
     .refine(
       (value) => value !== null,
       'Confirme se o turno passa para o dia seguinte.'
@@ -22,10 +26,12 @@ export function handleDateStartEnd({
   end,
   isNextDay
 }: DateStartEndValues) {
-  const startHourCollectingFirstTwoDigts = parseInt(start.slice(0, 2));
-  const startMinutesCollectingLastTwoDigts = parseInt(start.slice(3, 5));
-  const endHourCollectingFirstTwoDigts = parseInt(end.slice(0, 2));
-  const endMinutesCollectingLastTwoDigts = parseInt(end.slice(0, 2));
+  const regexExtractHourFirstTwoDigits = new RegExp(/^[0-9]{2}/);
+  const regexExtractMinutesLastTwoDigits = new RegExp(/[0-9]{2}$/);
+  const startHourCollectingFirstTwoDigts = parseInt( regexExtractHourFirstTwoDigits.exec(start)?.[0] ?? "0" );
+  const startMinutesCollectingLastTwoDigts = parseInt(regexExtractMinutesLastTwoDigits.exec(start)?.[0] ?? "0" );
+  const endHourCollectingFirstTwoDigts = parseInt( regexExtractHourFirstTwoDigits.exec(end)?.[0] ?? "0" );
+  const endMinutesCollectingLastTwoDigts = parseInt( regexExtractMinutesLastTwoDigits.exec(end)?.[0] ?? "0");
   if (isNextDay) {
     return {
       start: new Date(

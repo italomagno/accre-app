@@ -35,16 +35,22 @@ import {
   InputOTPSeparator,
   InputOTPSlot
 } from '../../ui/input-otp';
-import { createShift } from './action';
+import { createShift, updateShift } from './action';
 
-export function CreateShiftComponent() {
+type UpdateShiftComponentProps = {
+  id: string;
+  defaultShiftValues: CreateShiftValues;
+}
+
+export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftComponentProps) {
   const { toast } = useToast();
+  console.log(defaultShiftValues)
   const form = useForm<CreateShiftValues>({
-    resolver: zodResolver(createShiftSchema)
-  });
+    resolver: zodResolver(createShiftSchema),defaultValues: defaultShiftValues
+  })
 
   async function onSubmit(data: CreateShiftValues) {
-    const result = await createShift(data);
+    const result = await updateShift(id,data);
     if ('code' in result && result.code !== 200) {
       toast({
         title: 'Erro',
@@ -54,14 +60,14 @@ export function CreateShiftComponent() {
     }
     toast({
       title: 'Sucesso!',
-      description: "Turno criado com sucesso!"
+      description: "Turno atualizado com sucesso!"
     });
   }
 
   return (
     <Card x-chunk="dashboard-04-chunk-1">
       <CardHeader>
-        <CardTitle>Criar Turno de Serviço</CardTitle>
+        <CardTitle>Editar Turno de Serviço</CardTitle>
         <CardDescription>Preencha os dados do turno.</CardDescription>
       </CardHeader>
       <CardContent>
@@ -201,7 +207,10 @@ export function CreateShiftComponent() {
                     <FormLabel>O turno passa para o dia seguinte?</FormLabel>
 
                     <FormControl>
-                      <Select onValueChange={(e)=>{
+                      <Select
+                      defaultValue={String(field.value)}
+                      
+                      onValueChange={(e)=>{
                         var input
                         if(e === 'true'){
                           input = true}
@@ -232,7 +241,9 @@ export function CreateShiftComponent() {
                   <FormItem>
                     <FormLabel>O Turno é um afastamento?</FormLabel>
                     <FormControl>
-                      <Select onValueChange={(e)=>{
+                      <Select
+                      defaultValue={String(field.value)}
+                      onValueChange={(e)=>{
                         var input
                         if(e === 'true'){
                           input = true}
@@ -263,7 +274,10 @@ export function CreateShiftComponent() {
                   <FormItem>
                     <FormLabel>O Turno está disponível?</FormLabel>
                     <FormControl>
-                      <Select onValueChange={(e)=>{
+                      <Select 
+                      defaultValue={String(field.value)}
+                    
+                      onValueChange={(e)=>{
                         var input
                         if(e === 'true'){
                           input = true}
@@ -287,7 +301,7 @@ export function CreateShiftComponent() {
               }}
             />
             <CardFooter className="border-t px-6 py-4">
-              <Button type="submit">Criar turno</Button>
+              <Button type="submit">Atualizar Turno</Button>
             </CardFooter>
           </form>
         </Form>

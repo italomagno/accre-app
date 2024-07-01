@@ -1,6 +1,9 @@
 "use server"
 import { auth } from "@/src/lib/auth"
 import prisma from "@/src/lib/db/prisma/prismaClient"
+import { ErrorTypes } from "@/src/types"
+import { getUserByEmail } from "../../login/_actions"
+import { revalidatePath } from "next/cache"
 
 
 export async function getShifts(){
@@ -24,4 +27,34 @@ export async function getShifts(){
         }
     }
     return shifts
+}
+
+export async function removeShift(id: string):Promise<ErrorTypes>{
+    const session = await auth()
+    if(!session){
+        return {
+            code: 401,
+            message: "Usuário não autenticado"
+        }
+    }
+    const admin = await getUserByEmail(session.user.email)
+    if("code" in admin){
+        return {
+            code: 403,
+            message: admin.message
+        }
+    }
+    
+    const shift = await prisma.shift.delete({
+        where: {
+            id,
+            departmentId: admin.departmentId
+        }
+    })
+    prisma.$disconnect()
+    revalidatePath("/settings/shifts")
+    return{
+        code: 200,
+        message: "Turno removido com sucesso"
+    }
 }

@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from "clsx"
 
 import { twMerge } from "tailwind-merge"
 import {  availableShifts, completeShifts } from "@/src/types";
+import { ControllerRenderProps } from "react-hook-form";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -77,6 +78,8 @@ export function applyCpfMask(value: string): string {
     .replace(/(\d{6})(\d)/, '$1-$2')
     .replace(/(-\d)\d+?$/, '$1');
 }
+
+
 
 
 
