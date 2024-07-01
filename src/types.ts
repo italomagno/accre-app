@@ -1,3 +1,4 @@
+import { is } from "date-fns/locale";
 import { z } from "zod";
 
 export type  optionsProps ={
@@ -78,6 +79,27 @@ export const LoginSchema = z.object({
   export const proposalSchema = z.object({
     proposal: z.string()
   });
-  
   export type ProposalValues = z.infer<typeof proposalSchema>;
 
+
+  export const createRosterSchema = z.object({
+    month: z.string().refine(value => value !== '', 'Mês é obrigatório.'),
+    year: z.string().refine(value => value !== '', 'Ano é obrigatório.'),
+    minHours: z.string().refine(value => value !== '', 'Mínimo de horas é obrigatório.'),
+    maxHours: z.string().refine(value => value !== '', 'Máximo de horas é obrigatório.'),
+  })
+
+  export type CreateRosterValues = z.infer<typeof createRosterSchema>;
+  
+
+  export const createShiftSchema = z.object({
+    name: z.string().refine(value => value !== '', 'Nome do turno é obrigatório.'),
+    start: z.string().refine(value => value !== '', 'Hora de início é obrigatório.'),
+    end: z.string().refine(value => value !== '', 'Hora de término é obrigatório.'),
+    quantity: z.string().default('0'),
+    minQuantity: z.string().default('0'),
+    isAvailable: z.boolean().default(false),
+    isAbscence: z.boolean().default(false),
+  })
+
+  export type CreateShiftValues = z.infer<typeof createShiftSchema>;

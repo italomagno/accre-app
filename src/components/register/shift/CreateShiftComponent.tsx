@@ -5,24 +5,23 @@ import { Button } from "../../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 import { Months } from "@prisma/client";
 import { generateUniqueKey } from "@/src/lib/utils";
-import { Label } from "../../ui/label";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "../../ui/use-toast";
-import { CreateRosterValues, createRosterSchema } from "@/src/types";
-import { createRoster } from "../../../app/settings/roster/createRoster/action";
+import { CreateShiftValues, createShiftSchema } from "@/src/types";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../ui/form";
+import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "../../ui/input-otp";
 
 
 
-export function CreateRosterComponent(){
+export function CreateShiftComponent(){
   const {toast} = useToast()
-  const form = useForm<CreateRosterValues>({
-    resolver: zodResolver(createRosterSchema)
+  const form = useForm<CreateShiftValues>({
+    resolver: zodResolver(createShiftSchema)
   })
 
-  async function onSubmit(data:CreateRosterValues){
-    const result = await createRoster(data)
+  async function onSubmit(data:CreateShiftValues){
+    const result = await createShift(data)
     if("code" in result && result.code !== 200){
       toast({
         title: "Erro ao criar escala operacional",
@@ -52,26 +51,16 @@ export function CreateRosterComponent(){
                         <div className="w-full flex flex-col gap-3">
                         <FormField
                         control={form.control}
-                        name="month"
+                        name="name"
                         render={({field})=>{
 
                             return(
                               <FormItem>
                                 <FormLabel>
-                                  Mês
+                                  Nome do Turno
                                 </FormLabel>
                                 <FormControl>
-                                <Select onValueChange={field.onChange}>
-
-                    <SelectTrigger>
-                        <SelectValue placeholder="Escolha o mês..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {
-                            Object.keys(Months).map(month=><SelectItem key={generateUniqueKey()}value={month}>{month}</SelectItem>)
-                        }
-                    </SelectContent>
-                  </Select>
+                                <Input placeholder="Nome do Turno" {...field}/>
                                 </FormControl>
                                 <FormMessage/>
 
@@ -83,25 +72,16 @@ export function CreateRosterComponent(){
 
                         <FormField
                         control={form.control}
-                        name="year"
+                        name="quantity"
                         render={({field})=>{
 
                             return(
                               <FormItem>
                                 <FormLabel>
-                                  Ano
+                                  Quantidade desse Turno em um Dia
                                 </FormLabel>
                                 <FormControl>
-                                <Select onValueChange={field.onChange}>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Escolha o ano..."/>
-                    </SelectTrigger>
-                    <SelectContent>
-                        {
-                            [2024,2025,2026,2027,2028,2029 ].map(year=><SelectItem key={generateUniqueKey()} value={String(year)}>{year}</SelectItem>)
-                        }
-                    </SelectContent>
-                  </Select>
+                                <Input type="number" placeholder="Quantidade de Turno por dia" {...field}/>
                                 </FormControl>
                                 <FormMessage/>
                               </FormItem>
@@ -114,15 +94,15 @@ export function CreateRosterComponent(){
                     </div>
                           <FormField
                           control={form.control}
-                          name="minHours"
+                          name="minQuantity"
                           render={({field})=>{
                               return(
                                 <FormItem>
                                   <FormLabel>
-                                    Minimo de horas por controlador
+                                    Quantidade mínima necessária desse Turno em um Dia
                                   </FormLabel>
                                   <FormControl>
-                                  <Input type="number" placeholder="Minimo de horas por controlador" {...field}/>
+                                  <Input type="number" placeholder="Minimo de turnos por dia" {...field}/>
                                   </FormControl>
                                   <FormMessage/>
 
@@ -132,15 +112,59 @@ export function CreateRosterComponent(){
                           />
                           <FormField
                           control={form.control}
-                          name="maxHours"
+                          name="start"
                           render={({field})=>{
                               return(
                                 <FormItem>
                                   <FormLabel>
-                                    Máximo de horas por controlador
+                                    Horário de início do turno
                                   </FormLabel>
                                   <FormControl>
-                                  <Input type="number" placeholder="Máximo de horas por controlador" {...field}/>
+                                  <InputOTP maxLength={4} {...field}>
+  <InputOTPGroup>
+    <InputOTPSlot index={0} />
+    <InputOTPSlot index={1} />
+  </InputOTPGroup>
+  <div className="flex flex-col gap-4">
+  <InputOTPSeparator />
+  <InputOTPSeparator />
+
+  </div>
+  <InputOTPGroup>
+  <InputOTPSlot index={2} />
+    <InputOTPSlot index={3} />
+  </InputOTPGroup>
+</InputOTP>
+                                  </FormControl>
+                                  <FormMessage/>
+                                </FormItem>
+                              )
+                          }}
+                          />
+                           <FormField
+                          control={form.control}
+                          name="end"
+                          render={({field})=>{
+                              return(
+                                <FormItem>
+                                  <FormLabel>
+                                    Horário de término do turno
+                                  </FormLabel>
+                                  <FormControl>
+                                  <InputOTP maxLength={4} {...field}>
+  <InputOTPGroup>
+    <InputOTPSlot index={0} />
+    <InputOTPSlot index={1} />
+  </InputOTPGroup>
+  <div className="flex flex-col gap-4">
+  <InputOTPSeparator />
+  <InputOTPSeparator />
+  </div>
+  <InputOTPGroup>
+  <InputOTPSlot index={2} />
+    <InputOTPSlot index={3} />
+  </InputOTPGroup>
+</InputOTP>
                                   </FormControl>
                                   <FormMessage/>
                                 </FormItem>

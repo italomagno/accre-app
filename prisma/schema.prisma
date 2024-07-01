@@ -99,7 +99,6 @@ model WorkDay {
 }
 
 
-// ajeitar esse model, preciso verificar ver se vale a pena dividir esse model em dois, pois eu não sei se eu como vou fazer a lógica para por os dias de trabalho
 model Shift {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   created_at     DateTime @default(now())
@@ -109,9 +108,9 @@ model Shift {
   end            DateTime
   quantity       Int @default(0)
   minQuantity    Int  @default(0)
-  userId         String @db.ObjectId
-  roster         Roster? @relation(fields: [rosterId], references: [id])
-  rosterId       String @db.ObjectId
+  userId         String? @db.ObjectId
+  roster        Roster? @relation(fields: [rosterId], references: [id])
+  rosterId       String? @db.ObjectId
   department     Department @relation(fields: [departmentId], references: [id])
   departmentId   String @db.ObjectId
   isAvailable   Boolean @default(false)

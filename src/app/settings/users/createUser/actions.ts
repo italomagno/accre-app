@@ -92,21 +92,10 @@ export async function handleFileInputForManyUsers(prevState:any,formData: FormDa
 
 
 export async function createManyUsers(users:Pick<User, "name" | "email" | "function">[]):Promise<ErrorTypes>{
-    const alreadyCreatedUsers = await prisma.user.findMany({
-        where: {
-            email: {
-                in: users.map((user) => user.email)
-            }
-        }
-    })
-    if(alreadyCreatedUsers.length > 0){
-        return {
-            code: 400,
-            message: `Usuários já existentes:  ${alreadyCreatedUsers.map((user,i) => ` ( ${i+1} ) nome: ${user.name} e email: ${user.email}`).join(`, \n\n`)}. Remova-os do arquivo CSV e tente novamente.`
-        }
-    }
     const session = await auth()
     if(!session){
+        prisma.$disconnect()
+
         return {
             code: 401,
             message: "Usuário não logado"
@@ -152,6 +141,20 @@ export async function createManyUsers(users:Pick<User, "name" | "email" | "funct
         }
     })
     try{    
+        const alreadyCreatedUsers = await prisma.user.findMany({
+            where: {
+                email: {
+                    in: users.map((user) => user.email)
+                }
+            }
+        })
+        if(alreadyCreatedUsers.length > 0){
+            prisma.$disconnect()
+            return {
+                code: 400,
+                message: `Usuários já existentes:  ${alreadyCreatedUsers.map((user,i) => ` ( ${i+1} ) nome: ${user.name} e email: ${user.email}`).join(`, \n\n`)}. Remova-os do arquivo CSV e tente novamente.`
+            }
+        }
         const createdUsers = await prisma.user.createMany({
             data: newUsers
         })
