@@ -203,7 +203,9 @@ export async function createManyUsers(users:Pick<User, "name" | "email" | "funct
 
 
 export async function updateUser(id:string, data:UpdateUserValues):Promise<ErrorTypes>{
-    console.log(data)
+
+    
+    try{
     const session = await auth()
     if(!session){
         return {
@@ -245,9 +247,20 @@ export async function updateUser(id:string, data:UpdateUserValues):Promise<Error
             message: "Erro ao atualizar usuário"
         }
     }
-    revalidatePath("/settings/users")
+
+    revalidatePath('/settings/users')
+
     return {
         code: 200,
         message: "Usuário atualizado com sucesso"
     }
+
+}catch(error){
+    console.log(error)
+    return {
+        code: 500,
+        message: "Erro ao atualizar usuário"
+    }
+}
+
 }

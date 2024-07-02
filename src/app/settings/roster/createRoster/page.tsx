@@ -22,7 +22,7 @@ export default async function createRoster() {
                     <div>
                 Você precisa cadastrar pelo menos um turno antes de criar uma escala.
                     </div>
-                    <div><Button variant={"link"}><Link href="/settings/createShift">ir para criar grupo</Link></Button></div>
+                    <Link className={"text-primary underline-offset-4 hover:underline"} href="/settings/shifts/createShift">ir para criar turno</Link>
                 </div>
 
             </EmptyComponentCard>
@@ -40,7 +40,7 @@ export default async function createRoster() {
                     <div>
                 Você precisa cadastrar pelo menos um usuário antes de criar uma escala.
                     </div>
-                    <div><Button variant={"link"}><Link href="/settings/createUser">ir para criar usuário</Link></Button></div>
+                    <Link className={"text-primary underline-offset-4 hover:underline"} href="/settings/users/createUser">ir para criar usuário</Link>
                 </div>
 
             </EmptyComponentCard>

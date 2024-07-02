@@ -2,8 +2,8 @@
 import { ErrorTypes } from '@/src/types';
 
 import { TableCell } from '../ui/table';
-import { UpdateButton } from '../update/updateButton';
 import { RemoveButton } from '@/src/components/remove/RemoveButton';
+import { UpdateTrigger } from '../update/UpdateTrigger';
 
 type ActionsCellProps = {
   handleRemoveItem?: (id: string) => Promise<ErrorTypes>;
@@ -17,7 +17,7 @@ export default function ActionsCell({
   children
 }: ActionsCellProps) {
   return <TableCell className="flex items-center gap-4 justify-center">
-    {children && <UpdateButton>{children}</UpdateButton>}
+    {children && <UpdateTrigger>{children}</UpdateTrigger>}
     {handleRemoveItem && id && (
       <RemoveButton handleRemoveItem={handleRemoveItem} id={id} />
     )}

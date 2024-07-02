@@ -35,7 +35,7 @@ import {
   InputOTPSeparator,
   InputOTPSlot
 } from '../../ui/input-otp';
-import { createShift, updateShift } from './action';
+import { updateShift } from './action';
 
 type UpdateShiftComponentProps = {
   id: string;
@@ -51,12 +51,12 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
 
   async function onSubmit(data: CreateShiftValues) {
     const result = await updateShift(id,data);
+    console.log(result)
     if ('code' in result && result.code !== 200) {
       toast({
         title: 'Erro',
         description: result.message
       });
-      return;
     }
     toast({
       title: 'Sucesso!',

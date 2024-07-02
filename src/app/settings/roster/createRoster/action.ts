@@ -3,8 +3,10 @@
 import { getUserByEmail } from "@/src/app/login/_actions";
 import { auth } from "@/src/lib/auth";
 import prisma from "@/src/lib/db/prisma/prismaClient";
-import { CreateRosterValues, ErrorTypes, createRosterSchema } from "@/src/types";
-import { Months, Roster } from "@prisma/client";
+import { CreateRosterValues, ErrorTypes, UpdateRosterSchema, UpdateRosterValues, createRosterSchema } from "@/src/types";
+import { Months } from "@prisma/client";
+import { revalidatePath } from "next/cache";
+import { parse } from "path";
 
 
 export async function createRoster(data:CreateRosterValues):Promise<ErrorTypes>{
@@ -83,10 +85,6 @@ export async function createRoster(data:CreateRosterValues):Promise<ErrorTypes>{
                         }
                     }),
                 }
-                //TODO: conect available shifts for this Roster
-               /*  shifts:{
-
-                } */
             }
         })
         if(!createRosterWithAllUsers ){
@@ -111,8 +109,6 @@ export async function createRoster(data:CreateRosterValues):Promise<ErrorTypes>{
         }
     }
 
-    const {month,year,minHours,maxHours} = data
-
 
 
    
@@ -120,4 +116,99 @@ export async function createRoster(data:CreateRosterValues):Promise<ErrorTypes>{
 
     
 
+}
+
+
+export async function updateRoster(id:string,data:UpdateRosterValues):Promise<ErrorTypes>{
+
+    try{
+        await UpdateRosterSchema.parseAsync(data)
+        const session = await auth()
+        if(!session){
+            return {
+                code: 401,
+                message: "Usuário não autenticado"
+            }
+        }
+        const admin = await getUserByEmail(session.user.email)
+        if("code" in admin){
+            return {
+                code: 403,
+                message: admin.message
+            }
+        }
+        console.log(data)
+        const updatedRoster = await prisma.roster.update({
+            where:{
+                id:id,
+                departmentId: admin.departmentId
+            },
+            data:{
+                ...data,
+                year:parseInt(data.year),
+                month: data.month as Months,
+            }
+        })
+        prisma.$disconnect()
+        revalidatePath("/settings/roster")
+        return {
+            code: 200,
+            message: "Escala atualizada com sucesso"
+        }
+
+    
+    }catch(e){
+        return {
+            code: 500,
+            message: "Erro interno no servidor"
+        }
+    }
+}
+
+
+
+export async function removeRoster( id:string){
+    console.log(id)
+    try{
+    const session = await auth()
+    if(!session){
+        return {
+            code: 401,
+            message: "Usuário não autenticado"
+        }
+    }
+    const admin = await getUserByEmail(session.user.email)
+    if("code" in admin){
+        return {
+            code: 403,
+            message: admin.message
+        }
+    }
+
+    const deletedRoster = await prisma.roster.delete({
+        where:{
+            id:id,
+            departmentId: admin.departmentId
+        }
+    })
+    if(!deletedRoster){
+        prisma.$disconnect()
+        return {
+            code: 500,
+            message: "Erro ao deletar escala"
+        }
+    }
+    prisma.$disconnect()
+    return {
+        code: 200,
+        message: "Escala deletada com sucesso"
+    }
+}catch(e){
+    prisma.$disconnect()
+    console.log(e)
+    return {
+        code: 500,
+        message: "Erro interno no servidor"
+    }
+}
 }

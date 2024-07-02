@@ -51,10 +51,10 @@ export function UserTable({users,search}: UserTableProps ) {
                     </TableHeader>
                     <TableBody>
                       {filteredUsers.map((user) => {
-                        
+                        const {id:userId,...otherPropsFromUser} = user
                         
                         return (
-                        <TableRow key={user.id}>
+                        <TableRow key={userId}>
                           {headingKeys.map((key) => {
                             return (
                               key === "id" || key === "role"? null :<TableCell key={generateUniqueKey()}>
@@ -73,9 +73,10 @@ export function UserTable({users,search}: UserTableProps ) {
                               </TableCell>
                             );
                           })}
-                          <ActionsCell id={user.id} handleRemoveItem={handleRemoveUser}>
+                          <ActionsCell id={userId} handleRemoveItem={handleRemoveUser}>
                           <UpdateUserComponent
-                          user={user}
+                          id={userId}
+                          defaultUserValues={{...otherPropsFromUser,function:String(user.function)}}
                           />
                           </ActionsCell>
                         </TableRow>
@@ -83,6 +84,8 @@ export function UserTable({users,search}: UserTableProps ) {
                     </TableBody>
                 </Table>
                 <ScrollBar orientation="vertical" />
+                <ScrollBar orientation="horizontal" />
+
 
       </ScrollArea>
       </>

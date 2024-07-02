@@ -35,10 +35,9 @@ export function RemoveButton({id,handleRemoveItem}: RemoveButtonProps) {
      
       <Popover>
         <PopoverTrigger>
-          <Button variant={"destructive"} size={"icon"}>
-
+            <div className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
           <X/>
-          </Button>
+            </div>
         </PopoverTrigger>
       <PopoverContent className="flex flex-col gap-4">
       Tem certeza que deseja remover?

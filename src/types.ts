@@ -67,9 +67,7 @@ export const registerUserSchema = z.object({
 export const updateUserSchema = z.object({
   name: z.string().min(3, 'O nome deve conter no mínimo 3 caracteres.').refine(value => value !== '', 'Nome é obrigatório.'),
   email: z.string().email('E-mail inválido.').refine(value => value !== '', 'E-mail é obrigatório.'),
-  password: z.string().min(6, 'A senha deve conter no mínimo 6 caracteres.').refine(value => value !== '', 'Senha é obrigatório.'),
   function: z.string().refine(value => value !== '', 'Função Operacional é obrigatório.'),
-  departmentId: z.string().refine(value => value !== '', 'Departamento é obrigatório.'),
   block_changes: z.boolean().default(false),
   isOffice: z.boolean().default(false),
 })
@@ -80,6 +78,31 @@ export type RegisterUserValues = z.infer<typeof registerUserSchema>;
 
 export type RegisterDepartmentValues = z.infer<typeof registerDepartmentSchema>;
 
+export const UpdateRosterSchema = z.object({
+    month: z.string(
+      {
+        required_error: "Mês é obrigatório"
+      }
+    ).refine(value => value !== '', 'Mês é obrigatório.'),
+    year: z.string(
+      {
+        required_error: "Ano é obrigatório"
+      }
+    ).refine(value => value !== '', 'Ano é obrigatório.'),
+    minWorkingHoursPerRoster: z.number(
+      {
+        required_error: "Mínimo de horas é obrigatório"
+      }),
+
+    maxWorkingHoursPerRoster: z.number(
+      {
+        required_error: "Máximo de horas é obrigatório"
+      }
+    ),
+  blockChanges: z.boolean().default(false),
+  })
+  
+  export type UpdateRosterValues = z.infer<typeof UpdateRosterSchema>;
 
 export const LoginSchema = z.object({
     email: z.string(
