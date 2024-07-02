@@ -71,6 +71,16 @@ export const updateUserSchema = z.object({
   block_changes: z.boolean().default(false),
   isOffice: z.boolean().default(false),
 })
+export const updateMyAccountSchema = z.object({
+  name: z.string().min(3, 'O nome deve conter no mínimo 3 caracteres.').refine(value => value !== '', 'Nome é obrigatório.'),
+  email: z.string().email('E-mail inválido.').refine(value => value !== '', 'E-mail é obrigatório.'),
+  password: z.string(),
+  function: z.string().refine(value => value !== '', 'Função Operacional é obrigatório.'),
+  block_changes: z.boolean(),
+  isOffice: z.boolean(),
+})
+
+export type UpdateMyAccountValues = z.infer<typeof updateMyAccountSchema>;
 
 export type UpdateUserValues = z.infer<typeof updateUserSchema>;
 

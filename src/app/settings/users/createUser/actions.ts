@@ -1,8 +1,9 @@
 "use server"
 import { auth } from '@/src/lib/auth';
+import { hashCredential } from '@/src/lib/bcrypt';
 
 import prisma from "@/src/lib/db/prisma/prismaClient"
-import { ErrorTypes, UpdateUserValues, } from "@/src/types"
+import { ErrorTypes, UpdateMyAccountValues, UpdateUserValues, } from "@/src/types"
 import { $Enums, User,Function } from "@prisma/client"
 import { revalidatePath } from 'next/cache';
 
@@ -200,6 +201,66 @@ export async function createManyUsers(users:Pick<User, "name" | "email" | "funct
 
 }
 
+export async function updateMyAccount(id:string, data:UpdateMyAccountValues):Promise<ErrorTypes>{
+
+    
+    try{
+    const session = await auth()
+    if(!session){
+        return {
+            code: 401,
+            message: "Usuário não autenticado"
+        }
+    }
+    const email = session.user.email
+    const user = await prisma.user.findFirst({
+        where: {
+            email,
+            id
+        }
+    })
+    if(!user){
+        return {
+            code: 401,
+            message: "Usuário não encontrado"
+        }
+    }
+    const hashedUserPassword =  hashCredential(data.password)
+ 
+    const updatedUser = await prisma.user.update({
+        where: {
+            id,
+            departmentId: user.departmentId
+        },
+        data: {
+            ...data,
+            function: data.function as Function,
+            password: hashedUserPassword
+        }
+    })
+    if(!updatedUser){
+        return {
+            code: 500,
+            message: "Erro ao atualizar usuário"
+        }
+    }
+
+    revalidatePath('/settings/myAccount')
+
+    return {
+        code: 200,
+        message: "Usuário atualizado com sucesso"
+    }
+
+}catch(error){
+    console.log(error)
+    return {
+        code: 500,
+        message: "Erro ao atualizar usuário"
+    }
+}
+
+}
 
 
 export async function updateUser(id:string, data:UpdateUserValues):Promise<ErrorTypes>{
