@@ -1,8 +1,8 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { getSpreadSheetId } from "./actions";
-import { InformationButton } from "@/src/components/informationButton";
 import { SpreadSheetIdButton } from "@/src/components/register/spreadSheet/SpreadSheetIdButton";
+import { InformationButton } from "@/src/components/disclaimerComponents/informationButton";
 
 
 
