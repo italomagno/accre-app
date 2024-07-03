@@ -1,11 +1,5 @@
-import { Badge } from '@/src/components/ui/badge';
+
 import { Button } from '@/src/components/ui/button';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent
-} from '@/src/components/ui/card';
 import {
   DialogContent,
   DialogDescription,
@@ -13,19 +7,13 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/src/components/ui/dialog';
-import { filterShiftsByDay, generateUniqueKey } from '@/src/lib/utils';
-import { Shift } from '@prisma/client';
-import { Separator } from '@radix-ui/react-dropdown-menu';
-import {
-  NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-  NavigationMenuTrigger,
-  NavigationMenuContent,
-} from '@radix-ui/react-navigation-menu';
+import { generateUniqueKey } from '@/src/lib/utils';
 import { RegisterWorkDayButton } from '../components/register/workDay/RegisterWorkDayButton';
 import { RemoveWorkDayButton } from '../components/remove/workDay/removeWorkDayButton';
 import { ShowAvailableShiftsComponent } from '../components/ShowAvailableShiftsComponent';
+import { Separator } from '../components/ui/separator';
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from '../components/ui/navigation-menu';
+import { Shift } from '@prisma/client';
 
 interface DialogComponentProps {
   day: Date;
