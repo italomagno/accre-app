@@ -33,7 +33,7 @@ import { updateUser } from '@/src/app/settings/users/createUser/actions';
 
 type UpdateUserComponentProps = {
   id: string;
-  defaultUserValues: UpdateUserValues;
+  defaultUserValues: Partial<UpdateUserValues>;
 }
 
 export function UpdateUserComponent({ defaultUserValues,id }: UpdateUserComponentProps) {

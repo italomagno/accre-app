@@ -10,7 +10,7 @@ import { removeUser } from "@/src/app/settings/users/actions";
 import { UpdateUserComponent } from "../update/user/UpdateUserComponent";
 
 type UserTableProps = {
-    users: (Pick<User,"email"| "function" | "name" | "id" |"isOffice" | "block_changes"> & {[key:string]:any})[];
+    users: (Partial<User> & {[key:string]:any})[];
     search: string;
     } 
 
@@ -75,7 +75,7 @@ export function UserTable({users,search}: UserTableProps ) {
                           })}
                           <ActionsCell id={userId} handleRemoveItem={handleRemoveUser}>
                           <UpdateUserComponent
-                          id={userId}
+                          id={userId?? ""}
                           defaultUserValues={{...otherPropsFromUser,function:String(user.function)}}
                           />
                           </ActionsCell>
