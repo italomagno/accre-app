@@ -47,7 +47,6 @@ export function UpdateRosterComponent({ defaultRosterValues,id }: UpdateRosterCo
 
   async function onSubmit(data: UpdateRosterValues) {
     const result = await updateRoster(id,data);
-    console.log(result)
     if ('code' in result && result.code !== 200) {
       toast({
         title: 'Erro',
@@ -169,6 +168,41 @@ export function UpdateRosterComponent({ defaultRosterValues,id }: UpdateRosterCo
                         placeholder="Máximo de horas por controlador"
                         {...field}
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+            <FormField
+              control={form.control}
+              name="blockChanges"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>Blockear essa escala para Proposição?</FormLabel>
+
+                    <FormControl>
+                      <Select
+                      defaultValue={String(field.value)}
+                      
+                      onValueChange={(e)=>{
+                        var input
+                        if(e === 'true'){
+                          input = true}
+                          if(e === 'false'){
+                            input = false
+                          }
+                        field.onChange(input)
+                        }}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={'true'}>Sim</SelectItem>
+                          <SelectItem value={'false'}>Não</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

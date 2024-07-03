@@ -2,13 +2,13 @@
 import { getUsersWithFilter } from './actions';
 import { getDepartmentBySession } from '../../cadastrarOrgao/actions';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/src/components/ui/card';
-import { EmptySettingsComponent } from '@/src/components/empytySettingsComponent';
 import { UserTable } from '@/src/components/tables/UserTable';
 import { Search } from '@/src/components/search';
 import { User } from '@prisma/client';
-import { EmptyComponentCard } from '@/src/components/EmptyComponentCard';
 import { Button } from '@/src/components/ui/button';
 import Link from 'next/link';
+import { EmptyComponentCard } from '@/src/components/emptyComponents/EmptyComponentCard';
+import { EmptySettingsComponent } from '@/src/components/emptyComponents/empytySettingsComponent';
 
 export default async function IndexPage({
   searchParams

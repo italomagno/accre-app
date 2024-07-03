@@ -44,7 +44,6 @@ export function UpdateUserComponent({ defaultUserValues,id }: UpdateUserComponen
 
   async function onSubmit(data: UpdateUserValues) {
     const result = await updateUser(id,data);
-    console.log(result)
     if ('code' in result && result.code !== 200) {
       toast({
         title: 'Erro',

@@ -102,7 +102,7 @@ export async function getUserByEmail(email: string): Promise<User | ErrorTypes> 
         if(!user){
             return {
                 code: 404,
-                message: "User not found"
+                message: "Usuário não encontrado."
             };
         }
         return user;

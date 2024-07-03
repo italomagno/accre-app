@@ -2,8 +2,8 @@
 
 
 import { Separator } from "@/src/components/ui/separator"
-import { InformationCreateManyUsersButton } from "../../informationCreateManyUsersButton"
 import { FileInput } from "../../ui/file-input"
+import { InformationCreateManyUsersButton } from "../../disclaimerComponents/informationCreateManyUsersButton"
 
 type CreateManyUsersComponentProps = {
     search: string

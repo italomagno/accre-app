@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/src/components/ui/card"
 
-import { LogoExtended } from "@/src/components/icons"
+import { LogoExtended } from "@/src/components/ui/icons"
 import { Separator } from "@/src/components/ui/separator"
 
 

@@ -44,14 +44,12 @@ type UpdateShiftComponentProps = {
 
 export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftComponentProps) {
   const { toast } = useToast();
-  console.log(defaultShiftValues)
   const form = useForm<CreateShiftValues>({
     resolver: zodResolver(createShiftSchema),defaultValues: defaultShiftValues
   })
 
   async function onSubmit(data: CreateShiftValues) {
     const result = await updateShift(id,data);
-    console.log(result)
     if ('code' in result && result.code !== 200) {
       toast({
         title: 'Erro',

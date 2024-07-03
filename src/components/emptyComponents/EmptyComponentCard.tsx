@@ -4,8 +4,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardTitle } from "@/src
 import { useToast } from "@/src/components/ui/use-toast"
 import { ErrorTypes } from "@/src/types"
 import { useEffect } from "react"
-import { Button } from "./ui/button"
 import Link from "next/link"
+import { Button } from "../ui/button"
 
 
 interface EmptyComponentCardProps {

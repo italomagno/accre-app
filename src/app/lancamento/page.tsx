@@ -1,9 +1,11 @@
 
 /* import { getShiftsControlers, getShiftsCounter } from '@/src/lib/db/sheets/googleSheetsDataSource'; */
 import { CalendarComponent } from '@/src/app/calendarComponent';
-import { optionsProps } from '@/src/types';
+
 import { LayoutComponent } from '../LayoutComponent';
-import { auth } from '../../lib/auth';
+import { getRostersBySession } from '../settings/roster/actions';
+import { getAvailableShifts } from '../settings/shifts/action';
+import {  getWorkDaysByUserSession } from './_actions';
 /* import { getProposalFromCookies, getShiftsFromUser, handleSaveProposal } from './_actions'; */
 
 export default async function lancamento({
@@ -11,10 +13,9 @@ export default async function lancamento({
 }: {
     searchParams: { turnos: string, };
 }) {
-   
-const emptyProposal = ""
-const emptyShiftStatus = {availableShifts:[],completeShifts:[]}
-const emptyOptions = [{optionTitle:"",optionValues:[]}]
+
+
+    const [ rosters, shifts, workDays ] =await Promise.all([ getRostersBySession(), getAvailableShifts() , getWorkDaysByUserSession()]) 
 
     return (
         <LayoutComponent>
@@ -24,9 +25,9 @@ const emptyOptions = [{optionTitle:"",optionValues:[]}]
             </div>
             <div className='mx-auto'>
                 <CalendarComponent
-                    proposal={emptyProposal}
-                    options={emptyOptions}
-                    shiftsStatus={emptyShiftStatus}
+                    rosters={rosters}
+                    shifts={shifts}
+                    workDays={workDays}
                 />
             </div>
         </main>
@@ -34,3 +35,5 @@ const emptyOptions = [{optionTitle:"",optionValues:[]}]
 
     );
 }
+
+

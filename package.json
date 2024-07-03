@@ -43,6 +43,7 @@
     "date-fns": "^3.6.0",
     "drizzle-kit": "^0.21.1",
     "drizzle-orm": "^0.30.10",
+    "embla-carousel-react": "^8.1.6",
     "google-spreadsheet": "^4.1.2",
     "googleapis": "^137.1.0",
     "input-otp": "^1.2.4",

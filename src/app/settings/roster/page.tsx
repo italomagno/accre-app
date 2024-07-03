@@ -4,11 +4,10 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/src/components/ui/card"
 import { generateUniqueKey } from "@/src/lib/utils"
 import { Roster } from "@prisma/client"
-import { EmptySettingsComponent } from "@/src/components/empytySettingsComponent"
-import { EmptyComponentCard } from "@/src/components/EmptyComponentCard"
 import ActionsCell from "@/src/components/tables/ActionsCell"
 import { removeRoster } from "./createRoster/action"
 import { UpdateRosterComponent } from "@/src/components/update/roster/UpdateRosterComponent"
+import { EmptyComponentCard } from "@/src/components/emptyComponents/EmptyComponentCard"
 
 
 
@@ -47,7 +46,7 @@ export default async function RosterPage() {
     }
 
     
-    const headingKeys = Object.keys(rosters[0]).filter(key => key !== "id" && key !== "created_at" && key !== "updatedAt" && key !== "departmentId")
+    const headingKeys = Object.keys(rosters[0]).filter(key => key !== "id" && key !== "created_at" && key !== "updatedAt" && key !== "departmentId" && key !== "shiftsId")
     return(
     
         

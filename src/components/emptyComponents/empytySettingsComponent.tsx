@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
 interface EmptySettingsComponentProps {
     pageTitle: string

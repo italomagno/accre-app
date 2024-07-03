@@ -17,12 +17,12 @@ import {
 } from '@/src/components/ui/card';
 import { generateUniqueKey } from '@/src/lib/utils';
 import { Shift } from '@prisma/client';
-import { EmptySettingsComponent } from '@/src/components/empytySettingsComponent';
 import { getShifts, removeShift } from './action';
 import ActionsCell from '@/src/components/tables/ActionsCell';
 import { UpdateShiftComponent } from '@/src/components/update/shift/UpdateShiftComponent';
 import { CreateShiftValues } from '@/src/types';
-import { EmptyComponentCard } from '@/src/components/EmptyComponentCard';
+import { EmptyComponentCard } from '@/src/components/emptyComponents/EmptyComponentCard';
+import { EmptySettingsComponent } from '@/src/components/emptyComponents/empytySettingsComponent';
 
 export default async function shiftPage() {
   const shifts = await getShifts();

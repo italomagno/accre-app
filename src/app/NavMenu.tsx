@@ -1,8 +1,8 @@
 "use client"
-import { DashboardLogo } from "@/src/components/icons";
 import { SettingsIcon} from "lucide-react";
 import { NavItem } from "./nav-item";
 import { HiOutlineRocketLaunch } from "react-icons/hi2";
+import { DashboardLogo } from "../components/ui/icons";
 
 
 

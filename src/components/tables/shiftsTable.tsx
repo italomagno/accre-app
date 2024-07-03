@@ -1,132 +1,126 @@
 'use client';
 
 import {
-  TableHead,
   TableRow,
   TableHeader,
   TableCell,
   TableBody,
-  Table
+  Table,
+  TableCaption,
 } from '@/src/components/ui/table';
-import { useRouter } from 'next/navigation';
-import { generateUniqueKey } from '@/src/lib/utils';
+import { createWorkDaysColumn, generateUniqueKey, getMonthFromRoster, handleCellColor } from '@/src/lib/utils';
+import { Roster, Shift, User, WorkDay } from '@prisma/client';
+import { ErrorTypes } from '@/src/types';
+import { useEffect } from 'react';
+import { useToast } from '../ui/use-toast';
 
+
+type UserToUserTable = {
+  id:string,
+  name:string
+}
 export function ShiftsTable({
-  values,
-  offset,
-  valuesWithColors
+  shifts,
+  users,
+  roster,
+  workDays,
+  errors,
 }: {
-  values: any[];
-  valuesWithColors: any[];
-  offset: number | null;
+  shifts:(Pick<Shift,"id" | "name" | "quantity"> & Partial<{[key:string]:any}>)[],
+  users: (Pick<User,keyof UserToUserTable> & Partial<{[key:string]:any}>)[],
+  roster: Pick<Roster,"month" | "year" | "id">,
+  workDays: WorkDay[]
+  errors?: ErrorTypes
 }) {
-  const router = useRouter();
-  function onClick() {
-    router.replace(`/?offset=${offset}`);
+  const {toast} = useToast()
+  const rosterId = roster.id
+
+  if(!shifts.length || shifts.length === 0){
+    return (
+      <>
+      <div><p>Nenhum Turno Foi cadastrado ainda</p></div>
+    </>
+  )
+  }
+  if(!users.length || users.length === 0){
+    return (
+      <>
+      <div><p>Nenhum Usuário Foi cadastrado ainda</p></div>
+      </>
+  )
   }
 
-  const keys = Object.keys(values[0]);
-  const hasName = keys.map(key=>key.toLocaleLowerCase()).includes('turno');
+  if(!roster){
+    return (
+      <>
+      <div><p>Essa Escala não Foi cadastrada ainda</p></div>
+      </>
+    )
+  }
 
-  const hasNumber = keys.some(key=>!isNaN(parseFloat(key)))
+  const WorkDaysColumn = createWorkDaysColumn(roster)
+  const counterShiftsPerday = shifts.map(shift => {
+  const shiftPerDay = WorkDaysColumn.map(day => {
+      return workDays.filter(workDay => workDay.shiftsId.includes(shift.id) && workDay.day.getDate() === day).reduce((acc,curr) => {
+        return acc + 1
+      }
+      ,0)
+    })
+    return {
+      shift,
+      days: [...shiftPerDay]
+    }
+  })
+  const counterShiftsPerdayHeadings = ["Turno",...WorkDaysColumn.map(day => day.toString())]
 
+
+ useEffect(() => {
+    if(errors){
+      toast({
+        title: "Erro ou Aviso",
+        description: errors.message
+      })
+    }
+  }
+  ,[errors])
 
   return (
-    <>
-      <form className="border shadow-sm rounded-lg">
-        <div className='max-h-dvh overflow-auto'>
-          <Table >
-            <TableHeader>
+    <Table>
+
+            <TableHeader className='sticky top-0'>
               <TableRow>
-                
-                {
-                  hasName  && hasNumber && <TableHead className="max-w-[150px]">
-                    Turno
-                  </TableHead>
-                }
-                {
-                  hasName  && hasNumber && <TableHead className="max-w-[150px]">
-                    Quantidade
-                  </TableHead>
-                }
-          
-                {
-                hasName && hasNumber?
-                keys.filter(key=>!isNaN(parseFloat(key.toLocaleLowerCase()))).map((key, i) => (
-                  <TableHead key={`${generateUniqueKey()}-component-th-${i}`} className="max-w-[150px]">
-                    {Number(key)+1}
-                  </TableHead>
-                ))
-                :
-                keys.map((key, i) => (
-                  <TableHead key={`${generateUniqueKey()}-component-th-${i}`} className="max-w-[150px]">
-                    {String(key)}
-                  </TableHead>
-                ))
+              {
+                counterShiftsPerdayHeadings.map((heading,i) => {
+                  return <TableCell key={generateUniqueKey()}>{heading}</TableCell>
+                })
               }
               </TableRow>
             </TableHeader>
-            <TableBody >
-              {values.map((shift,i) => {
-                return <UserRow key={generateUniqueKey()}  shifts={valuesWithColors[i]} hasName={hasName} hasNumber={hasNumber} />
-              })}
+            <TableBody>
+              {
+                counterShiftsPerday.map((rowData,i) => {
+                  const {shift,days} = rowData
+                  return (
+                    <TableRow key={generateUniqueKey()}>
+                      <TableCell>{shift.name}</TableCell>
+                      {
+                        days.map((day,i) => {
+                          return <TableCell key={generateUniqueKey()} variant={handleCellColor(shift,day)}>{day}</TableCell>
+                        
+                        })
+                      }
+                    </TableRow>
+                  )
+                })
+              }
             </TableBody>
-          </Table>
-        </div>
-      </form>
+    </Table>
 
-    </>
+
+ 
   );
 }
-interface shiftProps {
-  shifts: {
-    turno?:string,
-    quantidade?:string
-    [key: string]:any
-  };
-  hasName: boolean;
-  hasNumber: boolean;
-}
 
-function UserRow({ hasName, hasNumber, shifts }: shiftProps) {
-  return (
-    <TableRow>
-      {hasName && hasNumber && (
-        <TableCell className="max-w-[150px]">
-          {shifts.turno}
-        </TableCell>
-      )}
-      {hasName && hasNumber && (
-        <TableCell className="max-w-[150px]">
-          {shifts.quantidade}
-        </TableCell>
-      )}
 
-      {hasName && hasNumber
-        ? Object.keys(shifts)
-            .filter((key) => !isNaN(parseFloat(key)))
-            .slice(0, -1)
-            .map((key, i) => {
-              return (
-                <TableCell
-                  key={`${generateUniqueKey()}-component-td-${i}`}
-                  className={`max-w-[150px]`}
-                  variant={shifts[key].color as "lessThanNecessary" | "moreThanNecessary" | "hasNecessary" | undefined}
-                >
-                  {shifts[key].value || 0}
-                </TableCell>
-              );
-            })
-        : Object.keys(shifts).map((key, i) => (
-            <TableCell
-              key={`${generateUniqueKey()}-component-td-${i}`}
-              className="max-w-[150px]"
-            >
-              {shifts[key].value || 0}
-            </TableCell>
-          ))}
-    </TableRow>
-  );
-}
 
 

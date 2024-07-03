@@ -1,9 +1,9 @@
 import { CreateRosterComponent } from "@/src/components/register/roster/CreateRosterComponent";
 import { getShifts } from "../../shifts/action";
-import { EmptyComponentCard } from "@/src/components/EmptyComponentCard";
 import { Button } from "@/src/components/ui/button";
 import Link from "next/link";
 import { getUsersWithFilter } from "../../users/actions";
+import { EmptyComponentCard } from "@/src/components/emptyComponents/EmptyComponentCard";
 
 
 

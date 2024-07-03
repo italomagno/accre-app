@@ -45,7 +45,6 @@ export async function createShift(shiftValues: CreateShiftValues){
             start,
             end,
         }
-        console.log(newShift)
         const shift = await prisma.shift.create({
             data: newShift
         })

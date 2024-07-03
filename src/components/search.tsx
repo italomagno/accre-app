@@ -1,7 +1,7 @@
 'use client';
 
 import { Input } from '@/src/components/ui/input';
-import { SearchIcon, Spinner } from '@/src/components/icons';
+import { SearchIcon, Spinner } from '@/src/components/ui/icons';
 import { useRouter,usePathname } from 'next/navigation';
 import { useTransition, useEffect, useRef, useState } from 'react';
 

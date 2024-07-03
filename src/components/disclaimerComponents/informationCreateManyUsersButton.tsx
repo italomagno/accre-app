@@ -1,10 +1,11 @@
 'use client'
 
 import { CircleHelp, Copy } from "lucide-react"
-import { Button } from "./ui/button"
-import { Separator } from "./ui/separator"
-import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "./ui/drawer"
-import { useToast } from "./ui/use-toast"
+import { useToast } from "../ui/use-toast"
+import { Separator } from "../ui/separator"
+import { Button } from "../ui/button"
+
+import { DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose ,Drawer} from "../ui/drawer"
 
 
 

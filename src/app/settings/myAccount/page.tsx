@@ -3,9 +3,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { getUserProfile } from './actions';
 import { TableCaption, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/src/components/ui/table';
 import { Table } from '@/src/components/ui/table';
-import { EmptyComponentCard } from '@/src/components/EmptyComponentCard';
 import ActionsCell from '@/src/components/tables/ActionsCell';
 import { UpdateMyAccountComponent } from '@/src/components/update/user/UpdateMyAccountComponent';
+import { EmptyComponentCard } from '@/src/components/emptyComponents/EmptyComponentCard';
 
 export default async function MyAccountPage() {
     const user = await getUserProfile()

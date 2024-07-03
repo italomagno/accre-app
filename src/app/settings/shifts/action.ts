@@ -28,6 +28,29 @@ export async function getShifts(){
     }
     return shifts
 }
+export async function getAvailableShifts(){
+    const session = await auth()
+    if(!session){
+        return {
+            code: 401,
+            message: "Usuário não autenticado"
+        }
+    }
+    const shifts = await prisma.shift.findMany({
+        where: {
+            departmentId: session.user.departmentId,
+            isAvailable: true
+        }
+    })
+    if(!shifts || shifts.length === 0){
+        prisma.$disconnect()
+        return {
+            code: 403,
+            message: "Não há turnos disponíveis"
+        }
+    }
+    return shifts
+}
 
 export async function removeShift(id: string):Promise<ErrorTypes>{
     const session = await auth()

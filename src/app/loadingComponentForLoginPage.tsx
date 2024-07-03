@@ -1,4 +1,4 @@
-import { Logo } from "@/src/components/icons";
+import { Logo } from "@/src/components/ui/icons";
 
 export function LoadingComponentForLoginPage(){
     return (

@@ -84,7 +84,14 @@ export async function createRoster(data:CreateRosterValues):Promise<ErrorTypes>{
                             id: user.id
                         }
                     }),
-                }
+                },
+                shifts: {
+                    connect: registeredShifts.map(shift => {
+                        return {
+                            id: shift.id
+                        }
+                    })
+                },
             }
         })
         if(!createRosterWithAllUsers ){
@@ -137,7 +144,6 @@ export async function updateRoster(id:string,data:UpdateRosterValues):Promise<Er
                 message: admin.message
             }
         }
-        console.log(data)
         const updatedRoster = await prisma.roster.update({
             where:{
                 id:id,
@@ -168,7 +174,6 @@ export async function updateRoster(id:string,data:UpdateRosterValues):Promise<Er
 
 
 export async function removeRoster( id:string){
-    console.log(id)
     try{
     const session = await auth()
     if(!session){

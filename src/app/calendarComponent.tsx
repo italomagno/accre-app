@@ -1,80 +1,101 @@
 'use client'
 import { Dialog, DialogTrigger } from '@/src/components/ui/dialog';
-import {  ErrorTypes, ProposalValues, ShiftsStatusProps, optionsProps, proposalSchema } from '@/src/types';
+import {  ErrorTypes} from '@/src/types';
 import { DialogComponent } from './DialogComponent';
 import { Button } from '@/src/components/ui/button';
 import { useToast } from '../components/ui/use-toast';
-import { useEffect, useState,  } from 'react';
-
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useState} from 'react';
 import { Calendar } from '../components/ui/calendar';
+import { Roster, Shift, WorkDay } from '@prisma/client';
+import { getDateFromRoster } from '../lib/utils';
+import { handleisSameDate } from '../lib/date';
 
 
-export function CalendarComponent({ proposal, options,shiftsStatus,}: { proposal: string, options: optionsProps[],shiftsStatus:ShiftsStatusProps }) {
-
+export function CalendarComponent({ shifts, rosters, workDays }: { shifts: Shift[] | ErrorTypes, rosters: Roster[] | ErrorTypes, workDays:WorkDay[] | ErrorTypes}) {
     const { toast } = useToast()
-    const [response,setResponse] = useState<ErrorTypes | ErrorTypes[] | null >(null)
-    const [isPending, setIsPeding] = useState(false)
-
-        
-
-    function handleProposal(DayOfMonth: number) {
-        const proposals = proposal ? proposal.split(",") : [];
-        const matchingProposal = proposals.find((prop: any) => {
-            const [day, shift] = prop.split(":");
-            return day === DayOfMonth.toString();
-        });
-        return matchingProposal ? matchingProposal.split(":")[1] : "-";
-    }
-
-    const form = useForm<ProposalValues>({
-        resolver: zodResolver(proposalSchema),
-        defaultValues: {
-          proposal: proposal,
-        },
-      });
-
-
+    const [rostersList, setRostersList] = useState<Roster[]>([])
+    const [shiftsList, setShiftsList] = useState<Shift[]>([])
+    const [workDaysList, setWorkDaysList] = useState<WorkDay[]>([])
 
     useEffect(() => {
-        if(response){
-        if(("code" in response)){
-            toast({
-                title: "Erro",
-                description:(response.message)
-            })
-            return 
-        }
-        if(response instanceof Array){
-            (response).map(error=>(
+        if("code" in shifts || "code" in rosters || "code" in workDays){
+            if("code" in shifts && shifts.code === 200){
                 toast({
-                    title: "Erro",
-                    description:error.message
+                    title:"Sucesso",
+                    description: shifts.message,
                 })
-            ))
+            }
+            if("code" in shifts && shifts.code !== 200){
+                toast({
+                    title:"Erro",
+                    description: shifts.message,
+                })
+            }
+            if("code" in rosters && rosters.code === 200){
+                toast({
+                    title:"Sucesso",
+                    description: rosters.message,
+                })
+            }
+            if("code" in rosters && rosters.code !== 200){
+                toast({
+                    title:"Erro",
+                    description: rosters.message,
+                })
+        }
+        if("code" in workDays && workDays.code === 200){
+            toast({
+                title:"Sucesso",
+                description: workDays.message,
+            })
+        }
+        if("code" in workDays && workDays.code !== 200){
+            toast({
+                title:"Erro",
+                description: workDays.message,
+            })
+        }
+        
+
     }
-        toast({
-            title: "Sucesso!",
-            description: "Turnos salvos com sucesso."
-        })
-    }
-
-    setIsPeding(false)
-    setResponse(null)
-
-    }, [response]);
-
-
+    if(!("code" in shifts)) setShiftsList(shifts)
+    if(!("code" in rosters)) {
+        const rostersWithoutBlockedChanges = rosters.filter(roster=>roster.blockChanges === false)
+        if(rostersWithoutBlockedChanges.length > 0 &&
+            rostersWithoutBlockedChanges.length !== rosters.length){
+            toast({
+                title:"Aviso",
+                description:"Existem escalas bloqueadas para alterações"
+            })
+        }
+        if(rostersWithoutBlockedChanges.length === 0){
+            toast({
+                title:"Aviso",
+                description:"Todas as escalas estão bloqueadas para alterações"
+            })
+        }
+        setRostersList(rostersWithoutBlockedChanges)
     
+    }
+    if(!("code" in workDays)) setWorkDaysList(workDays)
+    }, [shifts,rosters,workDays]);
+    const lastMonthAvailable = rostersList.findLast((roster)=>roster.blockChanges === false)
+
     return (
         <>
             <Calendar
                 mode='default'
-                className='text-'
+                fromMonth={rostersList.length > 0 ? getDateFromRoster(rostersList[0]) : new Date()}
+                toMonth={lastMonthAvailable  ? rostersList.length > 0? getDateFromRoster(lastMonthAvailable) : new Date(): new Date()}
+                fromYear={rostersList.length > 0 ? rostersList[0].year : new Date().getFullYear()}
+                toYear={lastMonthAvailable ? lastMonthAvailable.year : new Date().getFullYear()}
                 components={{
                     Day: (props) => 
                     {
+                        const workDay = workDaysList.find((workDay)=> handleisSameDate(workDay.day,props.date))
+                        const shifts = shiftsList.filter(shift=>workDay?.shiftsId.includes(shift.id))
+                        const shiftInThisDay = workDay? shifts.length > 0 ? shifts.map(shift=>shift.name).concat("/") : "-" :"-"
+                       
                     return props.date.getMonth() === props.displayMonth.getMonth() ?
                             <div className="flex flex-col gap-3 text-2xl">
                                 {props.date.getDate()}
@@ -82,35 +103,35 @@ export function CalendarComponent({ proposal, options,shiftsStatus,}: { proposal
                                     <Dialog>
                                         <DialogTrigger asChild>
                                             <Button variant={"ghost"}>
-                                                {handleProposal(props.date.getDate())? handleProposal(props.date.getDate()): "-"}
+                                                {shiftInThisDay}
                                             </Button>
                                         </DialogTrigger>
                                             <DialogComponent
-                                                day={props.date.getDate().toString()}
-                                                proposal={proposal}
-                                                options={options}
-                                                shiftsStatus={shiftsStatus}
+                                                day={props.date}
+                                                shifts={shifts}
                                             />
                                     </Dialog>
                                 </div>
                             </div> 
                             :
-                            <Button disabled={true} variant={"ghost"}>{props.date.getDate()}</Button>;
+                            <div className="flex flex-col gap-3 text-2xl">
+                                {props.date.getDate()}
+                                <div>
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button variant={"ghost"} disabled={true}>
+                                            {shiftInThisDay}
+                                            </Button>
+                                        </DialogTrigger>
+                                            {/* <DialogComponent
+                                        
+                                            /> */}
+                                    </Dialog>
+                                </div>
+                            </div>
                     }
                 }}
             />
-
-       <Button disabled={isPending} onClick={async()=>{
-        setIsPeding(true)
-        const result = {
-            code: 200,
-            message: "Turnos salvos com sucesso."
-        }
-        setResponse(result)
-       }}variant="destructive" className='w-full max-w-screen-sm bg-green-400 hover:bg-green-400/40' type='submit'>
-    Salvar Proposição
-  </Button>
-
         </>
     );
 }

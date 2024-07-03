@@ -4,7 +4,7 @@ import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger
 
 import { AlignJustify } from "lucide-react";
 import { ReactNode } from "react";
-import { Logo } from "../components/icons";
+import { Logo } from "../components/ui/icons";
 import { Button } from "../components/ui/button";
 
 interface TriggerButtonProps {

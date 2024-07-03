@@ -23,6 +23,7 @@ model Department {
   users          User[]
   rosters        Roster[]
   shifts         Shift[]
+  workDays       WorkDay[]
 }
 
 enum Role {
@@ -55,7 +56,8 @@ model User {
   rosterId       String?   @db.ObjectId
   department     Department @relation(fields: [departmentId], references: [id])
   departmentId   String   @db.ObjectId
-  workDay        WorkDay[]
+  workDays       WorkDay[] @relation(fields: [workDaysId],references: [id])
+  workDaysId     String[] @db.ObjectId
 }
 
 enum Months {
@@ -83,20 +85,24 @@ model Roster{
   maxWorkingHoursPerRoster Int? 
   department     Department @relation(fields: [departmentId], references: [id])
   departmentId   String @db.ObjectId
-  shifts         Shift[]
-  workDays       WorkDay[]
+  shifts         Shift[] @relation(fields: [shiftsId], references: [id])
+  shiftsId       String[] @db.ObjectId
+  workDays       WorkDay[] @relation(fields: [workdayId],references: [id])
+  workdayId       String[] @db.ObjectId
   blockChanges  Boolean @default(true)
 }
 
 model WorkDay {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   day       DateTime
-  user      User @relation(fields: [userId],references: [id])
-  userId    String @db.ObjectId
-  roster    Roster @relation(fields: [rosterId],references: [id])
-  rosterId  String @db.ObjectId
-  shift     Shift @relation(fields: [shiftId],references: [id])
-  shiftId   String @db.ObjectId
+  users      User[] @relation(fields: [usersIds],references: [id])
+  usersIds    String[] @db.ObjectId
+  roster    Roster[] @relation(fields: [rosterId],references: [id])
+  rosterId  String[] @db.ObjectId
+  shifts     Shift[] @relation(fields: [shiftsId],references: [id])
+  shiftsId   String[] @db.ObjectId
+  department Department @relation(fields: [departmentId],references: [id])
+  departmentId String @db.ObjectId
 }
 
 
@@ -104,13 +110,14 @@ model Shift {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   created_at     DateTime @default(now())
   name           String  @unique
-  workDay        WorkDay[]
+  workDay        WorkDay[] @relation(fields: [workDayId], references: [id])
+  workDayId      String[] @db.ObjectId
   start          DateTime
   end            DateTime
   quantity       Int @default(0)
   minQuantity    Int  @default(0)
-  roster        Roster? @relation(fields: [rosterId], references: [id])
-  rosterId       String? @db.ObjectId
+  rosters        Roster[] @relation(fields: [rostersId], references: [id])
+  rostersId      String[] @db.ObjectId
   department     Department @relation(fields: [departmentId], references: [id])
   departmentId   String @db.ObjectId
   isAvailable   Boolean @default(false)
