@@ -2,7 +2,7 @@
 import { generateUniqueKey } from "../lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { useEffect, useState } from "react";
-import { getAvailableShiftsDay } from "../app/lancamento/_actions";
+import { getAvailableShiftsDay } from "../app/lancamento/action";
 import { useToast } from "./ui/use-toast";
 import { Badge } from "./ui/badge";
 import { AvailableShifts } from "../types";

@@ -2,8 +2,7 @@
 import { auth } from '@/src/lib/auth';
 import { handleisSameDate } from '@/src/lib/date';
 import prisma from '@/src/lib/db/prisma/prismaClient';
-import { createWorkDaysColumn, getDateFromRoster } from '@/src/lib/utils';
-import { $Enums, Prisma, Roster } from '@prisma/client';
+import { $Enums, } from '@prisma/client';
 import { getUserByEmail } from '../login/_actions';
 
 export async function getWorkDaysByUserSession() {
