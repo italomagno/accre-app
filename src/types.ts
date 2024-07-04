@@ -1,4 +1,3 @@
-import { is } from "date-fns/locale";
 import { z } from "zod";
 import { DateStartEndSchema } from "./lib/date";
 import { Shift } from "@prisma/client";
@@ -19,22 +18,8 @@ export type AvailableShifts = {
   }[];
 }[];
 
-export type availableShifts= {
-    id: any;
-    shiftName: any;
-    missingQuantity: number;
-    day: any;
-};
-export type completeShifts = {
-    id: any;
-    shiftName: any;
-    quantity: any;
-    day: any;
-};
-export type ShiftsStatusProps = {
-    availableShifts:availableShifts[],
-    completeShifts: completeShifts[]
-}
+
+
 export type ErrorTypes = {
     code: number;
     message: string;

@@ -82,7 +82,7 @@ export function ShiftsTable({
       })
     }
   }
-  ,[errors])
+  ,[])
 
   return (
     <Table>

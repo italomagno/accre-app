@@ -5,7 +5,7 @@ import { ReactNode } from "react";
 
 export function SkeletonTable(){
     const emptySkeletonKeys = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
-    const emptySkeletonRows = emptySkeletonKeys.map(key=>emptySkeletonKeys.map(cells=><Skeleton className="h-4 w-full"/>
+    const emptySkeletonRows = emptySkeletonKeys.map(key=>emptySkeletonKeys.map(cells=><Skeleton key={generateUniqueKey()} className="h-4 w-full"/>
 ))
     
     return(

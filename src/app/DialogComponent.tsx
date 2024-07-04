@@ -65,7 +65,8 @@ export function DialogComponent({
                   </NavigationMenuTrigger>
                   <NavigationMenuContent className="mt-2">
                     {option.shifts.map((shift) => (
-                      <RegisterWorkDayButton 
+                      <RegisterWorkDayButton
+                        key={generateUniqueKey()}
                       shift={shift}
                       />
                     ))}

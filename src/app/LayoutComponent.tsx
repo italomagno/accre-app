@@ -25,7 +25,9 @@ export function LayoutComponent({children,isLogin = false}:LayoutComponentProps)
                 <div className="grid grid-cols-1 min-h-screen lg:grid-cols-1fr">
                   <HeaderComponent>
                     <ToggleThemeProviderButton />
-                    <TriggerButton children={<NavMenu />} />
+                    <TriggerButton >
+                      <NavMenu />
+                    </TriggerButton>
                     <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon" >

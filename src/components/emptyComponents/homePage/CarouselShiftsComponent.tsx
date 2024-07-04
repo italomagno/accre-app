@@ -29,11 +29,11 @@ export function CarouselShiftsComponent({
         <CarouselContent className="">
           {rosters.map((roster) => {
             return (
-              <ScrollArea className='max-h-96 w-full overflow-auto'>
+              <ScrollArea key={generateUniqueKey()}  className='max-h-96 w-full overflow-auto'>
                  <div className='ml-4'>
             {`Turnos do mês de ${getMonthFromRoster(roster)}`}
                 </div>
-              <CarouselItem key={generateUniqueKey()} className='mt-5'>
+              <CarouselItem className='mt-5'>
              
 
                 <ShiftsTable

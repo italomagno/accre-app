@@ -1,7 +1,5 @@
-import { compareCredential } from '@/src/lib/bcrypt';
 import NextAuth,{ DefaultSession, NextAuthConfig }  from "next-auth";
 import Credentials from "next-auth/providers/credentials"
-import { ErrorTypes } from "../types";
 import { User } from "@prisma/client";
 import { getUser } from "../app/login/_actions";
 
@@ -38,7 +36,7 @@ export const AuthOptions:NextAuthConfig = {
                 email: (userFromDB as User).email,
                 id: (userFromDB as User).id,
                 name: (userFromDB as User).name,
-              } ?? null 
+              } 
             } catch (error) {
               // Always return null if an error occurs
               return null
@@ -47,7 +45,7 @@ export const AuthOptions:NextAuthConfig = {
         }),
       ],
       callbacks: {
-        async session({ session, token, user }) {
+        async session({ session }) {
           // `session.user.address` is now a valid property, and will be type-checked
           // in places like `useSession().data.user` or `auth().user`
           return {
