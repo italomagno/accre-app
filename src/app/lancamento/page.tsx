@@ -1,12 +1,11 @@
 
-/* import { getShiftsControlers, getShiftsCounter } from '@/src/lib/db/sheets/googleSheetsDataSource'; */
-import { CalendarComponent } from '@/src/app/calendarComponent';
 
+import { CalendarComponent } from '@/src/app/calendarComponent';
 import { LayoutComponent } from '../LayoutComponent';
 import { getRostersBySession } from '../settings/roster/actions';
 import { getAvailableShifts } from '../settings/shifts/action';
 import {  getWorkDaysByUserSession } from './_actions';
-/* import { getProposalFromCookies, getShiftsFromUser, handleSaveProposal } from './_actions'; */
+
 
 export default async function lancamento({
     searchParams

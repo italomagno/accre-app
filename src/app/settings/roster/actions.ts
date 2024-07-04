@@ -53,6 +53,7 @@ export async function getRosters():Promise<Roster[] | ErrorTypes>{
 }
 
 export async function getRostersBySession():Promise<Roster[] | ErrorTypes>{
+    try{
     const session = await auth()
     if(!session){
         return {
@@ -61,7 +62,6 @@ export async function getRostersBySession():Promise<Roster[] | ErrorTypes>{
         }
     }
     const email = session.user.email
-    try{
         const user = await prisma.user.findUnique({
             where:{
                 email

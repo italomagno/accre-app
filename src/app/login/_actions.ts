@@ -19,7 +19,8 @@ export async function signInOnServerActions(data: FormValues):Promise<ErrorTypes
                 message: "Usuário ou senha incorretos."
             };
         }
-        await signIn("credentials", data)
+        const resultData = await signIn("credentials", data)
+
 
         return {
             code: 200,
