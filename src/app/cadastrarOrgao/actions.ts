@@ -1,25 +1,27 @@
 'use server'
-import { registerDepartmentType } from '@/src/types';
 import { auth } from "@/src/lib/auth";
-import { compareCredential, hashCredential } from "@/src/lib/bcrypt";
+import { hashCredential } from "@/src/lib/bcrypt";
 import prisma from "@/src/lib/db/prisma/prismaClient";
-import { ErrorTypes } from "@/src/types";
-import { Department, User } from "@prisma/client";
+import { CreateDepartmentAndUserSchema, CreateDepartmentAndUserValues, ErrorTypes } from "@/src/types";
+import { Department } from "@prisma/client";
 
 
 
-export async function createDepartment(department:registerDepartmentType & Pick<User,"name"|"email"|"password">): Promise<Department | ErrorTypes>{
+export async function createDepartment(department:CreateDepartmentAndUserValues): Promise<Department | ErrorTypes>{
+    try {
+         CreateDepartmentAndUserSchema.parse(department);
     if(!department.password){
         return {
             code: 400,
             message: "Erro no cadastro do Órgão, Senha não informada."
         }
     }
-    try {
         const newDepartment = await prisma.department.create({
+
             data: {
                 name: department.departmentName,
-                spreadSheetId: department.spreadSheetId,
+                type: department.type,
+                classification: department.classification,
                 users: {
                     create: {
                         name: department.name,

@@ -135,6 +135,31 @@ export function UpdateUserComponent({ defaultUserValues,id }: UpdateUserComponen
                 );
               }}
             />
+                       <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>
+                      Escolha o tipo de gerenciamento do usuário
+                    </FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ADMIN">Administrador</SelectItem>
+                          <SelectItem value="USER">Usuário</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
             <FormField
               control={form.control}
               name="isOffice"

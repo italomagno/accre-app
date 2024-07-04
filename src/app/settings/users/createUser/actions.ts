@@ -264,9 +264,8 @@ export async function updateMyAccount(id:string, data:UpdateMyAccountValues):Pro
 
 
 export async function updateUser(id:string, data:UpdateUserValues):Promise<ErrorTypes>{
-
-    
     try{
+        const oldData = data
     const session = await auth()
     if(!session){
         return {
@@ -292,6 +291,7 @@ export async function updateUser(id:string, data:UpdateUserValues):Promise<Error
             message: "Usuário não é administrador"
         }
     }
+
     const updatedUser = await prisma.user.update({
         where: {
             id,
@@ -299,13 +299,35 @@ export async function updateUser(id:string, data:UpdateUserValues):Promise<Error
         },
         data: {
             ...data,
-            function: data.function as Function
+            function: data.function as Function,
+            role: data.role as $Enums.Role
         }
     })
     if(!updatedUser){
         return {
             code: 500,
             message: "Erro ao atualizar usuário"
+        }
+    }
+    const howManyAdmins = await prisma.user.count({
+        where: {
+            departmentId: admin.departmentId,
+            role: "ADMIN"
+        }
+    })
+    if(howManyAdmins === 0){
+        prisma.user.update({
+            where: {
+                id,
+                departmentId: admin.departmentId
+            },
+            data: {
+                role: "ADMIN"
+            }
+        })
+        return {
+            code: 403,
+            message: "Não é possível remover o único administrador do departamento"
         }
     }
 

@@ -52,8 +52,7 @@ export function ShowAvailableShiftsComponent( {day}: ShowAvailableShiftsComponen
                     className="flex flex-col text-xl"
                     key={generateUniqueKey()}
                   >
-                    {' '}
-                    <div>{`${availableShift.shift.name} (${availableShift.count})`}</div>{' '}
+                    {`${availableShift.shift.name} (${availableShift.count})`}
                   </Badge>
                 ))}
               </CardContent>

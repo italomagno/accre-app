@@ -1,28 +1,32 @@
 
 import { Button } from '@/src/components/ui/button';
 import {
+  Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
+  DialogTrigger
 } from '@/src/components/ui/dialog';
-import { generateUniqueKey } from '@/src/lib/utils';
-import { RegisterWorkDayButton } from '../components/register/workDay/RegisterWorkDayButton';
 import { RemoveWorkDayButton } from '../components/remove/workDay/removeWorkDayButton';
 import { ShowAvailableShiftsComponent } from '../components/ShowAvailableShiftsComponent';
 import { Separator } from '../components/ui/separator';
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from '../components/ui/navigation-menu';
 import { Shift } from '@prisma/client';
+import { RegisterWorkDayForm } from '../components/register/workDay/RegisterWorkDayForm';
 
 interface DialogComponentProps {
   day: Date;
   shifts: Shift[];
+  shiftInThisDay: string;
 }
 
 export function DialogComponent({
   day,
-  shifts
+  shifts,
+
+  shiftInThisDay
+
 }: DialogComponentProps): JSX.Element {
 
     const shiftsThatAreNotAbscence = shifts.filter(shift=> !shift.isAbscence)
@@ -38,9 +42,17 @@ export function DialogComponent({
         }
         ];
 
+  type Option = typeof options
+
 
 
   return (
+    <Dialog>
+        <DialogTrigger asChild>
+            <Button variant={"ghost"}>
+                {shiftInThisDay}
+            </Button>
+        </DialogTrigger>
     <DialogContent className="max-h-dvh overflow-y-auto">
       <DialogHeader>
         <DialogTitle className="mb-4">
@@ -51,30 +63,10 @@ export function DialogComponent({
           day={day}
           />
           <Separator className="my-6" />
-          <NavigationMenu>
-            <NavigationMenuList className="grid grid-cols-2 py-5 px-4 gap-4">
-              {options.map((option) => (
-                <NavigationMenuItem
-                  className="w-full"
-                  key={generateUniqueKey()}
-                >
-                  <NavigationMenuTrigger asChild>
-                    <Button className="w-full">
-                      {option.optionTitle}
-                    </Button>
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent className="mt-2">
-                    {option.shifts.map((shift) => (
-                      <RegisterWorkDayButton
-                        key={generateUniqueKey()}
-                      shift={shift}
-                      />
-                    ))}
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              ))}
-            </NavigationMenuList>
-          </NavigationMenu>
+          <RegisterWorkDayForm
+          absences={shiftsThateAreAbscence}
+          shifts={shiftsThatAreNotAbscence}
+          />
           <Separator className="my-6" />
         </DialogDescription>
       </DialogHeader>
@@ -82,5 +74,6 @@ export function DialogComponent({
         <RemoveWorkDayButton date={day} />
       </DialogFooter>
     </DialogContent>
+    </Dialog>
   );
 }

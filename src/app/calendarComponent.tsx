@@ -99,19 +99,11 @@ export function CalendarComponent({ shifts, rosters, workDays }: { shifts: Shift
                     return props.date.getMonth() === props.displayMonth.getMonth() ?
                             <div className="flex flex-col gap-3 text-2xl">
                                 {props.date.getDate()}
-                                <div>
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button variant={"ghost"}>
-                                                {shiftInThisDay}
-                                            </Button>
-                                        </DialogTrigger>
-                                            <DialogComponent
-                                                day={props.date}
-                                                shifts={shifts}
-                                            />
-                                    </Dialog>
-                                </div>
+                                <DialogComponent
+                                    day={props.date}
+                                    shifts={shifts}
+                                    shiftInThisDay={shiftInThisDay as string}
+                                />
                             </div> 
                             :
                             <div className="flex flex-col gap-3 text-2xl">

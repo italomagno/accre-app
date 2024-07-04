@@ -11,7 +11,6 @@ import { revalidatePath } from 'next/cache';
 export async function createShift(shiftValues: CreateShiftValues){
     try{
         await createShiftSchema.parseAsync(shiftValues)
-        //ToDO - Add validation for start, end.
         const session = await auth()
         if(!session){
             return {

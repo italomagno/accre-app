@@ -33,11 +33,7 @@ export function SettingsNavigation({ role }: SettingsNavigationProps) {
       label: 'Contato',
       availableFor: 'USER'
     },
-    {
-      href: '/settings/integrations',
-      label: 'Integração com Google Sheets',
-      availableFor: 'ADMIN'
-    },
+   
     {
       href: '/settings/users',
       label: 'Usuários',

@@ -14,12 +14,26 @@ datasource db {
 }
 
 
+enum DepartmentTypes {
+  ACC
+  APP
+  TWR
+  OTHER
+}
+
+enum DepartmentClassification {
+  ONE
+  TWO
+  THREE
+  FOUR
+}
 
 model Department {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   created_at     DateTime @default(now())
   name           String   @unique
-  spreadSheetId  String?   
+  type           DepartmentTypes @default(OTHER)
+  classification DepartmentClassification @default(FOUR)
   users          User[]
   rosters        Roster[]
   shifts         Shift[]

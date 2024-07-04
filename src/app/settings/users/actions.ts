@@ -101,6 +101,24 @@ export async function removeUser(id:string):Promise<ErrorTypes>{
     if("code" in admin){
       return admin
     }
+    if(admin.role !== "ADMIN"){
+      return {
+        code: 403,
+        message: "Usuário não autorizado"
+      }
+    }
+    const howManyAdmins = await prisma.user.count({
+      where:{
+        departmentId: admin.departmentId,
+        role: "ADMIN"
+      }
+    })
+    if(howManyAdmins === 1){
+      return {
+        code: 403,
+        message: "Não é possível remover o único administrador do departamento"
+      }
+    }
     const user = await prisma.user.delete({
       where:{
         id,

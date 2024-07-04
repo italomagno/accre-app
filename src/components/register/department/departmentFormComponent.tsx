@@ -3,48 +3,30 @@ import image from "@/src/assets/loginImage.jpg"
 import { useForm} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/src/components/ui/button';
-import { registerDepartmentSchema ,registerDepartmentType,RegisterDepartmentValues} from '@/src/types';
+import { CreateDepartmentAndUserValues, createManyUsersSchema} from '@/src/types';
 import { Input } from '@/src/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/src/components/ui/form';
 import Image from 'next/image';
-import {  extractSpreadSheetId } from "@/src/lib/utils";
-import {  User } from "@prisma/client";
+import {  DepartmentClassification, DepartmentTypes} from "@prisma/client";
 import { useToast } from "@/src/components/ui/use-toast";
 import { createDepartment } from "@/src/app/cadastrarOrgao/actions";
 import { Separator } from "@/src/components/ui/separator";
 import {  useRouter } from "next/navigation";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
+import { generateUniqueKey } from "@/src/lib/utils";
 
 
 export function DepartmentFormComponent() {
   const {toast} = useToast();
   const router = useRouter()
+  
 
-  const onSubmit = async(data:RegisterDepartmentValues) => {
-   
 
-    data.spreadSheetId = extractSpreadSheetId(data.spreadSheetId);
-    if(!data.spreadSheetId){
-      toast({
-        title: "Erro ao cadastrar SpreadSheet do Órgão",
-        description: "Verifique a URL da planilha e tente novamente.",
-      })
-      
-    }
+  const onSubmit = async(data:CreateDepartmentAndUserValues) => {
    
-   
-    const newData: registerDepartmentType & Pick<User,"name"|"email"|"password" | "role"> = {
-      departmentName: data.departmentName,
-      spreadSheetId: data.spreadSheetId,
-      name: data.name,
-      email: data.email,
-      password: data.password,
-      role: "ADMIN"
-      
-
-    }
 
     //criar função para cadastrar o usuário no departamento
-    const result = await createDepartment(newData);
+    const result = await createDepartment(data);
 
     if(result){
       if("code" in result){
@@ -75,11 +57,10 @@ export function DepartmentFormComponent() {
 
   };
  
-  const form = useForm<RegisterDepartmentValues>({
-    resolver: zodResolver(registerDepartmentSchema),
+  const form = useForm<CreateDepartmentAndUserValues>({
+    resolver: zodResolver(createManyUsersSchema),
     defaultValues: {
       departmentName: "",
-      spreadSheetId: "",
       email: "",
       password: "",
       name: "",
@@ -143,12 +124,53 @@ export function DepartmentFormComponent() {
         />
         <FormField
           control={form.control}
-          name="spreadSheetId"
+          name="type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Planilha do Google Sheets para registro de turnos.</FormLabel>
+              <FormLabel>Qual o tipo do Órgão</FormLabel>
                 <FormControl>
-                  <Input placeholder="https://docs.google.com/spreadsheets/d/1FUnkFWH95vb6EpomOAYxGyVHmdeovqOus28FwP3xDvs/edit?gid=0#gid=0" {...field} />
+                <Select onValueChange={field.onChange}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Escolha o tipo do órgão..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.keys(DepartmentTypes).map((type) => (
+                                <SelectItem
+                                  key={generateUniqueKey()}
+                                  value={type}
+                                >
+                                  {type}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="classification"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Qual a classificação do Órgão</FormLabel>
+                <FormControl>
+                <Select onValueChange={field.onChange}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Escolha o tipo do órgão..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.keys(DepartmentClassification).map((classification) => (
+                                <SelectItem
+                                  key={generateUniqueKey()}
+                                  value={classification}
+                                >
+                                  {classification}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                 </FormControl>
               <FormMessage />
             </FormItem>

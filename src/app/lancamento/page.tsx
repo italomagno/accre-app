@@ -15,7 +15,7 @@ export default async function Lancamento({
 
 
     try{
-        const [ rosters, shifts, workDays ] = await Promise.all([ getRostersBySession(), getAvailableShifts() , getWorkDaysByUserSession()]) 
+        const [ rosters, shifts, workDays ] = await Promise.all([ await getRostersBySession(), await getAvailableShifts() , await getWorkDaysByUserSession()]) 
 
         return (
             <LayoutComponent>

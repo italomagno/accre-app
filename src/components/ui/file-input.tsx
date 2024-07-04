@@ -29,7 +29,6 @@ export function FileInput({search}:FileInputProps) {
           title: "Sucesso!",
           description: callBackFromFileUpload.message
         })
-        //ToDo:create callBackFromFileUpload to user
         if("users" in callBackFromFileUpload){
           const {users} = callBackFromFileUpload
           setUsers(users)
