@@ -12,44 +12,29 @@ import {
 import { RemoveWorkDayButton } from '../components/remove/workDay/removeWorkDayButton';
 import { ShowAvailableShiftsComponent } from '../components/ShowAvailableShiftsComponent';
 import { Separator } from '../components/ui/separator';
-import { Shift } from '@prisma/client';
+import { Shift, WorkDay } from '@prisma/client';
 import { RegisterWorkDayForm } from '../components/register/workDay/RegisterWorkDayForm';
 
 interface DialogComponentProps {
-  day: Date;
+  workDay: WorkDay;
   shifts: Shift[];
   shiftInThisDay: string;
+  isSameMonth: boolean;
 }
 
 export function DialogComponent({
-  day,
-  shifts,
-
-  shiftInThisDay
+  workDay,
+  shiftInThisDay,
+  isSameMonth
 
 }: DialogComponentProps): JSX.Element {
 
-    const shiftsThatAreNotAbscence = shifts.filter(shift=> !shift.isAbscence)
-    const shiftsThateAreAbscence = shifts.filter(shift=> shift.isAbscence)
-    const options = [
-        {
-            optionTitle: 'Turnos',
-            shifts: shiftsThatAreNotAbscence
-        },
-        {
-            optionTitle: 'Afastamentos',
-            shifts: shiftsThateAreAbscence
-        }
-        ];
-
-  type Option = typeof options
-
-
+  const {day}  = workDay;
 
   return (
     <Dialog>
         <DialogTrigger asChild>
-            <Button variant={"ghost"}>
+            <Button variant={"ghost"} disabled={!isSameMonth}>
                 {shiftInThisDay}
             </Button>
         </DialogTrigger>
@@ -59,16 +44,15 @@ export function DialogComponent({
           Faça sua escolha de proposição para o dia {day.getDate()}
         </DialogTitle>
         <DialogDescription>
+        </DialogDescription>
           <ShowAvailableShiftsComponent
           day={day}
           />
           <Separator className="my-6" />
           <RegisterWorkDayForm
-          absences={shiftsThateAreAbscence}
-          shifts={shiftsThatAreNotAbscence}
+          workDay={workDay}
           />
           <Separator className="my-6" />
-        </DialogDescription>
       </DialogHeader>
       <DialogFooter>
         <RemoveWorkDayButton date={day} />

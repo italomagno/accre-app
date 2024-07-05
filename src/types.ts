@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { DateStartEndSchema } from "./lib/date";
-import { DepartmentClassification, DepartmentTypes, Role, Shift } from "@prisma/client";
+import { DepartmentClassification, DepartmentTypes, Shift } from "@prisma/client";
 
 export type  optionsProps ={
     optionTitle: string;
