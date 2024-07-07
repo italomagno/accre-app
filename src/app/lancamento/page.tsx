@@ -7,7 +7,7 @@ import { getAvailableShifts } from '../settings/shifts/action';
 import {  getWorkDaysByUserSession } from './action';
 
 
-export default async function Lancamento({
+export default async function lancamento({
     searchParams
 }: {
     searchParams: { turnos: string, };
