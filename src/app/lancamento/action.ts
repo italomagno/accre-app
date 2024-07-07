@@ -29,9 +29,7 @@ export async function getWorkDaysByUserSession() {
     }
     const workDays = await prisma.workDay.findMany({
       where: {
-        usersIds: {
-          has: user.id
-        }
+        userId: user.id
       }
     });
     prisma.$disconnect();
@@ -107,12 +105,12 @@ export async function getAvailableShiftsDay(day: Date) {
       };
     }
     const workDays = await prisma.workDay.findMany({
-      where: {
-        rosterId: {
-          has: rosterByMonthAndYear.id
-        }
+      where:{
+        departmentId: department.id,
+        day
       }
     });
+    console.log("workDays = ",workDays)
 
     /*   const counterShiftsPerday = shifts.map(shift => {
     const shiftPerDay = WorkDaysColumn.map(day => {
@@ -167,8 +165,7 @@ export async function getAvailableShiftsDay(day: Date) {
       const workDaysReducedByDay = workDays
         .filter(
           (workDay) =>
-            workDay.shiftsId.includes(shift.id) &&
-            handleisSameDate(workDay.day, day)
+            workDay.shiftsId.includes(shift.id)
         )
         .reduce((acc, curr) => acc + 1, 0);
       const isComplete = workDaysReducedByDay >= shift.quantity;
@@ -209,33 +206,4 @@ export async function getAvailableShiftsDay(day: Date) {
   }
 }
 
-/* 
-export async function handleCountShiftsByRoster(roster: Roster) {
-    const shifts = await prisma.shift.findMany({
-        where: {
-            rosterId: roster.id,
-        },
-    });
-    if (!shifts) {
-        return {
-            code: 404,
-            message: "Turnos não encontrados",
-        };
-    }
-    
-    const counterShiftsPerday = await prisma.workDay.groupBy({
-        by: ["shiftId","day"],
-        _count: {
-            shiftId: true,
-        },
-        where: {
-            rosterId: roster.id,
-            
-        },
-    });
 
-    return counterShiftsPerday;
-}
-
-
-*/

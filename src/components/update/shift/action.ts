@@ -113,7 +113,7 @@ export async function updateShift(id: string, shiftValues: CreateShiftValues) {
       };
     }
     prisma.$disconnect();
-    revalidatePath('/settings/shifts');
+    revalidatePath('/',"layout");
     return {
       code: 200,
       message: 'Turno atualizado com sucesso'

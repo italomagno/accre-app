@@ -34,45 +34,46 @@ export async function registerOrUpdateWorkDay(data: RegisterOrUpdateValues):Prom
                 message: user.message
             }
         }
-        const usersIdsInThisWorkDay = await prisma.workDay.findUnique({
-            where: {
-                id: workdayId,
-                departmentId: user.departmentId
-            },
-            })
-        const usersIds:string[] = []
-        const shiftIds:string[] = shiftId2? [shiftId1,shiftId2] : [shiftId1]
-        if(usersIdsInThisWorkDay){
-            usersIds.push(...usersIdsInThisWorkDay.usersIds)
-            shiftIds.push(...usersIdsInThisWorkDay.shiftsId)
-        }
+        
 
-        
-        const WorkDay = await prisma.workDay.upsert({
-            where: {
-                usersIds:{
-                    hasSome: [user.id]
+        if(workdayId){
+            const shiftIds:string[] = shiftId2? [shiftId1,shiftId2] : [shiftId1]
+         
+            await prisma.workDay.update({
+                where: {
+                    id: workdayId
                 },
-                shiftsId:{
-                    hasSome: [shiftId1, shiftId2]
+                data: {
+                    shiftsId: {
+                        set: shiftIds
+                    }
+                }
+            
+            })
+        }else{
+            const usersIds:string[] = []
+            const shiftIds:string[] = shiftId2? [shiftId1,shiftId2] : [shiftId1]
+            await prisma.workDay.create({
+                data: {
+                    day,
+                    user:{
+                        connect:{
+                            id:user.id
+                        }
+                    },
+                    shifts:{
+                        connect: shiftIds.map((shiftId)=>({id:shiftId}))
+                    },
+                    department:{
+                        connect:{
+                            id: user.departmentId
+                        }
+                    }
+
                 },
-                id: workdayId
-            },
-            update: {
-                shiftsId: {
-                    set: shiftIds
-            }
-        },
-            create: {
-                day,
-                usersIds: {
-                    set: [...usersIds,user.id]
-                },
-                shiftsId: shiftIds,
-                departmentId: user.departmentId
-            }
-        });
-        
+            })
+        }
+    
         return {
             code: 200,
             message: "Turno salvo com sucesso"

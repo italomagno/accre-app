@@ -10,12 +10,7 @@ import {
 } from '@/src/components/ui/table';
 import { createWorkDaysColumn, generateUniqueKey, getDateFromRoster } from '@/src/lib/utils';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
-import { SkeletonTable } from './SkeletonTable';
-import { ScrollArea,ScrollBar } from '../ui/scroll-area';
-import { ErrorTypes } from '@/src/types';
-import { useEffect } from 'react';
 import { useToast } from '../ui/use-toast';
-import { Search } from '../search';
 import { handleisSameDate } from '@/src/lib/date';
 
 
@@ -77,11 +72,11 @@ export function GeralUserShiftTable({
   const counterUsersPerday = users.map(user => {
   const shiftPerDay = WorkDaysColumn.map(day => {
     const newDate = new Date(dateFromRoster.getFullYear(),dateFromRoster.getMonth(),day)
-    const workDay = workDays.find(workDay => workDay.usersIds.includes(user.id) && handleisSameDate(workDay.day,newDate))
+    const workDay = workDays.find(workDay => workDay.userId.includes(user.id) && handleisSameDate(workDay.day,newDate))
+    const shiftsInThisWorkDay = workDay?.shiftsId.flatMap(shiftId => shifts.filter(shift => shift.id === shiftId)) || [];
+    const shiftInThisDay = shiftsInThisWorkDay.length > 0 ? shiftsInThisWorkDay.map(shift => shift.name).join(" | ") : "-";
     if(!workDay) return "-"
-    const shift = shifts.find(shift => workDay.shiftsId.includes(shift.id))
-    if(!shift) return "-"
-    return shift.name
+    return shiftInThisDay
     })
     return {
       user,

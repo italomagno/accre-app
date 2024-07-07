@@ -94,28 +94,8 @@ export function CalendarComponent({ shifts, rosters, workDays }: { shifts: Shift
                     {
                         const isSameMonth = props.date.getMonth() === props.displayMonth.getMonth()
                         const workDay = workDaysList.find((workDay)=> handleisSameDate(workDay.day,props.date))
-                        if(!workDay){
-                            return <div className="flex flex-col gap-3 text-2xl">
-                            {props.date.getDate()}
-                            <div>
-                                    <DialogComponent
-                                    workDay={{
-                                    day: props.date,
-                                    shiftsId: [],
-                                    departmentId: "",
-                                    id: "",
-                                    usersIds: [],
-                                    rosterId: [],
-                                    }}
-                                    shifts={[]}
-                                    shiftInThisDay={'-'}
-                                    isSameMonth={isSameMonth}
-                                />
-                            </div>
-                        </div>
-                        }
-                        const shiftsInThisWorkDay = shiftsList.filter(shift=>workDay.shiftsId.includes(shift.id) && shift.workDayId.includes(workDay.id) )
-                        
+                        const shiftsInThisWorkDay = workDay?.shiftsId.flatMap(shiftId => shiftsList.filter(shift => shift.id === shiftId)) || [];
+                       
 
                         const shiftInThisDay = shiftsInThisWorkDay.length > 0 ? shiftsInThisWorkDay.map(shift => shift.name).join(" | ") : "-";
                        
@@ -123,6 +103,7 @@ export function CalendarComponent({ shifts, rosters, workDays }: { shifts: Shift
                             <div className="flex flex-col gap-3 text-2xl">
                                 {props.date.getDate()}
                                 <DialogComponent
+                                    day={props.date}
                                     workDay={workDay}
                                     shifts={shiftsInThisWorkDay}
                                     shiftInThisDay={shiftInThisDay}
@@ -133,26 +114,14 @@ export function CalendarComponent({ shifts, rosters, workDays }: { shifts: Shift
                             <div className="flex flex-col gap-3 text-2xl">
                                 {props.date.getDate()}
                                 <div>
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button variant={"ghost"} disabled={true}>
-                                            {shiftInThisDay}
-                                            </Button>
-                                        </DialogTrigger>
+                                
                                         <DialogComponent
-                                    workDay={{
-                                    day: props.date,
-                                    shiftsId: [],
-                                    departmentId: "",
-                                    id: "",
-                                    usersIds: [],
-                                    rosterId: [],
-                                    }}
-                                    shifts={[]}
-                                    shiftInThisDay={'-'}
+                                    day={props.date}
+                                    workDay={workDay}
+                                    shifts={shiftsList}
+                                    shiftInThisDay={shiftInThisDay}
                                     isSameMonth={isSameMonth}
                                 />
-                                    </Dialog>
                                 </div>
                             </div>
                     }

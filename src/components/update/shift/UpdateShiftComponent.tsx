@@ -36,6 +36,7 @@ import {
   InputOTPSlot
 } from '../../ui/input-otp';
 import { updateShift } from './action';
+import { useRouter } from 'next/navigation';
 
 type UpdateShiftComponentProps = {
   id: string;
@@ -43,6 +44,7 @@ type UpdateShiftComponentProps = {
 }
 
 export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftComponentProps) {
+  const router = useRouter();
   const { toast } = useToast();
   const form = useForm<CreateShiftValues>({
     resolver: zodResolver(createShiftSchema),defaultValues: defaultShiftValues
@@ -51,15 +53,21 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
   async function onSubmit(data: CreateShiftValues) {
     const result = await updateShift(id,data);
     if ('code' in result && result.code !== 200) {
+
       toast({
         title: 'Erro',
         description: result.message
       });
+    router.refresh();
+
+
     }
     toast({
       title: 'Sucesso!',
       description: "Turno atualizado com sucesso!"
     });
+    router.refresh();
+    
   }
 
   return (

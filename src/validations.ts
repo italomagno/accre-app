@@ -7,12 +7,12 @@ import { Shift } from "@prisma/client";
 
 export const registerOrUpdateSchema = z.object({
     day: z.date({}),
-    workdayId: z.string({}),
+    workdayId: z.string({}).optional(),
     shiftId1: z.string({
         required_error: 'Adicionar um turno é obrigatório.',
     }).refine(value => value !== '', 'Adicionar um turno é obrigatório.')
     .refine(value => value !== '0', 'Selecione pelo menos um turno.'),
-    shiftId2: z.string(),
+    shiftId2: z.string()
 }).refine( value =>{
     const {shiftId1, shiftId2} = value;
     if(shiftId1 !== shiftId2) return true;
@@ -42,8 +42,11 @@ export function checkIfHasSixOrMoreDaysConsecultivesOfWork(date:Date){
 
 export function checkIfTwoShiftsHasEightHoursOfRestBetweenThem(shift1:Shift, shift2:Shift){
     const shift1EndTime = new Date(shift1.end).getTime();
-    const shift2StartTime = new Date(shift2.start).getTime();
-    const eightHours = 8 * 60 * 60 * 1000;
-    if(shift2StartTime - shift1EndTime >= eightHours) return true;
+    const shift2StartTime = (new Date(shift2.start)).getTime();
+    const diff = shift2StartTime - shift1EndTime;
+    const diffInHours = new Date(diff).getTime()
+    if(diffInHours >= 8 * 60 * 60 * 1000)
+        return true;
     return false;
+    
 }

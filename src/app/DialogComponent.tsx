@@ -16,20 +16,20 @@ import { Shift, WorkDay } from '@prisma/client';
 import { RegisterWorkDayForm } from '../components/register/workDay/RegisterWorkDayForm';
 
 interface DialogComponentProps {
-  workDay: WorkDay;
+  day: Date;
+  workDay?: WorkDay ;
   shifts: Shift[];
   shiftInThisDay: string;
   isSameMonth: boolean;
 }
 
 export function DialogComponent({
+  day,
   workDay,
   shiftInThisDay,
   isSameMonth
 
 }: DialogComponentProps): JSX.Element {
-
-  const {day}  = workDay;
 
   return (
     <Dialog>
@@ -50,6 +50,7 @@ export function DialogComponent({
           />
           <Separator className="my-6" />
           <RegisterWorkDayForm
+          day={day}
           workDay={workDay}
           />
           <Separator className="my-6" />

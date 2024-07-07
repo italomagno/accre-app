@@ -17,7 +17,8 @@ type ShowAvailableShiftsComponentProps = {
 
 export function ShowAvailableShiftsComponent( {day}: ShowAvailableShiftsComponentProps){
   const {toast} = useToast()
-  const [shifts, setShifts] = useState<AvailableShifts>();
+  const [shifts, setShifts] = useState<AvailableShifts>()
+
   useEffect(() => {
     async function handleFechShifts(day:Date){
       const response = await getAvailableShiftsDay(day)
