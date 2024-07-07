@@ -1,21 +1,40 @@
 'use client'
-import { Dialog, DialogTrigger } from '@/src/components/ui/dialog';
 import {  ErrorTypes} from '@/src/types';
 import { DialogComponent } from './DialogComponent';
-import { Button } from '@/src/components/ui/button';
 import { useToast } from '../components/ui/use-toast';
 import { useEffect, useState} from 'react';
 import { Calendar } from '../components/ui/calendar';
 import { Roster, Shift, WorkDay } from '@prisma/client';
 import { getDateFromRoster } from '../lib/utils';
 import { handleisSameDate } from '../lib/date';
+import { RegisterWorkDayButton } from '../components/register/workDay/RegisterWorkDayButton';
 
 
 export function CalendarComponent({ shifts, rosters, workDays }: { shifts: Shift[] | ErrorTypes, rosters: Roster[] | ErrorTypes, workDays:WorkDay[] | ErrorTypes}) {
     const { toast } = useToast()
     const [rostersList, setRostersList] = useState<Roster[]>([])
     const [shiftsList, setShiftsList] = useState<Shift[]>([])
-    const [workDaysList, setWorkDaysList] = useState<WorkDay[]>([])
+    const [ workDaysList, setWorkDaysList] = useState<WorkDay[]>([])
+
+    function handleUpdateWorkDay(workDay: WorkDay){
+        const alreadyExists = workDaysList.find((workDayInList)=>handleisSameDate(workDayInList.day,workDay.day))
+        if(alreadyExists){
+            const updatedWorkDays = workDaysList.map((workDayInList)=>{
+                if(handleisSameDate(workDayInList.day,workDay.day)){
+                    return workDay
+                }
+                return workDayInList
+            })
+            setWorkDaysList(updatedWorkDays)
+        }
+        else{
+            setWorkDaysList([...workDaysList,workDay])
+        }
+
+
+    }
+        
+
 
     useEffect(() => {
         if("code" in shifts || "code" in rosters || "code" in workDays){
@@ -77,7 +96,9 @@ export function CalendarComponent({ shifts, rosters, workDays }: { shifts: Shift
         setRostersList(rostersWithoutBlockedChanges)
     
     }
-    if(!("code" in workDays)) setWorkDaysList(workDays)
+    if(!("code" in workDays)){ 
+        setWorkDaysList(workDays)
+    }
     }, [shifts,rosters,workDays]);
     const lastMonthAvailable = rostersList.findLast((roster)=>roster.blockChanges === false)
 
@@ -95,10 +116,7 @@ export function CalendarComponent({ shifts, rosters, workDays }: { shifts: Shift
                         const isSameMonth = props.date.getMonth() === props.displayMonth.getMonth()
                         const workDay = workDaysList.find((workDay)=> handleisSameDate(workDay.day,props.date))
                         const shiftsInThisWorkDay = workDay?.shiftsId.flatMap(shiftId => shiftsList.filter(shift => shift.id === shiftId)) || [];
-                       
-
                         const shiftInThisDay = shiftsInThisWorkDay.length > 0 ? shiftsInThisWorkDay.map(shift => shift.name).join(" | ") : "-";
-                       
                     return  isSameMonth ?
                             <div className="flex flex-col gap-3 text-2xl">
                                 {props.date.getDate()}
@@ -108,6 +126,7 @@ export function CalendarComponent({ shifts, rosters, workDays }: { shifts: Shift
                                     shifts={shiftsInThisWorkDay}
                                     shiftInThisDay={shiftInThisDay}
                                     isSameMonth={isSameMonth}
+                                    onWorkDayUpdate={handleUpdateWorkDay}
                                 />
                             </div> 
                             :
@@ -115,7 +134,7 @@ export function CalendarComponent({ shifts, rosters, workDays }: { shifts: Shift
                                 {props.date.getDate()}
                                 <div>
                                 
-                                        <DialogComponent
+                                <DialogComponent
                                     day={props.date}
                                     workDay={workDay}
                                     shifts={shiftsList}
@@ -127,6 +146,8 @@ export function CalendarComponent({ shifts, rosters, workDays }: { shifts: Shift
                     }
                 }}
             />
+            <RegisterWorkDayButton workDays={workDaysList}/>    
+
         </>
     );
 }

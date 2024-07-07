@@ -9,7 +9,6 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/src/components/ui/dialog';
-import { RemoveWorkDayButton } from '../components/remove/workDay/removeWorkDayButton';
 import { ShowAvailableShiftsComponent } from '../components/ShowAvailableShiftsComponent';
 import { Separator } from '../components/ui/separator';
 import { Shift, WorkDay } from '@prisma/client';
@@ -21,13 +20,15 @@ interface DialogComponentProps {
   shifts: Shift[];
   shiftInThisDay: string;
   isSameMonth: boolean;
+  onWorkDayUpdate?: (workDay: Exclude<WorkDay,'id'>) => void;
 }
 
 export function DialogComponent({
   day,
   workDay,
   shiftInThisDay,
-  isSameMonth
+  isSameMonth,
+  onWorkDayUpdate: handleUpdateWorkDay
 
 }: DialogComponentProps): JSX.Element {
 
@@ -50,14 +51,12 @@ export function DialogComponent({
           />
           <Separator className="my-6" />
           <RegisterWorkDayForm
+          onWorkDayUpdate={handleUpdateWorkDay!}
           day={day}
           workDay={workDay}
           />
           <Separator className="my-6" />
       </DialogHeader>
-      <DialogFooter>
-        <RemoveWorkDayButton date={day} />
-      </DialogFooter>
     </DialogContent>
     </Dialog>
   );

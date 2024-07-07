@@ -12,9 +12,6 @@ export default async function Lancamento({
 }: {
     searchParams: { turnos: string, };
 }) {
-
-
-    try{
         const [ rosters, shifts, workDays ] = await Promise.all([ await getRostersBySession(), await getAvailableShifts() , await getWorkDaysByUserSession()]) 
 
         return (
@@ -35,14 +32,6 @@ export default async function Lancamento({
     );
 
     }
-    catch(e){
-        console.log(e)
-        return {
-            code: 500,
-            message: 'Erro ao buscar turnos disponíveis'
-        }
    
-    }
-}
 
 

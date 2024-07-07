@@ -12,8 +12,6 @@ import { createWorkDaysColumn, generateUniqueKey, getDateFromRoster } from '@/sr
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { useToast } from '../ui/use-toast';
 import { handleisSameDate } from '@/src/lib/date';
-
-
 type UserToUserTable = {
   id:string,
   name:string

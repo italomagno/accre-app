@@ -12,9 +12,6 @@ type ShowAvailableShiftsComponentProps = {
   day: Date
 }
 
-
-
-
 export function ShowAvailableShiftsComponent( {day}: ShowAvailableShiftsComponentProps){
   const {toast} = useToast()
   const [shifts, setShifts] = useState<AvailableShifts>()

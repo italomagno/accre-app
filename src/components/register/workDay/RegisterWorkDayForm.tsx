@@ -3,14 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage
-} from '@/src/components/ui/form';
-
 import { toast } from '@/src/components/ui/use-toast';
 import { Button } from '../../ui/button';
 import { generateUniqueKey } from '@/src/lib/utils';
@@ -34,53 +26,23 @@ import { Shift, WorkDay } from '@prisma/client';
 import { useEffect, useState } from 'react';
 import { getShiftsAndAbscence } from '@/src/app/settings/shifts/action';
 import {
-  RegisterOrUpdateValues,
   checkIfTwoShiftsHasEightHoursOfRestBetweenThem,
-  registerOrUpdateSchema
+
 } from '@/src/validations';
-import { registerOrUpdateWorkDay } from './action';
-import { useRouter } from 'next/navigation';
+
 
 type RegisterWorkDayFormProps = {
   workDay: WorkDay | undefined;
   day:Date
+  onWorkDayUpdate: (workDay: WorkDay) => void;
 };
 
-export function RegisterWorkDayForm({ workDay ,day}: RegisterWorkDayFormProps) {
-  const router = useRouter();
-
-  const form = useForm<RegisterOrUpdateValues>({
-    resolver: zodResolver(registerOrUpdateSchema),defaultValues:{
-      shiftId1: workDay?.shiftsId[0] ?? '0',
-      shiftId2: workDay?.shiftsId[1] ?? '0'
-    }
-  });
-  const [shifts, setShifts] = useState<Shift[]>([]);
+export function RegisterWorkDayForm({ workDay,day,onWorkDayUpdate}: RegisterWorkDayFormProps) {
+  const [shifts1, setShifts1] = useState<Shift[]>([]);
   const [absences, setAbsences] = useState<Shift[]>([]);
   const [shifts2, setShifts2] = useState<Shift[]>([]);
-
-  async function onSubmitData(data: RegisterOrUpdateValues) {
-    const newData = {
-      ...data,
-      day,
-      workdayId: workDay?.id
-    };
-
-    const response = await registerOrUpdateWorkDay(newData);
-    if ('code' in response && response.code !== 200) {
-      toast({
-        title: 'Erro',
-        description: response.message
-      });
-    router.refresh();
-
-    } else {
-      toast({
-        title: 'Sucesso',
-        description: response.message
-      });
-    }
-  }
+  const [shiftId1, setShiftId1] = useState<string>("0");
+  const [shiftId2, setShiftId2] = useState<string>("0");
 
   async function fetchAvailableShifts() {
     try {
@@ -92,7 +54,7 @@ export function RegisterWorkDayForm({ workDay ,day}: RegisterWorkDayFormProps) {
         });
         return;
       }
-      const { shifts, absences } = result;
+      const { shifts, absences:abscensesFromRequest } = result;
       if (!shifts || !absences) {
         toast({
           title: 'Erro',
@@ -101,41 +63,78 @@ export function RegisterWorkDayForm({ workDay ,day}: RegisterWorkDayFormProps) {
         return;
       }
 
-      setShifts(shifts);
-      setAbsences(absences);
+      if(workDay && workDay.shiftsId.length > 0){
+        const [shift1,shift2] = workDay.shiftsId
+        if(shift1){
+          const shift1FromFetch = shifts.find((shift)=>shift.id === shift1)
+          if(!shift1FromFetch){
+          setShifts1(shifts)
+          setAbsences(abscensesFromRequest)
+            return
+          }
+          const AvailableShifts = shifts.filter((shift)=>checkIfTwoShiftsHasEightHoursOfRestBetweenThem(shift1FromFetch,shift))
+          setShifts1(shifts)
+          setShiftId1(shift1)
+          setShifts2([...AvailableShifts,...abscensesFromRequest])
+          if(shift2){
+            setShiftId2(shift2)
+          }
+          return
+        }else{
+          setShifts1(shifts)
+          setAbsences(abscensesFromRequest)
+          return
+        }
+      }else{
+        setShifts1(shifts)
+        setAbsences(abscensesFromRequest)
+      }
+
+
+    
     } catch (error) {
       console.error(error);
     }
   }
-
+  function handleUpdateWorkDay(e: React.MouseEvent<HTMLButtonElement>){
+    e.stopPropagation()
+    if(workDay){
+      const updatedWorkDay = {
+        ...workDay,
+        shiftsId: shiftId2 === "0" ? [shiftId1] : [shiftId1,shiftId2],
+        day
+      }
+      console.log(shiftId2)
+      console.log("withWorkDay: ",updatedWorkDay)
+      onWorkDayUpdate(updatedWorkDay)
+    }else{
+      const updatedWorkDay = {
+        shiftsId: shiftId2 === "0" ? [shiftId1] : [shiftId1,shiftId2],
+        day
+      }
+      console.log(updatedWorkDay)
+      onWorkDayUpdate(updatedWorkDay as WorkDay)
+    }
+  }
   useEffect(() => {
     fetchAvailableShifts();
-    if(workDay){
-      form.setValue('shiftId1', workDay.shiftsId[0]);
-    }
   }, []);
 
   useEffect(() => {
-    if (form.watch('shiftId1') !== '0') {
-      const shift1 = shifts.find(
-        (shift) => shift.id === form.getValues("shiftId1")
-      );
-      if (!shift1) return;
-      const shiftsWithEightHoursOfRestFromShift1 = shifts.filter(
-        (shift) =>
-          checkIfTwoShiftsHasEightHoursOfRestBetweenThem(shift1, shift) &&
-          !shift.isAbscence
-      );
-      const shiftsAvailableWithAbscence =
-        shiftsWithEightHoursOfRestFromShift1.filter(
-          (shift) => shift.isAbscence
-        );
-      setShifts2([
-        ...shiftsWithEightHoursOfRestFromShift1,
-        ...shiftsAvailableWithAbscence
-      ]);
+    const shift1 = shifts1.find((shift)=>shift.id === shiftId1)
+    if(!shift1){
+    setShiftId2("0")
+      setShifts2([...absences])
+      return 
     }
-  }, [form.watch('shiftId1')]);
+    const newShifts2 = shifts1.filter((shift)=>checkIfTwoShiftsHasEightHoursOfRestBetweenThem(shift1,shift))
+    setShiftId2("0")
+    setShifts2([...newShifts2,...absences])
+  }, [shiftId1]);
+
+
+
+
 
   return (
     <Tabs defaultValue="shift">
@@ -150,29 +149,19 @@ export function RegisterWorkDayForm({ workDay ,day}: RegisterWorkDayFormProps) {
             <CardDescription>Selecione um turno de serviço.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-          <Form {...form}>
-            <form
-              className="flex flex-col gap-3 w-full"
-            >
                 <div className="space-y-1">
-                  <FormField
-                    control={form.control}
-                    name="shiftId1"
-                    render={({ field }) => (
-                      <FormItem>
                           <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            onValueChange={e => setShiftId1(e)}
+                            defaultValue={shiftId1}
+                            value={shiftId1}
                           >
-                        <FormControl onMouseDown={e=>e.stopPropagation()}>
                             <SelectTrigger>
                               <SelectValue  placeholder="Selecione um turno..." />
                             </SelectTrigger>
-                        </FormControl>
                             <SelectContent>
 
                               <SelectItem  value={'0'}>{'Sem turno'}</SelectItem>
-                              {shifts.map((shift) => (
+                              {shifts1.map((shift) => (
                                 <SelectItem
                                   key={generateUniqueKey()}
                                   value={shift.id}
@@ -182,64 +171,44 @@ export function RegisterWorkDayForm({ workDay ,day}: RegisterWorkDayFormProps) {
                               ))}
                             </SelectContent>
                           </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {form.watch('shiftId1') &&
-                    form.watch('shiftId1') !== '0' &&
-                    shifts2.length > 0 && (
-                      <FormField
-                        control={form.control}
-                        name="shiftId2"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                              >
-                                <SelectTrigger className="">
-                                  <SelectValue placeholder="Selecione um turno..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem onSelect={(e)=>e.stopPropagation()} value={'0'}>
-                                    {'Sem turno'}
-                                  </SelectItem>
-                                  {shifts2.map((shift) => (
-                                    <SelectItem
-                                    onSelect={(e)=>e.stopPropagation()}
-                                      key={generateUniqueKey()}
-                                      value={shift.id}
-                                    >
-                                      {shift.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    )}
+
+                          <Select
+                            onValueChange={e=>setShiftId2(e)}
+                            defaultValue={shiftId2}
+                            value={shiftId2}
+                          >
+                            <SelectTrigger >
+                              <SelectValue placeholder="Selecione um turno..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem  value={'0'}>
+                                {'Sem turno'}
+                              </SelectItem>
+                              {shifts2.length > 0 && shifts2.map((shift) => (
+                                <SelectItem
+                                  key={generateUniqueKey()}
+                                  value={shift.id}
+                                >
+                                  {shift.name}
+                                </SelectItem>
+                              ))
+                            }
+                            </SelectContent>
+                          </Select>
+                  
                 </div>
            
 
               <CardFooter>
                 <Button
-                onClick={(e) => {
-                  onSubmitData(form.getValues())
-                }
-                }
-                  type="submit"
+                onClick={handleUpdateWorkDay}
+                type='submit'
                   className="w-full"
                 >
                   Salvar turno
                 </Button>
               </CardFooter>
-            </form>
-          </Form>
+          
           </CardContent>
         </Card>
       </TabsContent>
@@ -249,22 +218,11 @@ export function RegisterWorkDayForm({ workDay ,day}: RegisterWorkDayFormProps) {
             <CardTitle>Afastamentos</CardTitle>
             <CardDescription>Selecione seu afastamento</CardDescription>
           </CardHeader>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmitData)}
-              className="flex flex-col gap-3 w-full"
-            >
               <CardContent className="space-y-2">
                 <div className="space-y-1">
-                  <FormField
-                    control={form.control}
-                    name="shiftId1"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormControl>
                           <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            onValueChange={e=>setShiftId1(e)}
+                            defaultValue={shiftId1}
                           >
                             <SelectTrigger>
                               <SelectValue placeholder="Selecione um afastamento..." />
@@ -283,23 +241,18 @@ export function RegisterWorkDayForm({ workDay ,day}: RegisterWorkDayFormProps) {
                               ))}
                             </SelectContent>
                           </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+
                 </div>
               </CardContent>
               <CardFooter>
                 <Button
-                  type="submit"
+                 type='submit'
+                onClick={handleUpdateWorkDay}
                   className="w-full"
                 >
                   Salvar Afastamento
                 </Button>
               </CardFooter>
-            </form>
-          </Form>
         </Card>
       </TabsContent>
     </Tabs>
