@@ -26,7 +26,10 @@ export function DepartmentFormComponent() {
    
 
     //criar função para cadastrar o usuário no departamento
-    const result = await createDepartment(data);
+    const newData:CreateDepartmentAndUserValues = {...form.getValues()
+
+    };
+    const result = await createDepartment(newData);
 
     if(result){
       if("code" in result){
@@ -56,6 +59,12 @@ export function DepartmentFormComponent() {
     
 
   };
+  const showMessageInPortuguese = {
+    "ONE": "Média de voos > 400.000",
+    "TWO": "Média de voos entre 200.000 e 400.000",
+    "THREE": "Média de voos entre 90.000 e 200.000",
+    "FOUR": "Média de voos menor que 90.000",
+  }
  
   const form = useForm<CreateDepartmentAndUserValues>({
     resolver: zodResolver(createManyUsersSchema),
@@ -166,7 +175,7 @@ export function DepartmentFormComponent() {
                                   key={generateUniqueKey()}
                                   value={classification}
                                 >
-                                  {classification}
+                                  {showMessageInPortuguese[classification as keyof typeof showMessageInPortuguese]}
                                 </SelectItem>
                               ))}
                             </SelectContent>

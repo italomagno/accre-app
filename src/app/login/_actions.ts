@@ -16,23 +16,32 @@ export async function signInOnServerActions(data: FormValues):Promise<ErrorTypes
         if("code" in userFromDB){
             return {
                 code: 404,
-                message: "Usuário ou senha incorretos."
+                message: userFromDB.message
             };
         }
-        const resultData = await signIn("credentials", data)
-
-
-        return {
+        await signIn("credentials", data )
+        return{
             code: 200,
             message: "Login efetuado com sucesso. Aguarde Redirecionamento"
-        };
+        }
+
      
     } catch (error) {
         console.error("Erro ao tentar fazer login:", error);
+        const result = await LoginSchema.parseAsync(data);
+        const email = result.email 
+        const password = result.password 
+        const userFromDB = await getUser(email, password)
+        if("code" in userFromDB){
+            return {
+                code: userFromDB.code,
+                message: userFromDB.message
+            };
+        }
         return {
-            code: 500,
-            message: "Erro de login"
-        };
+            code:200,
+            message: "Login efetuado com sucesso. Aguarde Redirecionamento"
+        }
     }
 }
 

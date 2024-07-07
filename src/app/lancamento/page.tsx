@@ -12,7 +12,7 @@ export default async function lancamento({
 }: {
     searchParams: { turnos: string, };
 }) {
-        const [ rosters, shifts, workDays ] = await Promise.all([ await getRostersBySession(), await getAvailableShifts() , await getWorkDaysByUserSession()]) 
+        const [ rosters, shifts, workDays ] = await Promise.all([ await getRostersBySession(), await getAvailableShifts() , await getWorkDaysByUserSession()])
 
         return (
             <LayoutComponent>

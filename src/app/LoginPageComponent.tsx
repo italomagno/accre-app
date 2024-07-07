@@ -13,15 +13,18 @@ import Image from 'next/image';
 import { signInOnServerActions } from "./login/_actions";
 import { LoadingComponentForLoginPage } from "./loadingComponentForLoginPage";
 import { useToast } from "../components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 
 export function LoginPageComponent() {
   const {toast} = useToast();
+  const router = useRouter();
 
   const onSubmit = async (data: FormValues) => {
     const result = await signInOnServerActions(data);
-    if (result.code === 200) {
+    if ("code" in result && result.code === 200) {
       showToast("Login efetuado com sucesso", "Aguarde Redirecionamento");
+      router.push("/lancamento");
     } else {
       showToast("Erro ao fazer login", result.message);
     }

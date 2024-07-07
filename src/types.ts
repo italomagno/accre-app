@@ -39,19 +39,37 @@ export const createManyUsersSchema = z.object({
 export type RegisterManyUsersValues = z.infer<typeof createManyUsersSchema>;
 const classificationsEnumsToZodSchemaRegisterDepartment = Object.keys(DepartmentClassification).map((key) => key);
 export const registerDepartmentSchema = z.object({
-    departmentName: z.string().min(3, 'O nome do departamento deve conter no mínimo 3 caracteres.').refine(value => value !== '', 'Nome do departamento é obrigatório.'),
-    email: z.string().email('E-mail inválido.').refine(value => value !== '', 'E-mail é obrigatório.'),
-    password: z.string().min(6, 'A senha deve conter no mínimo 6 caracteres.').refine(value => value !== '', 'Senha é obrigatório.'),
-    name: z.string().min(3, 'O nome deve conter no mínimo 3 caracteres.').refine(value => value !== '', 'Nome é obrigatório.'),
+    departmentName: z.string(
+      {required_error: "Nome do departamento é obrigatório"}
+    ).min(3, 'O nome do departamento deve conter no mínimo 3 caracteres.').refine(value => value !== '', 'Nome do departamento é obrigatório.'),
+    email: z.string({
+      required_error: "E-mail é obrigatório"
+    }).email('E-mail inválido.').refine(value => value !== '', 'E-mail é obrigatório.'),
+    password: z.string({
+      required_error: "Senha é obrigatória"
+    }).min(6, 'A senha deve conter no mínimo 6 caracteres.').refine(value => value !== '', 'Senha é obrigatória.'),
+    name: z.string(
+      {required_error: "Nome é obrigatório"}
+    ).min(3, 'O nome deve conter no mínimo 3 caracteres.').refine(value => value !== '', 'Nome é obrigatório.'),
     type:z.nativeEnum(DepartmentTypes).default("OTHER"),
     classification: z.nativeEnum(DepartmentClassification).default("FOUR"),
     })
 export const registerUserSchema = z.object({
-    name: z.string().min(3, 'O nome deve conter no mínimo 3 caracteres.').refine(value => value !== '', 'Nome é obrigatório.'),
-    email: z.string().email('E-mail inválido.').refine(value => value !== '', 'E-mail é obrigatório.'),
-    password: z.string().min(6, 'A senha deve conter no mínimo 6 caracteres.').refine(value => value !== '', 'Senha é obrigatório.'),
-    function: z.string().refine(value => value !== '', 'Função Operacional é obrigatório.'),
-    departmentId: z.string().refine(value => value !== '', 'Departamento é obrigatório.'),
+    name: z.string(
+      {required_error: "Nome é obrigatório"}
+    ).min(3, 'O nome deve conter no mínimo 3 caracteres.').refine(value => value !== '', 'Nome é obrigatório.'),
+    email: z.string({
+      required_error: "E-mail é obrigatório"
+    }).email('E-mail inválido.').refine(value => value !== '', 'E-mail é obrigatório.'),
+    password: z.string({
+      required_error: "Senha é obrigatória"
+    }).min(6, 'A senha deve conter no mínimo 6 caracteres.').refine(value => value !== '', 'Senha é obrigatório.'),
+    function: z.string(
+      {required_error: "Função Operacional é obrigatório"}
+    ).refine(value => value !== '', 'Função Operacional é obrigatório.'),
+    departmentId: z.string(
+      {required_error: "Departamento é obrigatório"}
+    ).refine(value => value !== '', 'Departamento é obrigatório.'),
 })
 
 const roleValues =  {
@@ -75,7 +93,7 @@ export const updateMyAccountSchema = z.object({
   block_changes: z.boolean(),
   isOffice: z.boolean(),
 })
-export const CreateDepartmentAndUserSchema = registerDepartmentSchema.merge(registerUserSchema.omit({departmentId: true}));
+export const CreateDepartmentAndUserSchema = registerDepartmentSchema.merge(registerUserSchema.omit({departmentId: true,function:true}));
 export type CreateDepartmentAndUserValues = z.infer<typeof CreateDepartmentAndUserSchema>;
 
 export type UpdateMyAccountValues = z.infer<typeof updateMyAccountSchema>;
