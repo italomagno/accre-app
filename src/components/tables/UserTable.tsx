@@ -57,7 +57,7 @@ export function UserTable({users,search}: UserTableProps ) {
                         <TableRow key={userId}>
                           {headingKeys.map((key) => {
                             return (
-                              key === "id" || key === "role"? null :<TableCell key={generateUniqueKey()}>
+                              key === "id" || key === "role"? null :<TableCell  key={generateUniqueKey()}>
                                 {
                                   
                                 typeof user[key] === "object"

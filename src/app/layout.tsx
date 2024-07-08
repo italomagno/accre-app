@@ -6,9 +6,12 @@ import { Toaster } from '@/src/components/ui/toaster';
 
 
 export const metadata = {
-  title: 'Next.js App Router + NextAuth + Tailwind CSS',
+  title: {
+    template: '%s | Shift-App ',
+    default: 'Shift-App ',
+  },
   description:
-    'A user admin dashboard configured with Next.js, Postgres, NextAuth, Tailwind CSS, TypeScript, and Prettier.'
+    'O Shift-App é uma solução inovadora para gerenciar turnos, oferecendo ferramentas avançadas para escalantes e dados essenciais para chefias de órgãos, tudo em um só lugar. Configurado com Next.js,TypeScript, MongoDb e Prisma.'
 };
 
 export default function RootLayout({

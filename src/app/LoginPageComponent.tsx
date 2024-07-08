@@ -77,7 +77,7 @@ export function LoginPageComponent() {
         <div className="max-w-md w-full space-y-6 px-4 md:px-0">
           <div className="space-y-2 text-center">
             <h1 className="text-3xl font-bold">Bem vindo de Volta!</h1>
-            <p className="text-gray-500 dark:text-gray-400">Coloque seu CPF e Saram para acessar sua escala.</p>
+            <p className="text-gray-500 dark:text-gray-400">Coloque suas credenciais para acessar sua escala.</p>
           </div>
           </div>
           <div className='container w-full lg:w-1/2 mx-auto'>
