@@ -41,7 +41,6 @@ export default async function shiftPage() {
   async function handleRemoveItem(id: string) {
     "use server"
     return await removeShift(id)
-    //ToDO - Add remove function
   }
 
   return (

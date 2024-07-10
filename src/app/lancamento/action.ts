@@ -110,7 +110,6 @@ export async function getAvailableShiftsDay(day: Date) {
         day
       }
     });
-    console.log("workDays = ",workDays)
 
     /*   const counterShiftsPerday = shifts.map(shift => {
     const shiftPerDay = WorkDaysColumn.map(day => {

@@ -10,7 +10,6 @@ export function RemoveWorkDayButton({date}: RemoveWorkDayButton){
 
 
   useEffect(() => {
-//ToDo: Implementar a função de apagar proposição do dia
   },[])
 
     return (

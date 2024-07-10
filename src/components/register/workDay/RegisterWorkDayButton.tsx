@@ -8,6 +8,7 @@ import { registerOrUpdateManyWorkDays } from "./action"
 
 type WorkDayButton = {
     workDays: WorkDay[]
+
 }
 
 export function RegisterWorkDayButton({workDays}: WorkDayButton){

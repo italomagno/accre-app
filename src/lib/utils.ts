@@ -51,6 +51,11 @@ export function getMonthFromRoster(roster:Pick<Roster,"month" | "year" | "id">) 
   const getMonthInPortuguese = new Date(`${month} 1, ${year}`).toLocaleString('pt-br', { month: 'long' });
   return getMonthInPortuguese
 }
+export function getMonthFromRosterInNumber(roster:Pick<Roster,"month" | "year" | "id">) {
+  const {month, year} = roster;
+  const monthStringInEnglishToNumberToCollectDaysInMonth = new Date(`${month} 1, ${year}`).getMonth();
+  return monthStringInEnglishToNumberToCollectDaysInMonth
+}
 export function getDateFromRoster(roster:Pick<Roster,"month" | "year" | "id">) {
   const {month, year} = roster;
   return new Date(`${month} ${2}, ${year}`);
