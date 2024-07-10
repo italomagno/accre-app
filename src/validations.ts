@@ -31,7 +31,6 @@ export const registerOrUpdateSchema = z.object({
 
 export type RegisterOrUpdateValues = z.infer<typeof registerOrUpdateSchema>;
 
-// Remove the unused type declaration
 
 export function checkIfthisShiftIsNightShift(start:Date, end:Date){
     const startHour = start.getHours();
@@ -75,7 +74,14 @@ export function checkIfTwoShiftsHasEightHoursOfRestBetweenThem(shift1:Shift, shi
     if(diffInHours >= 8 * 60 * 60 * 1000)
         return true;
     return false;
-    
+}
+export function checkIfhasShiftInterpolation(shift1:Shift, shift2:Shift){
+    const shift1StartTime = new Date(shift1.end).getTime();
+    const shift1EndTime = new Date(shift1.end).getTime();
+    const shift2StartTime = (new Date(shift2.start)).getTime();
+    if(shift2StartTime >= shift1StartTime && shift2StartTime <= shift1EndTime)
+        return true;
+    return false;
 }
 
 export function handleGetDateHoursString(date:Date):string{

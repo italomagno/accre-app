@@ -57,6 +57,7 @@ export async function handleFechDataToShiftsTable():Promise<ErrorTypes | {shifts
 
     }catch(e){
         prisma.$disconnect()
+        console.log(e)
         return{
             code: 500,
             message: "Erro interno"

@@ -87,7 +87,7 @@ export function ShiftsTable({
   return (
     <Table>
 
-            <TableHeader className='sticky top-0'>
+            <TableHeader className='sticky top-0 w-fit'>
               <TableRow>
               {
                 counterShiftsPerdayHeadings.map((heading,i) => {

@@ -12,11 +12,12 @@ import { createWorkDaysColumn, generateUniqueKey, getDateFromRoster } from '@/sr
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { useToast } from '../ui/use-toast';
 import { handleisSameDate } from '@/src/lib/date';
+import { UpdateWorkDayCell } from './UpdateWorkDayCell';
 type UserToUserTable = {
   id:string,
   name:string
 }
-export function GeralUserShiftTable({
+export function  GeralUserAdminShiftTable({
   shifts,
   users:usersWithoutFilter,
   roster,
@@ -31,7 +32,6 @@ export function GeralUserShiftTable({
 }) {
   const users = usersWithoutFilter.filter(user => user.name.toLowerCase().includes(search.toLowerCase()))
   const {toast} = useToast()
-  const rosterId = roster.id
 
   if(!shifts.length || shifts.length === 0){
     return (
@@ -69,8 +69,8 @@ export function GeralUserShiftTable({
   const dateFromRoster = getDateFromRoster(roster)
   const counterUsersPerday = users.map(user => {
   const shiftPerDay = WorkDaysColumn.map(day => {
-    const newDate = new Date(dateFromRoster.getFullYear(),dateFromRoster.getMonth(),day)
-    const workDay = workDays.find(workDay => workDay.userId.includes(user.id) && handleisSameDate(workDay.day,newDate))
+    const newDate = day
+    const workDay = workDays.find(workDay => workDay.userId === (user.id) && workDay.day.getDate() === newDate)
     const shiftsInThisWorkDay = workDay?.shiftsId.flatMap(shiftId => shifts.filter(shift => shift.id === shiftId)) || [];
     const shiftInThisDay = shiftsInThisWorkDay.length > 0 ? shiftsInThisWorkDay.map(shift => shift.name).join(" | ") : "-";
     if(!workDay) return "-"
@@ -85,10 +85,10 @@ export function GeralUserShiftTable({
 
   return (
     <Table>
-      <TableHeader className='sticky top-0 w-fit'>
-        <TableRow>
+      <TableHeader>
+        <TableRow >
           {counterShiftsPerdayHeadings.map((heading, i) => {
-            return <TableCell key={generateUniqueKey()}>{heading}</TableCell>;
+            return <TableHead className='text-center'  key={generateUniqueKey()}>{heading}</TableHead>;
           })}
         </TableRow>
       </TableHeader>
@@ -97,9 +97,16 @@ export function GeralUserShiftTable({
           const { user, days } = userShifts;
           return (
             <TableRow key={generateUniqueKey()}>
-              <TableCell >{user.name}</TableCell>
+              <TableCell className='text-center w-20'>{user.name}</TableCell>
               {days.map((cellData, i) => {
-                return <TableCell key={generateUniqueKey()}>{<p className="w-24">{cellData}</p>}</TableCell>;
+                return <UpdateWorkDayCell 
+                key={generateUniqueKey()}
+                user={user}
+                shifts={shifts}
+                roster={roster as Roster}
+                shiftName={cellData}
+                day={i+1}
+                />
               })} 
             </TableRow>
           );

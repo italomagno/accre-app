@@ -4,16 +4,15 @@ import { getUserByEmail } from '@/src/app/login/_actions';
 import { auth } from '@/src/lib/auth';
 import { handleisSameDate } from '@/src/lib/date';
 import prisma from '@/src/lib/db/prisma/prismaClient';
-import { createWorkDaysColumn, getMonthFromRoster, getMonthFromRosterInNumber } from '@/src/lib/utils';
+import { createWorkDaysColumn, getMonthFromRosterInNumber } from '@/src/lib/utils';
 import { ErrorTypes } from '@/src/types';
-import { RegisterOrUpdateValues, checkIfHas48HoursOfRestAfter6DaysOfWork, checkIfThisWorkDayHasNightShift, checkIfThisWorkDayHasShiftWorkDay, checkIfthisShiftIsNightShift, getShiftFromWorkDay } from '@/src/validations';
-import { $Enums, WorkDay } from '@prisma/client';
+import {  checkIfHas48HoursOfRestAfter6DaysOfWork, checkIfThisWorkDayHasNightShift} from '@/src/validations';
+import {  Roster, User, WorkDay } from '@prisma/client';
 
-export async function registerOrUpdateWorkDay(
-  data: RegisterOrUpdateValues
-): Promise<ErrorTypes> {
-  const { workdayId, shiftId1, shiftId2, day } = data;
-  try {
+
+
+export async function registerOrUpdateWorkDayByAdmin(ShiftNameWithVerticalBar:string,day:number,roster:Roster,user:User){
+  try{
     const session = await auth();
     if (!session) {
       return {
@@ -21,72 +20,93 @@ export async function registerOrUpdateWorkDay(
         message: 'Usuário não autenticado'
       };
     }
-    const shiftId1Exists = await prisma.shift.findUnique({
-      where: {
-        id: shiftId1
+    const admin = await getUserByEmail(session.user.email);
+    if ('code' in admin) {
+      return {
+        code: admin.code,
+        message: admin.message
+      };
+    }
+    if(admin.role !== "ADMIN"){
+      return {
+        code: 403,
+        message: 'Usuário não tem permissão para alterar turnos'
+      };
+    }
+
+    const proposalShift = ShiftNameWithVerticalBar.includes(" | ") ? ShiftNameWithVerticalBar.split(" | ") : [ShiftNameWithVerticalBar]
+
+    const shifts = await prisma.shift.findMany({
+      where:{
+        departmentId:user.departmentId,
+        name:{
+          in:proposalShift
+        }
       }
-    });
-    if (!shiftId1Exists) {
+    })
+  
+    const workDaysFromUser = await prisma.workDay.findMany({
+      where:{
+        userId:user.id,
+        rosterId:roster.id
+      }
+    })
+    const workDay = workDaysFromUser.find(workDay=>workDay.day.getDate() === day)
+
+    if(!workDay){
+      const createdWorkDay = await prisma.workDay.create({
+        data:{
+          day:new Date(roster.year,getMonthFromRosterInNumber(roster)-1,day),
+          userId:user.id,
+          departmentId:user.departmentId,
+          rosterId:roster.id,
+          shiftsId:{
+            set: shifts.map(shift=>shift.id)
+          }
+        }
+      })
       return {
-        code: 404,
-        message: 'Selecione um turno válido'
-      };
-    }
-    const user = await getUserByEmail(session.user.email);
-    if ('code' in user) {
-      return {
-        code: user.code,
-        message: user.message
-      };
+        code:200,
+        message:'Turno salvo com sucesso'
+      }
     }
 
-    if (workdayId) {
-      const shiftIds: string[] = shiftId2 ? [shiftId1, shiftId2] : [shiftId1];
 
-      await prisma.workDay.update({
-        where: {
-          id: workdayId
+    if(workDay){
+      const updatedWorkDay = await prisma.workDay.update({
+        where:{
+          id:workDay.id,
+          userId:user.id,
+          day:new Date(roster.year,getMonthFromRosterInNumber(roster)-1,day)
         },
-        data: {
-          shiftsId: {
-            set: shiftIds
+        data:{
+          shiftsId:{
+            set: shifts.map(shift=>shift.id)
           }
         }
-      });
-    } else {
-      const usersIds: string[] = [];
-      const shiftIds: string[] = shiftId2 ? [shiftId1, shiftId2] : [shiftId1];
-      await prisma.workDay.create({
-        data: {
-          day,
-          user: {
-            connect: {
-              id: user.id
-            }
-          },
-          shifts: {
-            connect: shiftIds.map((shiftId) => ({ id: shiftId }))
-          },
-          department: {
-            connect: {
-              id: user.departmentId
-            }
-          }
-        }
-      });
+      })
+
+      return {
+        code:200,
+        message:'Turno salvo com sucesso'
+      }
     }
 
     return {
-      code: 200,
-      message: 'Turno salvo com sucesso'
-    };
-  } catch (e) {
-    console.log(e);
+      code:500,
+      message:'Erro ao salvar turno'
+    }
+
+
+
+  }catch(e){
+    console.log(e)
     return {
-      code: 500,
-      message: 'Erro ao salvar turno'
-    };
+      code:500,
+      message:'Erro ao salvar turno'
+    }
   }
+
 }
 
 export async function registerOrUpdateManyWorkDays(
@@ -247,7 +267,7 @@ export async function registerOrUpdateManyWorkDays(
             set:workDay.shiftsId.filter((shiftId) => shiftId !== '0') 
         } ,
         departmentId: user.departmentId,
-        rosterId: [rosterAvailablesToChange.id]
+        rosterId: rosterAvailablesToChange.id
       };
     });
     if(workDaysToCreate.length > 0){
@@ -261,9 +281,8 @@ export async function registerOrUpdateManyWorkDays(
       await prisma.workDay.update({
         where:{id:workDay.id},
           data:{
-            rosterId:{
-                push: rosterAvailablesToChange.id
-            },
+            rosterId:rosterAvailablesToChange.id,
+            
           shiftsId: {
             set:workDay.shiftsId.filter((shiftId) => shiftId !== '0')}
         },

@@ -37,7 +37,7 @@ export function UserTable({users,search}: UserTableProps ) {
       </div>
       <ScrollArea className='w-96 h-52 lg:w-full'>
       <Table >
-                    <TableHeader>
+                    <TableHeader className="w-fit">
                         <TableRow>
                             {
                             headingKeys.map((key) => {

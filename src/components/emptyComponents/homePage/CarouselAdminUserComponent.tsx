@@ -9,7 +9,8 @@ import {
 import { ScrollArea, ScrollBar } from '../../ui/scroll-area';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { Search } from '../../search';
-import { GeralUserShiftTable } from '../../tables/geralUserShiftTable';
+
+import { GeralUserAdminShiftTable } from '../../tables/geralUserAdminShiftTable';
 
 type CarrouselComponentProps = {
   rosters: Roster[];
@@ -19,7 +20,7 @@ type CarrouselComponentProps = {
   users: User[];
 };
 
-export function CarouselGeralUserComponent({
+export function CarouselAdminUserComponent({
   rosters,
   shifts,
   workDays,
@@ -44,7 +45,7 @@ export function CarouselGeralUserComponent({
                 <p>{`Escala geral do mês de ${getMonthFromRoster(roster)}`}</p>
                 <Search value={search} />
               </div>
-                <GeralUserShiftTable
+                <GeralUserAdminShiftTable
                   search={search}
                   roster={roster}
                   shifts={shifts}

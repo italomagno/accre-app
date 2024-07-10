@@ -27,7 +27,7 @@ export default async function MyAccountPage() {
       </CardHeader>
       <CardContent className='flex flex-wrap' >
       <Table>
-  <TableHeader>
+  <TableHeader className="w-fit">
     <TableRow>
       <TableHead>Name</TableHead>
       <TableHead>Email</TableHead>

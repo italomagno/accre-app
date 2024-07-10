@@ -9,6 +9,7 @@ import {
 } from '../../ui/carousel';
 import { ScrollArea, ScrollBar } from '../../ui/scroll-area';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
+import { ResizableHandle, ResizablePanelGroup } from '../../ui/resizable';
 
 type CarrouselComponentProps = {
   rosters: Roster[];
@@ -25,11 +26,18 @@ export function CarouselShiftsComponent({
 }: CarrouselComponentProps) {
   return (
     <>
-    <Carousel className="w-96 mx-auto lg:mx-0 lg:w-full lg:max-w-md max-h-96">
+    {
+      shifts.length === 0
+      ?
+      null
+      :
+
+      <Carousel className="w-96 mx-auto lg:mx-0 lg:w-full  max-h-96"
+      >
         <CarouselContent className="">
           {rosters.map((roster) => {
             return (
-              <ScrollArea key={generateUniqueKey()}  className='max-h-96 w-full overflow-auto'>
+              <ScrollArea key={generateUniqueKey()}  className='max-h-[dvh] w-full overflow-auto'>
                  <div className='ml-4'>
             {`Turnos do mês de ${getMonthFromRoster(roster)}`}
                 </div>
@@ -52,6 +60,9 @@ export function CarouselShiftsComponent({
       <CarouselPrevious />
       <CarouselNext />
     </Carousel>
+
+    }
+    
    
       </>
   );

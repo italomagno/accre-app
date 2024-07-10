@@ -98,8 +98,7 @@ model Roster{
   departmentId   String @db.ObjectId
   shifts         Shift[] @relation(fields: [shiftsId], references: [id])
   shiftsId       String[] @db.ObjectId
-  workDays       WorkDay[] @relation(fields: [workdayId],references: [id])
-  workdayId       String[] @db.ObjectId
+  workDays       WorkDay[]
   blockChanges  Boolean @default(true)
 }
 
@@ -108,8 +107,8 @@ model WorkDay {
   day       DateTime
   user      User @relation(fields: [userId],references: [id])
   userId    String @db.ObjectId
-  roster    Roster[] @relation(fields: [rosterId],references: [id])
-  rosterId  String[] @db.ObjectId
+  roster    Roster @relation(fields: [rosterId],references: [id])
+  rosterId  String @db.ObjectId
   shifts     Shift[] @relation(fields: [shiftsId],references: [id])
   shiftsId   String[] @db.ObjectId
   department Department @relation(fields: [departmentId],references: [id])

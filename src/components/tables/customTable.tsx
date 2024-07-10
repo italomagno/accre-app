@@ -39,7 +39,7 @@ export function CustomTable({
       <form className="border shadow-sm rounded-lg">
         <div className=' '>
           <Table className="overflow-auto max-h-dvh" >
-            <TableHeader>
+            <TableHeader className="w-fit">
               <TableRow>
                 
                 {

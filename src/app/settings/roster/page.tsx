@@ -59,7 +59,7 @@ export default async function RosterPage() {
                     </CardHeader>
                     <CardContent>
                     <Table>
-                    <TableHeader>
+                    <TableHeader className="w-fit">
                         <TableRow>
                             {
                             headingKeys.map((key) => {

@@ -10,7 +10,7 @@ export function SkeletonTable(){
     
     return(
         <Table className="overflow-auto max-h-dvh" >
-            <TableHeader>
+            <TableHeader className="w-fit">
               <TableRow>
                 {
                 emptySkeletonKeys.map((key, i) => (

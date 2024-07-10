@@ -62,7 +62,8 @@ export default async function IndexPage({
           </div>
         </EmptySettingsComponent>
 
-      ) : 
+      ) 
+      : 
       (
         <Card x-chunk="dashboard-04-chunk-1">
         <CardHeader>
@@ -76,8 +77,6 @@ export default async function IndexPage({
       </Card>
       )
     }
- 
-
     </>
 
   );
