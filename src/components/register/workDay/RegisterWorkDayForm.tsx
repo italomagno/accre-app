@@ -110,7 +110,7 @@ export function RegisterWorkDayForm({ workDay,day,onWorkDayUpdate}: RegisterWork
         shiftsId: shiftId2 === "0" ? [shiftId1] : [shiftId1,shiftId2],
         day
       }
-      console.log(updatedWorkDay)
+
       onWorkDayUpdate(updatedWorkDay as WorkDay)
     }
   }

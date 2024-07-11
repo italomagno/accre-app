@@ -2,12 +2,11 @@
 
 import { getUserByEmail } from '@/src/app/login/_actions';
 import { auth } from '@/src/lib/auth';
-import { handleisSameDate } from '@/src/lib/date';
 import prisma from '@/src/lib/db/prisma/prismaClient';
 import { createWorkDaysColumn, getMonthFromRosterInNumber } from '@/src/lib/utils';
 import { ErrorTypes } from '@/src/types';
 import {  checkIfHas48HoursOfRestAfter6DaysOfWork, checkIfThisWorkDayHasNightShift} from '@/src/validations';
-import {  Roster, Shift, User, WorkDay } from '@prisma/client';
+import {  Roster, User, WorkDay } from '@prisma/client';
 
 
 
@@ -44,18 +43,45 @@ export async function registerOrUpdateWorkDayByAdmin(ShiftNameWithVerticalBar:st
         }
       }
     })
-  
-    const workDaysFromUser = await prisma.workDay.findMany({
+
+    const workDayProposal ={
+      day:new Date(roster.year,getMonthFromRosterInNumber(roster),day),
+      userId:user.id,
+      departmentId:user.departmentId,
+      rosterId:roster.id,
+      shiftsId:shifts.map(shift=>shift.id)
+    } 
+
+    const workDayExist = await prisma.workDay.findFirst({
       where:{
-        userId:user.id,
-        rosterId:roster.id
+       day:workDayProposal.day,
+      departmentId:user.departmentId,
+      rosterId:roster.id,
+      userId:user.id
       }
     })
-    const workDay = workDaysFromUser.find(workDay=>workDay.day.getDate() === day)
 
 
-    const fatigueRules = await checkFatigueRules(user,workDaysFromUser,roster,shifts)
-    
+    const workDaysFromUser = (await prisma.workDay.findMany({
+      where:{
+        userId:user.id,
+        rosterId:roster.id,
+        departmentId:user.departmentId
+      },
+      orderBy:{
+        day:'asc'
+      }
+    })).map(workDay => {
+      if(workDay.day.getDate() === workDayProposal.day.getDate() && workDay.day.getMonth() === workDayProposal.day.getMonth() && workDay.day.getFullYear() === workDayProposal.day.getFullYear()){
+        return {...workDay,shiftsId:workDayProposal.shiftsId}
+      }
+      return workDay
+    }).sort((a,b) => a.day.getDate() - b.day.getDate())
+   
+
+
+
+    const fatigueRules = await checkFatigueRules(user,workDaysFromUser,roster)
     if(fatigueRules.code !== 200){
       return{
         code:400,
@@ -63,10 +89,10 @@ export async function registerOrUpdateWorkDayByAdmin(ShiftNameWithVerticalBar:st
       }
     }
 
-    if(!workDay){
+    if(!workDayExist){
       const createdWorkDay = await prisma.workDay.create({
         data:{
-          day:new Date(roster.year,getMonthFromRosterInNumber(roster)-1,day),
+          day:new Date(roster.year,getMonthFromRosterInNumber(roster),day),
           userId:user.id,
           departmentId:user.departmentId,
           rosterId:roster.id,
@@ -79,15 +105,12 @@ export async function registerOrUpdateWorkDayByAdmin(ShiftNameWithVerticalBar:st
         code:200,
         message:'Turno salvo com sucesso'
       }
-    }
-
-
-    if(workDay){
+    }else{
       const updatedWorkDay = await prisma.workDay.update({
         where:{
-          id:workDay.id,
+          id:workDayExist.id,
           userId:user.id,
-          day:new Date(roster.year,getMonthFromRosterInNumber(roster)-1,day)
+          day:new Date(roster.year,getMonthFromRosterInNumber(roster),day)
         },
         data:{
           shiftsId:{
@@ -100,11 +123,6 @@ export async function registerOrUpdateWorkDayByAdmin(ShiftNameWithVerticalBar:st
         code:200,
         message:'Turno salvo com sucesso'
       }
-    }
-
-    return {
-      code:500,
-      message:'Erro ao salvar turno'
     }
 
 
@@ -180,7 +198,8 @@ export async function registerOrUpdateManyWorkDays(
       };
     }
 
-    const fatigueRules = await checkFatigueRules(user,workDays,rosterAvailablesToChange,shifts)
+    const fatigueRules = await checkFatigueRules(user,workDays,rosterAvailablesToChange)
+
     if(fatigueRules.code !== 200){
       return{
         code:400,
@@ -238,24 +257,26 @@ export async function registerOrUpdateManyWorkDays(
 }
 
 
-async function checkFatigueRules(user:User,workDaysFromUser:WorkDay[],rosterAvailablesToChange:Roster,shifts:Shift[]){
-  const allWorkDays = (await prisma.workDay.findMany({
+async function checkFatigueRules(user:User,workDaysFromUser:WorkDay[],rosterAvailablesToChange:Roster){
+  const shifts = await prisma.shift.findMany({
+    where:{
+      departmentId:user.departmentId
+    }
+  })
+
+  const allWorkDays = [...(await prisma.workDay.findMany({
     where: {
-      userId: user.id
+      userId: user.id,
+      rosterId:{
+        not:rosterAvailablesToChange.id
+      }
     },
     orderBy:{
       day:'asc'
     }
-  })).map((workDay) => {
-    const hasWorkDayToSubstituteAndCheck = workDaysFromUser.find((workDayToCheck) => {
-      return handleisSameDate(workDay.day, workDayToCheck.day);
-    })
-    if(hasWorkDayToSubstituteAndCheck){
-      return hasWorkDayToSubstituteAndCheck
-    }
+  })),...workDaysFromUser].sort((a,b) => a.day.getDate() - b.day.getDate())
 
-    return workDay;
-  })
+
 
   const numberOfDaysInRosterMonth = createWorkDaysColumn(rosterAvailablesToChange)
   const monthFromRoster = getMonthFromRosterInNumber(rosterAvailablesToChange)
@@ -284,7 +305,6 @@ async function checkFatigueRules(user:User,workDaysFromUser:WorkDay[],rosterAvai
     }
 
     if(today && tomorrow && isNightShiftToday){
-      console.log("oxe entrou?")
       notRespectedHoursOfRes.push({
         code:400,
         message: `Você não pode trabalhar após turnos noturnos.`
@@ -336,6 +356,10 @@ async function checkFatigueRules(user:User,workDaysFromUser:WorkDay[],rosterAvai
       code: 400,
       message: `Você não pode trabalhar mais de 6 dias seguidos. Você Completou seis dias de trabalho no dia: ${IndexOfDayOfWorkThatComplete6Days[0]}`
     }
+  }
+  console.log(notRespectedHoursOfRes)
+  if(notRespectedHoursOfRes.length > 0){
+    return notRespectedHoursOfRes[0]
   }
 
   return {

@@ -15,12 +15,11 @@ export function CalendarComponent({ shifts, rosters, workDays,user }: { shifts: 
     const [rostersList, setRostersList] = useState<Roster[]>([])
     const [shiftsList, setShiftsList] = useState<Shift[]>([])
     const [ workDaysList, setWorkDaysList] = useState<WorkDay[]>([])
-    const lastMonthAvailable = rostersList.findLast((roster)=>roster.blockChanges === false)
+  
 
 
     function handleUpdateWorkDay(workDay: WorkDay){
-        const alreadyExists = workDaysList.find((workDayInList)=>workDayInList.day,workDay.day && user.id === workDay.userId && lastMonthAvailable?.id === workDay.rosterId)
-        
+        const alreadyExists = workDaysList.find((workDayInList)=>workDayInList.day.getDate() === workDay.day.getDate() && workDayInList.day.getMonth() === workDay.day.getMonth() && workDayInList.day.getFullYear() === workDay.day.getFullYear())
         if(alreadyExists){
             const updatedWorkDays = workDaysList.map((workDayInList)=>{
                 if(handleisSameDate(workDayInList.day,workDay.day)){
@@ -31,7 +30,13 @@ export function CalendarComponent({ shifts, rosters, workDays,user }: { shifts: 
             setWorkDaysList(updatedWorkDays)
         }
         else{
-            setWorkDaysList([...workDaysList,workDay])
+            const newWorkDay:WorkDay = {
+                ...workDay,
+                userId: user.id,
+                rosterId: lastMonthAvailable?.id ?? ""
+
+            }
+            setWorkDaysList([...workDaysList,newWorkDay])
         }
 
 
@@ -104,6 +109,7 @@ export function CalendarComponent({ shifts, rosters, workDays,user }: { shifts: 
     }
     }, [shifts,rosters,workDays]);
 
+    const lastMonthAvailable = rostersList.find((roster)=>roster.blockChanges === false)
     
     return (
         <>
@@ -116,9 +122,17 @@ export function CalendarComponent({ shifts, rosters, workDays,user }: { shifts: 
                     Day: (props) => 
                     {
                         const isSameMonth = props.date.getMonth() === props.displayMonth.getMonth()
-                        const workDay = workDaysList.find((workDay)=> workDay.day.getDate() === props.date.getDate() && workDay.day.getMonth() === props.date.getMonth() && workDay.day.getFullYear() === props.date.getFullYear())
-                        const shiftsInThisWorkDay = workDay?.shiftsId.flatMap(shiftId => shiftsList.filter(shift => shift.id === shiftId)) || [];
+                        const workDay =  workDaysList.find((workDay)=>workDay.day.getDate() === props.date.getDate() && workDay.day.getMonth() === props.date.getMonth() && workDay.day.getFullYear() === props.date.getFullYear())
+                        const shiftsInThisWorkDay = workDay ? workDay.shiftsId.map(id => {
+                            const shift = shiftsList.find(shift => shift.id === id);
+                            return shift || null;
+                        }).filter((shift): shift is Shift => shift !== null) : [];
                         const shiftInThisDay = shiftsInThisWorkDay.length > 0 ? shiftsInThisWorkDay.map(shift => shift.name).join(" | ") : "-";
+
+
+
+
+
                     return  isSameMonth ?
                             <div className="flex flex-col gap-3 text-2xl">
                                 {props.date.getDate()}

@@ -2,7 +2,6 @@
 import {z} from "zod";
 import { getShiftById } from "./app/settings/shifts/action";
 import { Roster, Shift, WorkDay } from "@prisma/client";
-import { getMonthFromRosterInNumber } from "./lib/utils";
 
 
 
@@ -49,17 +48,15 @@ export function checkIfThisWorkDayHasShiftWorkDay(workDay:WorkDay, shifts:Shift[
 
 }
 export function getShiftFromWorkDay(workDay:WorkDay, shifts:Shift[]){
-
-    return workDay.shiftsId.map((shiftId) =>{
-        return shifts.find((shift) => shift.id === shiftId);
-    });
+    return shifts.filter((shift) => workDay.shiftsId.includes(shift.id));   
 }
 
 export function checkIfThisWorkDayHasNightShift(workDay:WorkDay, shifts:Shift[]){
     return workDay.shiftsId.some((shiftId) =>{
         const shift = shifts.find((shift) => shift.id === shiftId);
         if(!shift) return false;
-        const {start, end} = shift;
+        const {start, end,name} = shift;
+        console.log(start,end,name)
         const isNightShift = checkIfthisShiftIsNightShift(new Date(start), new Date(end));
         return isNightShift;
       });
@@ -100,11 +97,14 @@ type CheckIfHas48HoursOfRestAfter6DaysOfWorkProps ={
 
 export function checkIfHas48HoursOfRestAfter6DaysOfWork({allWorkDays,date,rosterAvailablesToChange,shifts}:CheckIfHas48HoursOfRestAfter6DaysOfWorkProps){
     const lastDayOfWork = allWorkDays.find(workDay=>workDay.day.getDate()===date)
-    const nextDayOfWork = allWorkDays.slice(date-1).find(workDay=>workDay)
+    const nextDayOfWork = allWorkDays.slice(date).find(workDay=>workDay)
+    console.log(nextDayOfWork)
     if(!nextDayOfWork) return true
 
+    //console.log("vê aqui: ",lastDayOfWork,nextDayOfWork)
     if(!lastDayOfWork){
         const newLastDayOfWork = allWorkDays.find(workDay=>workDay.day.getDate() === date-1)
+        //console.log("oh yes: ",newLastDayOfWork)
         if(!newLastDayOfWork) return true
         const startHourOfNextDayOfWork = shifts.filter(shift=> newLastDayOfWork.shiftsId.includes(shift.id)).filter(shift=>shift.isAbscence === false).find(shift=>shift)
         const endDateHourOflastDayOfWorkThatCompleteSiDaysInSequencing = shifts.filter(shift=> newLastDayOfWork.shiftsId.includes(shift.id)).filter(shift=>shift.isAbscence === false).find(shift=>shift)
@@ -127,11 +127,14 @@ export function checkIfHas48HoursOfRestAfter6DaysOfWork({allWorkDays,date,roster
         if(!newLastDayOfWork) return true
         const startHourOfNextDayOfWork = shifts.filter(shift=> nextDayOfWork.shiftsId.includes(shift.id)).filter(shift=>shift.isAbscence === false).find(shift=>shift)
         const endDateHourOflastDayOfWorkThatCompleteSiDaysInSequencing = shifts.filter(shift=> newLastDayOfWork.shiftsId.includes(shift.id)).filter(shift=>shift.isAbscence === false).find(shift=>shift)
+        
         if(!startHourOfNextDayOfWork || !endDateHourOflastDayOfWorkThatCompleteSiDaysInSequencing ) return true
         const lastDayofWorkDate = newLastDayOfWork.day.getDate()
         const nextDayOfWorkDate = nextDayOfWork.day.getDate()
+        console.log("lastDayofWorkDate: ",lastDayofWorkDate,"nextDayOfWorkDate: ",nextDayOfWorkDate)
         if(nextDayOfWorkDate < lastDayofWorkDate+2) return false
         if(nextDayOfWorkDate === lastDayofWorkDate+2){
+            console.log(nextDayOfWorkDate,lastDayofWorkDate,lastDayofWorkDate+2)
         if(!startHourOfNextDayOfWork) return true
         if(!endDateHourOflastDayOfWorkThatCompleteSiDaysInSequencing) return true
         const hourStart = handleGetDateHoursString(startHourOfNextDayOfWork.start).split(":")
