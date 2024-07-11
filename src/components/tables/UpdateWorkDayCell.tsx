@@ -73,7 +73,6 @@ export function UpdateWorkDayCell({day,roster,shiftName,user,shifts}:UpdateWorkD
                 description:"Turno salvo com sucesso.",
                
             })
-            router.push(`/#${result.message}`)
         }
 
         

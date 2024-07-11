@@ -1,11 +1,5 @@
 import { generateUniqueKey, getMonthFromRoster } from '@/src/lib/utils';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext
-} from '../../ui/carousel';
+
 import { ScrollArea, ScrollBar } from '../../ui/scroll-area';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { Search } from '../../search';
@@ -13,7 +7,7 @@ import { Search } from '../../search';
 import { GeralUserAdminShiftTable } from '../../tables/geralUserAdminShiftTable';
 
 type CarrouselComponentProps = {
-  rosters: Roster[];
+  roster: Roster | null;
   search: string;
   shifts: Shift[];
   workDays: WorkDay[];
@@ -21,7 +15,7 @@ type CarrouselComponentProps = {
 };
 
 export function CarouselAdminUserComponent({
-  rosters,
+  roster,
   shifts,
   workDays,
   users,
@@ -30,19 +24,14 @@ export function CarouselAdminUserComponent({
   return (
     <>
     {
-      users.length === 0
+      users.length === 0 || !roster
       ?
       null
       :
       
-      <Carousel className="w-96 mx-auto lg:mx-0 lg:w-full">
-      <CarouselContent className="">
-        {rosters.map((roster) => {
-          return (
-            <ScrollArea  key={generateUniqueKey()} className='max-h-[dvh] w-full overflow-auto'>
-            <CarouselItem  className='w-fit h-fit'>
+      
+            <ScrollArea  key={generateUniqueKey()} className='max-h-[dvh] w-full overflow-auto '>
               <div className="mt-4 flex flex-col gap-4">
-                <p>{`Escala geral do mês de ${getMonthFromRoster(roster)}`}</p>
                 <Search value={search} />
               </div>
                 <GeralUserAdminShiftTable
@@ -54,15 +43,9 @@ export function CarouselAdminUserComponent({
                 />
 
               <ScrollBar  orientation='horizontal'/>
-            </CarouselItem>
             </ScrollArea>
 
-          );
-        })}
-      </CarouselContent>
-    <CarouselPrevious />
-    <CarouselNext />
-  </Carousel>
+
     }
   
     </>
