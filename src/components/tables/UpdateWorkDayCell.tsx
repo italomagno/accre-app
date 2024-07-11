@@ -70,10 +70,10 @@ export function UpdateWorkDayCell({day,roster,shiftName,user,shifts}:UpdateWorkD
         if(("code" in result) && result.code === 200){
             toast({
                 title:"Sucesso",
-                description:result.message,
+                description:"Turno salvo com sucesso.",
                
             })
-            router.refresh()
+            router.push(`/#${result.message}`)
         }
 
         
@@ -88,7 +88,7 @@ export function UpdateWorkDayCell({day,roster,shiftName,user,shifts}:UpdateWorkD
         value={defaultValue}
       >
         <SelectTrigger className="w-24">
-          <SelectValue   placeholder="Selecione um turno..." />
+          <SelectValue id={`${user.id}-${day}`}   placeholder="Selecione um turno..." />
         </SelectTrigger>
         <SelectContent>
 
