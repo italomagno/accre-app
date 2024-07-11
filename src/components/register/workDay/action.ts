@@ -7,7 +7,7 @@ import prisma from '@/src/lib/db/prisma/prismaClient';
 import { createWorkDaysColumn, getMonthFromRosterInNumber } from '@/src/lib/utils';
 import { ErrorTypes } from '@/src/types';
 import {  checkIfHas48HoursOfRestAfter6DaysOfWork, checkIfThisWorkDayHasNightShift} from '@/src/validations';
-import {  Roster, User, WorkDay } from '@prisma/client';
+import {  Roster, Shift, User, WorkDay } from '@prisma/client';
 
 
 
@@ -52,6 +52,16 @@ export async function registerOrUpdateWorkDayByAdmin(ShiftNameWithVerticalBar:st
       }
     })
     const workDay = workDaysFromUser.find(workDay=>workDay.day.getDate() === day)
+
+
+    const fatigueRules = await checkFatigueRules(user,workDaysFromUser,roster,shifts)
+    
+    if(fatigueRules.code !== 200){
+      return{
+        code:400,
+        message:fatigueRules.message
+      }
+    }
 
     if(!workDay){
       const createdWorkDay = await prisma.workDay.create({
@@ -170,92 +180,14 @@ export async function registerOrUpdateManyWorkDays(
       };
     }
 
-    const allWorkDays = (await prisma.workDay.findMany({
-      where: {
-        userId: user.id
-      },
-      orderBy:{
-        day:'asc'
-      }
-    })).map((workDay) => {
-      const hasWorkDayToSubstituteAndCheck = workDays.find((workDayToCheck) => {
-        return handleisSameDate(workDay.day, workDayToCheck.day);
-      })
-      if(hasWorkDayToSubstituteAndCheck){
-        return hasWorkDayToSubstituteAndCheck
-      }
-
-      return workDay;
-    })
-
-    const numberOfDaysInRosterMonth = createWorkDaysColumn(rosterAvailablesToChange)
-    const monthFromRoster = getMonthFromRosterInNumber(rosterAvailablesToChange)
-
-    const IndexOfDayOfWorkThatComplete6Days:number[] = []
-    const notRespectedHoursOfRes:ErrorTypes[] = []
-
-    const countDaysOfWorkInARow = numberOfDaysInRosterMonth.reduce((acc, dayOfWork) => {
-       var isSequenciDay = false
-       const today =  allWorkDays.find(workDayFromAllWorkDays => workDayFromAllWorkDays.day.getDate() === dayOfWork && workDayFromAllWorkDays.day.getMonth() === monthFromRoster)
-      const isNightShiftToday = today && checkIfThisWorkDayHasNightShift(today,shifts)
-
-      const tomorrow = allWorkDays.find(workDayFromAllWorkDays => workDayFromAllWorkDays.day.getDate() === dayOfWork+1 && workDayFromAllWorkDays.day.getMonth() === monthFromRoster)
-      const yesterday = allWorkDays.find(workDayFromAllWorkDays => workDayFromAllWorkDays.day.getDate() === dayOfWork-1 && workDayFromAllWorkDays.day.getMonth() === monthFromRoster)
-      const isNightShiftYesterDay = yesterday && checkIfThisWorkDayHasNightShift(yesterday,shifts)
-
-      if(today && tomorrow){
-        const hasSequence = tomorrow.day.getDate() - 1 === today.day.getDate()? true : false
-        isSequenciDay = hasSequence
-      }
-      if(today && !tomorrow && isNightShiftToday){
-        const hasSequence = true
-        isSequenciDay = hasSequence
-      }
-      if(!today && tomorrow && isNightShiftYesterDay){
-        const hasSequence = true
-        isSequenciDay = hasSequence
-      }
-      if(!today && !tomorrow && isNightShiftYesterDay){
-        const hasSequence = false
-        isSequenciDay = hasSequence
-      }
-      if(!today && tomorrow && !isNightShiftYesterDay){
-        isSequenciDay = false
-      }
-      if(acc+1 === 6) {
-        IndexOfDayOfWorkThatComplete6Days.push(dayOfWork)
-        const has48HoursOfRestAfter = checkIfHas48HoursOfRestAfter6DaysOfWork({
-          allWorkDays,
-          date: dayOfWork,
-          rosterAvailablesToChange,
-          shifts
-        })
-        if(!has48HoursOfRestAfter){
-          notRespectedHoursOfRes.push({
-            code:400,
-            message: `Você precisa de pelo menos 48h de descanso após seis dias de trabalho em escala operacional consecultivos.`
-          })
-        }
-      
-      }
-      if(acc > 6 ) return acc
-
-
-      if(isSequenciDay){
-        return acc+1
-      }
-      return acc = 0
-    }
-    , 0);
-
-    if(countDaysOfWorkInARow > 6){
-      return {
-        code: 400,
-        message: `Você não pode trabalhar mais de 6 dias seguidos. Você Completou seis dias de trabalho no dia: ${IndexOfDayOfWorkThatComplete6Days[0]}`
+    const fatigueRules = await checkFatigueRules(user,workDays,rosterAvailablesToChange,shifts)
+    if(fatigueRules.code !== 200){
+      return{
+        code:400,
+        message:fatigueRules.message
       }
     }
-    //todo do the 48h of rest after the last shift
-  
+
 
 
     const workDaysWithoutId = workDays.filter((workDay) => !workDay.id || workDay.id === '0');
@@ -303,4 +235,112 @@ export async function registerOrUpdateManyWorkDays(
       message: 'Erro ao salvar turnos'
     };
   }
+}
+
+
+async function checkFatigueRules(user:User,workDaysFromUser:WorkDay[],rosterAvailablesToChange:Roster,shifts:Shift[]){
+  const allWorkDays = (await prisma.workDay.findMany({
+    where: {
+      userId: user.id
+    },
+    orderBy:{
+      day:'asc'
+    }
+  })).map((workDay) => {
+    const hasWorkDayToSubstituteAndCheck = workDaysFromUser.find((workDayToCheck) => {
+      return handleisSameDate(workDay.day, workDayToCheck.day);
+    })
+    if(hasWorkDayToSubstituteAndCheck){
+      return hasWorkDayToSubstituteAndCheck
+    }
+
+    return workDay;
+  })
+
+  const numberOfDaysInRosterMonth = createWorkDaysColumn(rosterAvailablesToChange)
+  const monthFromRoster = getMonthFromRosterInNumber(rosterAvailablesToChange)
+
+  const IndexOfDayOfWorkThatComplete6Days:number[] = []
+  const notRespectedHoursOfRes:ErrorTypes[] = []
+
+  const countDaysOfWorkInARow = numberOfDaysInRosterMonth.reduce((acc, dayOfWork) => {
+     var isSequenciDay = false
+     const today =  allWorkDays.find(workDayFromAllWorkDays => workDayFromAllWorkDays.day.getDate() === dayOfWork && workDayFromAllWorkDays.day.getMonth() === monthFromRoster)
+    const isNightShiftToday = today && checkIfThisWorkDayHasNightShift(today,shifts)
+
+    const tomorrow = allWorkDays.find(workDayFromAllWorkDays => workDayFromAllWorkDays.day.getDate() === dayOfWork+1 && workDayFromAllWorkDays.day.getMonth() === monthFromRoster)
+    const yesterday = allWorkDays.find(workDayFromAllWorkDays => workDayFromAllWorkDays.day.getDate() === dayOfWork-1 && workDayFromAllWorkDays.day.getMonth() === monthFromRoster)
+    const isNightShiftYesterDay = yesterday && checkIfThisWorkDayHasNightShift(yesterday,shifts)
+
+    if(today && tomorrow){
+      const hasSequence = tomorrow.day.getDate() - 1 === today.day.getDate()? true : false
+      isSequenciDay = hasSequence
+    }
+    if(today && !tomorrow && isNightShiftYesterDay){
+      notRespectedHoursOfRes.push({
+        code:400,
+        message: `Você não pode trabalhar após turnos noturnos.`
+      })
+    }
+
+    if(today && tomorrow && isNightShiftToday){
+      console.log("oxe entrou?")
+      notRespectedHoursOfRes.push({
+        code:400,
+        message: `Você não pode trabalhar após turnos noturnos.`
+      })
+    }
+    if(today && !tomorrow && isNightShiftToday){
+      const hasSequence = true
+      isSequenciDay = hasSequence
+    }
+    if(!today && tomorrow && isNightShiftYesterDay){
+      const hasSequence = true
+      isSequenciDay = hasSequence
+    }
+    if(!today && !tomorrow && isNightShiftYesterDay){
+      const hasSequence = false
+      isSequenciDay = hasSequence
+    }
+    if(!today && tomorrow && !isNightShiftYesterDay){
+      isSequenciDay = false
+    }
+    if(acc+1 === 6) {
+      IndexOfDayOfWorkThatComplete6Days.push(dayOfWork)
+      const has48HoursOfRestAfter = checkIfHas48HoursOfRestAfter6DaysOfWork({
+        allWorkDays,
+        date: dayOfWork,
+        rosterAvailablesToChange,
+        shifts
+      })
+      if(!has48HoursOfRestAfter){
+        notRespectedHoursOfRes.push({
+          code:400,
+          message: `Você precisa de pelo menos 48h de descanso após seis dias de trabalho em escala operacional consecultivos.`
+        })
+      }
+    
+    }
+    if(acc > 6 ) return acc
+
+
+    if(isSequenciDay){
+      return acc+1
+    }
+    return acc = 0
+  }
+  , 0);
+
+  if(countDaysOfWorkInARow > 6){
+    return {
+      code: 400,
+      message: `Você não pode trabalhar mais de 6 dias seguidos. Você Completou seis dias de trabalho no dia: ${IndexOfDayOfWorkThatComplete6Days[0]}`
+    }
+  }
+
+  return {
+    code: 200,
+    message: `Regras de fadiga respeitadas`
+  }
+
 }

@@ -8,7 +8,6 @@ import { checkIfTwoShiftsHasEightHoursOfRestBetweenThem, checkIfhasShiftInterpol
 import { registerOrUpdateWorkDayByAdmin } from "../register/workDay/action";
 import { useToast } from "../ui/use-toast";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 type UpdateWorkDayCellProps = {
     user:User
@@ -57,10 +56,6 @@ export function UpdateWorkDayCell({day,roster,shiftName,user,shifts}:UpdateWorkD
         }
     
     }) ?? "-"
-    
-    useEffect(()=>{
-        console.log(shiftName)
-    },[])
     
 
     async function handleUpdateWorkDay(shiftValue:string){

@@ -4,20 +4,23 @@ import { DialogComponent } from './DialogComponent';
 import { useToast } from '../components/ui/use-toast';
 import { useEffect, useState} from 'react';
 import { Calendar } from '../components/ui/calendar';
-import { Roster, Shift, WorkDay } from '@prisma/client';
+import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { getDateFromRoster } from '../lib/utils';
 import { handleisSameDate } from '../lib/date';
 import { RegisterWorkDayButton } from '../components/register/workDay/RegisterWorkDayButton';
 
 
-export function CalendarComponent({ shifts, rosters, workDays }: { shifts: Shift[] | ErrorTypes, rosters: Roster[] | ErrorTypes, workDays:WorkDay[] | ErrorTypes}) {
+export function CalendarComponent({ shifts, rosters, workDays,user }: { shifts: Shift[] | ErrorTypes,user:User , rosters: Roster[] | ErrorTypes, workDays:WorkDay[] | ErrorTypes}) {
     const { toast } = useToast()
     const [rostersList, setRostersList] = useState<Roster[]>([])
     const [shiftsList, setShiftsList] = useState<Shift[]>([])
     const [ workDaysList, setWorkDaysList] = useState<WorkDay[]>([])
+    const lastMonthAvailable = rostersList.findLast((roster)=>roster.blockChanges === false)
+
 
     function handleUpdateWorkDay(workDay: WorkDay){
-        const alreadyExists = workDaysList.find((workDayInList)=>handleisSameDate(workDayInList.day,workDay.day))
+        const alreadyExists = workDaysList.find((workDayInList)=>workDayInList.day,workDay.day && user.id === workDay.userId && lastMonthAvailable?.id === workDay.rosterId)
+        
         if(alreadyExists){
             const updatedWorkDays = workDaysList.map((workDayInList)=>{
                 if(handleisSameDate(workDayInList.day,workDay.day)){
@@ -100,7 +103,6 @@ export function CalendarComponent({ shifts, rosters, workDays }: { shifts: Shift
         setWorkDaysList(workDays)
     }
     }, [shifts,rosters,workDays]);
-    const lastMonthAvailable = rostersList.findLast((roster)=>roster.blockChanges === false)
 
     
     return (
@@ -114,7 +116,7 @@ export function CalendarComponent({ shifts, rosters, workDays }: { shifts: Shift
                     Day: (props) => 
                     {
                         const isSameMonth = props.date.getMonth() === props.displayMonth.getMonth()
-                        const workDay = workDaysList.find((workDay)=> handleisSameDate(workDay.day,props.date))
+                        const workDay = workDaysList.find((workDay)=> workDay.day.getDate() === props.date.getDate() && workDay.day.getMonth() === props.date.getMonth() && workDay.day.getFullYear() === props.date.getFullYear())
                         const shiftsInThisWorkDay = workDay?.shiftsId.flatMap(shiftId => shiftsList.filter(shift => shift.id === shiftId)) || [];
                         const shiftInThisDay = shiftsInThisWorkDay.length > 0 ? shiftsInThisWorkDay.map(shift => shift.name).join(" | ") : "-";
                     return  isSameMonth ?

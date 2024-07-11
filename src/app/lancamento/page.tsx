@@ -5,15 +5,24 @@ import { LayoutComponent } from '../LayoutComponent';
 import { getRostersBySession } from '../settings/roster/actions';
 import { getAvailableShifts } from '../settings/shifts/action';
 import {  getWorkDaysByUserSession } from './action';
+import { getUserByEmail } from '../login/_actions';
+import { auth } from '@/src/lib/auth';
 
 
 export default async function lancamento({
     searchParams
 }: {
     searchParams: { turnos: string, };
-}) {
-        const [ rosters, shifts, workDays ] = await Promise.all([ await getRostersBySession(), await getAvailableShifts() , await getWorkDaysByUserSession()])
 
+}) {
+    const session = await auth()
+    if (!session) return null
+  
+        const [ rosters, shifts, workDays,user ] = await Promise.all([ await getRostersBySession(), await getAvailableShifts() , await getWorkDaysByUserSession(), await getUserByEmail( session.user.email)])
+
+        if("code" in user){
+            return null
+        }
         return (
             <LayoutComponent>
             <main className="flex flex-1 flex-col p-4 md:p-6 mt-4 w-dvw">
@@ -25,6 +34,7 @@ export default async function lancamento({
                         rosters={rosters}
                         shifts={shifts}
                         workDays={workDays}
+                        user={user}
                     />
                 </div>
             </main>
