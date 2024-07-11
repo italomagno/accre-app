@@ -1,24 +1,27 @@
 'use client'
-import {  ErrorTypes} from '@/src/types';
 import { DialogComponent } from './DialogComponent';
-import { useToast } from '../components/ui/use-toast';
-import { useEffect, useState} from 'react';
 import { Calendar } from '../components/ui/calendar';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
-import { getDateFromRoster } from '../lib/utils';
 import { handleisSameDate } from '../lib/date';
 import { RegisterWorkDayButton } from '../components/register/workDay/RegisterWorkDayButton';
+import { useState } from 'react';
+import { getDateFromRoster } from '../lib/utils';
 
 
-export function CalendarComponent({ shifts, rosters, workDays,user }: { shifts: Shift[] | ErrorTypes,user:User , rosters: Roster[] | ErrorTypes, workDays:WorkDay[] | ErrorTypes}) {
-    const { toast } = useToast()
-    const [rostersList, setRostersList] = useState<Roster[]>([])
-    const [shiftsList, setShiftsList] = useState<Shift[]>([])
-    const [ workDaysList, setWorkDaysList] = useState<WorkDay[]>([])
-  
-
-
-    function handleUpdateWorkDay(workDay: WorkDay){
+export function CalendarComponent({ shifts, rosters, workDays,user }: { shifts: Shift[],user:User , rosters: Roster[], workDays:WorkDay[]}) {
+    const [workDaysList, setWorkDaysList] = useState<WorkDay[]>(workDays)
+    const [rostersDates, setRostersDates] = useState<{id:string,isAvailable:boolean,
+        date:Date}[]>(() => rosters.map(roster => ({
+            id:roster.id,
+            isAvailable: true,
+            date:getDateFromRoster(roster)})).sort((a,b)=>a.date.getTime() - b.date.getTime()).sort((a,b)=> (a.isAvailable ? 1 : 0) - (b.isAvailable ? 1 : 0) ))
+   
+   
+   
+   
+   
+   
+            function handleUpdateWorkDay(workDay: WorkDay,rosterId:string){
         const alreadyExists = workDaysList.find((workDayInList)=>workDayInList.day.getDate() === workDay.day.getDate() && workDayInList.day.getMonth() === workDay.day.getMonth() && workDayInList.day.getFullYear() === workDay.day.getFullYear())
         if(alreadyExists){
             const updatedWorkDays = workDaysList.map((workDayInList)=>{
@@ -33,111 +36,37 @@ export function CalendarComponent({ shifts, rosters, workDays,user }: { shifts: 
             const newWorkDay:WorkDay = {
                 ...workDay,
                 userId: user.id,
-                rosterId: lastMonthAvailable?.id ?? ""
+                rosterId: rosterId
 
             }
             setWorkDaysList([...workDaysList,newWorkDay])
         }
-
-
     }
         
-
-
-    useEffect(() => {
-        if("code" in shifts || "code" in rosters || "code" in workDays){
-            if("code" in shifts && shifts.code === 200){
-                toast({
-                    title:"Sucesso",
-                    description: shifts.message,
-                })
-            }
-            if("code" in shifts && shifts.code !== 200){
-                toast({
-                    title:"Erro",
-                    description: shifts.message,
-                })
-            }
-            if("code" in rosters && rosters.code === 200){
-                toast({
-                    title:"Sucesso",
-                    description: rosters.message,
-                })
-            }
-            if("code" in rosters && rosters.code !== 200){
-                toast({
-                    title:"Erro",
-                    description: rosters.message,
-                })
-        }
-        if("code" in workDays && workDays.code === 200){
-            toast({
-                title:"Sucesso",
-                description: workDays.message,
-            })
-        }
-        if("code" in workDays && workDays.code !== 200){
-            toast({
-                title:"Erro",
-                description: workDays.message,
-            })
-        }
-        
-
-    }
-    if(!("code" in shifts)) setShiftsList(shifts)
-    if(!("code" in rosters)) {
-        const rostersWithoutBlockedChanges = rosters.filter(roster=>roster.blockChanges === false)
-        if(rostersWithoutBlockedChanges.length > 0 &&
-            rostersWithoutBlockedChanges.length !== rosters.length){
-            toast({
-                title:"Aviso",
-                description:"Existem escalas bloqueadas para alterações"
-            })
-        }
-        if(rostersWithoutBlockedChanges.length === 0){
-            toast({
-                title:"Aviso",
-                description:"Todas as escalas estão bloqueadas para alterações"
-            })
-        }
-        setRostersList(rostersWithoutBlockedChanges)
     
-    }
-    if(!("code" in workDays)){ 
-        setWorkDaysList(workDays)
-    }
-    }, [shifts,rosters,workDays]);
-
-    const lastMonthAvailable = rostersList.find((roster)=>roster.blockChanges === false)
     
     return (
         <>
             <Calendar
                 mode='default'
-                month={lastMonthAvailable ? getDateFromRoster(lastMonthAvailable) : (new Date())}
-                fromYear={rostersList.length > 0 ? rostersList[0].year : new Date().getFullYear()}
-                toYear={lastMonthAvailable ? lastMonthAvailable.year : new Date().getFullYear()}
+                defaultMonth={rostersDates[0].date}
                 components={{
                     Day: (props) => 
                     {
                         const isSameMonth = props.date.getMonth() === props.displayMonth.getMonth()
                         const workDay =  workDaysList.find((workDay)=>workDay.day.getDate() === props.date.getDate() && workDay.day.getMonth() === props.date.getMonth() && workDay.day.getFullYear() === props.date.getFullYear())
                         const shiftsInThisWorkDay = workDay ? workDay.shiftsId.map(id => {
-                            const shift = shiftsList.find(shift => shift.id === id);
+                            const shift = shifts.find(shift => shift.id === id);
                             return shift || null;
                         }).filter((shift): shift is Shift => shift !== null) : [];
                         const shiftInThisDay = shiftsInThisWorkDay.length > 0 ? shiftsInThisWorkDay.map(shift => shift.name).join(" | ") : "-";
-
-
-
-
 
                     return  isSameMonth ?
                             <div className="flex flex-col gap-3 text-2xl">
                                 {props.date.getDate()}
                                 <DialogComponent
                                     day={props.date}
+                                    rosterId={rostersDates.find(roster => roster.date.getMonth() === props.date.getMonth() && roster.date.getFullYear() === props.date.getFullYear())?.id}
                                     workDay={workDay}
                                     shifts={shiftsInThisWorkDay}
                                     shiftInThisDay={shiftInThisDay}
@@ -152,8 +81,9 @@ export function CalendarComponent({ shifts, rosters, workDays,user }: { shifts: 
                                 
                                 <DialogComponent
                                     day={props.date}
+                                    rosterId={rostersDates.find(roster => roster.date.getMonth() === props.date.getMonth() && roster.date.getFullYear() === props.date.getFullYear())?.id}
                                     workDay={workDay}
-                                    shifts={shiftsList}
+                                    shifts={shifts}
                                     shiftInThisDay={shiftInThisDay}
                                     isSameMonth={isSameMonth}
                                 />

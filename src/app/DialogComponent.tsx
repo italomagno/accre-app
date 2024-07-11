@@ -17,14 +17,16 @@ import { RegisterWorkDayForm } from '../components/register/workDay/RegisterWork
 interface DialogComponentProps {
   day: Date;
   workDay?: WorkDay ;
+  rosterId?: string;
   shifts: Shift[];
   shiftInThisDay: string;
   isSameMonth: boolean;
-  onWorkDayUpdate?: (workDay: Exclude<WorkDay,'id'>) => void;
+  onWorkDayUpdate?: (workDay: Exclude<WorkDay,'id'>,rosterId:string) => void;
 }
 
 export function DialogComponent({
   day,
+  rosterId,
   workDay,
   shiftInThisDay,
   isSameMonth,
@@ -51,6 +53,7 @@ export function DialogComponent({
           />
           <Separator className="my-6" />
           <RegisterWorkDayForm
+          rosterId={rosterId}
           onWorkDayUpdate={handleUpdateWorkDay!}
           day={day}
           workDay={workDay}

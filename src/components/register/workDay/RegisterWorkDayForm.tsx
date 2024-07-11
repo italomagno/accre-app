@@ -34,10 +34,11 @@ import {
 type RegisterWorkDayFormProps = {
   workDay: WorkDay | undefined;
   day:Date
-  onWorkDayUpdate: (workDay: WorkDay) => void;
+  rosterId?:string
+  onWorkDayUpdate: (workDay: WorkDay, rosterId:string) => void;
 };
 
-export function RegisterWorkDayForm({ workDay,day,onWorkDayUpdate}: RegisterWorkDayFormProps) {
+export function RegisterWorkDayForm({ workDay,day,onWorkDayUpdate,rosterId}: RegisterWorkDayFormProps) {
   const [shifts1, setShifts1] = useState<Shift[]>([]);
   const [absences, setAbsences] = useState<Shift[]>([]);
   const [shifts2, setShifts2] = useState<Shift[]>([]);
@@ -104,14 +105,14 @@ export function RegisterWorkDayForm({ workDay,day,onWorkDayUpdate}: RegisterWork
         shiftsId: shiftId2 === "0" ? [shiftId1] : [shiftId1,shiftId2],
         day
       }
-      onWorkDayUpdate(updatedWorkDay)
+      onWorkDayUpdate(updatedWorkDay,rosterId!)
     }else{
       const updatedWorkDay = {
         shiftsId: shiftId2 === "0" ? [shiftId1] : [shiftId1,shiftId2],
         day
       }
 
-      onWorkDayUpdate(updatedWorkDay as WorkDay)
+      onWorkDayUpdate(updatedWorkDay as WorkDay,rosterId!)
     }
   }
   useEffect(() => {
@@ -152,9 +153,10 @@ export function RegisterWorkDayForm({ workDay,day,onWorkDayUpdate}: RegisterWork
                             onValueChange={e => setShiftId1(e)}
                             defaultValue={shiftId1}
                             value={shiftId1}
+                            disabled={!rosterId ? true : false}
                           >
                             <SelectTrigger>
-                              <SelectValue  placeholder="Selecione um turno..." />
+                              <SelectValue   placeholder="Selecione um turno..." />
                             </SelectTrigger>
                             <SelectContent>
 
@@ -174,6 +176,7 @@ export function RegisterWorkDayForm({ workDay,day,onWorkDayUpdate}: RegisterWork
                             onValueChange={e=>setShiftId2(e)}
                             defaultValue={shiftId2}
                             value={shiftId2}
+                            disabled={!rosterId ? true : false}
                           >
                             <SelectTrigger >
                               <SelectValue placeholder="Selecione um turno..." />
@@ -221,6 +224,8 @@ export function RegisterWorkDayForm({ workDay,day,onWorkDayUpdate}: RegisterWork
                           <Select
                             onValueChange={e=>setShiftId1(e)}
                             defaultValue={shiftId1}
+                            disabled={!rosterId ? true : false}
+                            value={shiftId1}
                           >
                             <SelectTrigger>
                               <SelectValue placeholder="Selecione um afastamento..." />
