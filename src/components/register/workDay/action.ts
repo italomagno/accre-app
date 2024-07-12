@@ -207,10 +207,8 @@ export async function registerOrUpdateManyWorkDays(
         message: `Você precisa de pelo menos ${countShiftsOnWorkDays.filter((shift) => shift.isLessThanNecessary).map((shift) => `${shift.howManyLess} ${shift.name}`).join(', ')}`,
       };
     }
-    console.log("workDays: ",workDays)
     const workSorted = workDays.sort((a, b) => { return a.day.getTime() - b.day.getTime() });
 
-    console.log("workDaysWithoutId: ",workSorted)
     const fatigueRules = await checkFatigueRules(user,workSorted,rosterAvailablesToChange)
     if(fatigueRules.code !== 200){
       return{
@@ -341,7 +339,6 @@ numberOfDaysInRosterMonth.reduce((acc, dayOfWork) => {
      
      const isNightShiftToday = today && checkIfThisWorkDayHasNightShift(workDaytoday,shifts)
     const isNightShiftYesterDay = yesterday && checkIfThisWorkDayHasNightShift(workDayYesterDay,shifts)
-    console.log(acc,today,workDaytoday?.shiftsId)
     const lessThan6days = acc <= 6
     if(today && tomorrow && !isNightShiftToday && !isNightShiftYesterDay && lessThan6days){
       const hasSequence = workDayTomorrow.day.getDate() - 1 === workDaytoday.day.getDate()? true : false

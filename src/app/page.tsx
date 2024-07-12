@@ -29,12 +29,30 @@ export default async function IndexPage({
   const session = await auth();
   if (!session) return null;
   const user = session && await getUserByEmail(session.user.email);
-  if ("code" in user) return null;
+  if ("code" in user) return (
+    
+        <EmptyHomePageComponent
+          toast={user}
+        />
+  )
 
   const { rosters, shifts, WorkDays, users } = result;
   
   const rosterMonth = parseInt(searchParams.rosterMonth);
   const rosterYear = parseInt(searchParams.rosterYear);
+  if(rosters.length === 0) return (
+    
+        <EmptyHomePageComponent
+          toast={{code: 404, message: "Não há escalas cadastradas ainda"}}
+          
+        />
+  )
+  if(shifts.length === 0) return (
+    
+        <EmptyHomePageComponent
+          toast={{code: 404, message: "Não há turnos cadastrados ainda"}}
+        />
+  )
 
   const currentRoster = rosters.find(roster =>{ 
     return getMonthFromRosterInNumber(roster) === rosterMonth && roster.year === rosterYear}) ?? rosters[rosters.length-1]

@@ -1,9 +1,7 @@
 "use client"
 import { ErrorTypes } from "@/src/types";
-import { CarouselGeralUserComponent } from "./CarouselGeralUserComponent";
 import { useToast } from "../../ui/use-toast";
 import { useEffect } from "react";
-import { CarouselShiftsComponent } from "./CarouselShiftsComponent";
 import { LayoutComponent } from "@/src/app/LayoutComponent";
 
 
@@ -26,10 +24,15 @@ export function EmptyHomePageComponent( {toast:toastFromComponent}: EmptyHomePag
 
     return (
       <LayoutComponent>
-        <main className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 mt-14 px-14">
-          <CarouselGeralUserComponent rosters={[]} search={""} shifts={[]} workDays={[]} users={[]} />
-          <CarouselShiftsComponent rosters={[]} shifts={[]} workDays={[]} users={[]} />
-      </main>
+        <main className="w-dvw h-dvh flex justify-center items-center mt-14 px-14">
+          <div>
+            <h1 className="text-2xl font-bold text-center">Bem vindo ao sistema de escalas</h1>
+            <p className="text-center mt-5">Aqui você pode visualizar as escalas de trabalho e os turnos cadastrados.</p>
+            <p className="text-center">Caso você seja um administrador, você pode cadastrar novas escalas e turnos.</p>
+            <p className="text-center">Caso você seja um usuário, você pode visualizar as escalas e turnos cadastrados.</p>
+          </div>
+        
+        </main>
       </LayoutComponent>
 
     )
