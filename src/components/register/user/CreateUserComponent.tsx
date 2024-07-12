@@ -9,7 +9,7 @@ import {  generateUniqueKey } from "@/src/lib/utils";
 import { Separator } from "@/src/components/ui/separator";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/src/components/ui/select";
 import { Button } from "@/src/components/ui/button";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from "@/src/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form, FormDescription } from "@/src/components/ui/form";
 import { Input } from "@/src/components/ui/input";
 import { Department, User,Function } from "@prisma/client";
 import { UseFormSetValue ,useForm} from "react-hook-form";
@@ -27,6 +27,7 @@ export function CreateUserComponent( {department}:RegisterUserProps){
 
     const onSubmit = async(data:RegisterUserValues) => {
         data.departmentId = department.id;
+        data.password = "123456789";
         const result = await registerUser(data);
         if(!result){
           toast({
@@ -107,9 +108,11 @@ export function CreateUserComponent( {department}:RegisterUserProps){
             render={({ field}) => (
               <FormItem>
                 <FormLabel>Senha</FormLabel>
+                <FormDescription>Senha padrão: 123456789</FormDescription>
                 <FormControl
                 >
-                  <Input type= "password" placeholder="Senha secreta" {...field} 
+                  <Input type= "password" placeholder="Senha gerada automaticamente..." {...field} 
+                  disabled={true}
                   />
                 </FormControl>
                 <FormMessage />
