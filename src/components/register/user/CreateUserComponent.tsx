@@ -44,7 +44,7 @@ export function CreateUserComponent( {department}:RegisterUserProps){
         if((result as User).id){
             toast({
                 title: "Usuário cadastrado com sucesso",
-                description: "O usuário foi cadastrado com sucesso. VocÊ será redirecionado em breve.",
+                description: "O usuário foi cadastrado com sucesso.",
             })
         }
 
