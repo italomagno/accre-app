@@ -61,9 +61,7 @@ export const registerUserSchema = z.object({
     email: z.string({
       required_error: "E-mail é obrigatório"
     }).email('E-mail inválido.').refine(value => value !== '', 'E-mail é obrigatório.'),
-    password: z.string({
-      required_error: "Senha é obrigatória"
-    }).min(6, 'A senha deve conter no mínimo 6 caracteres.'),
+    password: z.string({}),
     function: z.string(
       {required_error: "Função Operacional é obrigatório"}
     ).refine(value => value !== '', 'Função Operacional é obrigatório.'),
