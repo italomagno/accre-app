@@ -25,7 +25,7 @@ export function CarouselShiftsComponent({
       null
       :
 
-      <ScrollArea   className='max-h-[dvh] w-full overflow-auto -z-30'>
+      <ScrollArea   className='max-h-[dvh] w-full overflow-auto'>
                 <ShiftsTable
                   shifts={shifts}
                   users={users}

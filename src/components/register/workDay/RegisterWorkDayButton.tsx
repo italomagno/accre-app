@@ -8,14 +8,15 @@ import { registerOrUpdateManyWorkDays } from "./action"
 
 type WorkDayButton = {
     workDays: WorkDay[]
+    rosterId?: string
 
 }
 
-export function RegisterWorkDayButton({workDays}: WorkDayButton){
+export function RegisterWorkDayButton({workDays,rosterId}: WorkDayButton){
   const { toast } = useToast()
 
   async function handleSaveProposal(){
-    const response = await registerOrUpdateManyWorkDays(workDays)
+    const response = await registerOrUpdateManyWorkDays(workDays,rosterId!)
     if("code" in response){
       if(response.code === 200){
         toast({
@@ -39,6 +40,7 @@ export function RegisterWorkDayButton({workDays}: WorkDayButton){
             key={generateUniqueKey()}
                         variant="default"
                         onClick={handleSaveProposal}
+                        disabled={!rosterId}
                       >
                         <span className="w-full">Salvar Escala</span>
         </Button>

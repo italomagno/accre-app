@@ -5,17 +5,18 @@ import { CarouselGeralUserComponent } from '../components/emptyComponents/homePa
 import { getUserByEmail } from './login/_actions';
 import { auth } from '../lib/auth';
 import { CarouselAdminUserComponent } from '../components/emptyComponents/homePage/CarouselAdminUserComponent';
-import { NavigateBetweenRostersButton } from './NavigateBetweenRosterButton';
 import { getMonthFromRoster, getMonthFromRosterInNumber } from '../lib/utils';
 import { CarouselShiftsComponent } from '../components/emptyComponents/homePage/CarouselShiftsComponent';
+import { CarouselDailyShiftsComponent } from '../components/tables/CarouselDailyShiftsComponent';
+import { NavigateBetweenRostersButton } from '../components/tables/NavigateBetweenRostersButton';
 
 export default async function IndexPage({
   searchParams
 }: {
-  searchParams: { q: string; rosterMonth: string; rosterYear: string };
+  searchParams: { q: string; rosterMonth: string; rosterYear: string; day: string};
 }) {
   const search = searchParams.q ?? "";
-
+  const day = parseInt(searchParams.day ?? new Date().getDate()) ;
 
   const result = await handleFechDataToShiftsTable();
   if ("code" in result) {
@@ -66,8 +67,6 @@ const usersByRoster = users
             shifts={shifts}
             users={usersByRoster}
             workDays={workDaysByRoster} 
-        
-            
             />
               {
                 user.role === "ADMIN" 
@@ -86,6 +85,10 @@ const usersByRoster = users
                       users={usersByRoster}
                     />
               }
+            <CarouselDailyShiftsComponent
+              roster={currentRoster}
+              day={day}
+            />
             </>
           </div>
         </>

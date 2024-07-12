@@ -1,10 +1,10 @@
 "use client"
 import { Roster } from "@prisma/client";
 import { ChevronLeftCircle, CircleChevronRight } from "lucide-react";
-import { Button } from "../components/ui/button";
+import { Button } from "../ui/button";
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {  useTransition } from 'react';
-import { getMonthFromRosterInNumber } from "../lib/utils";
+import { getMonthFromRosterInNumber } from "../../lib/utils";
 
 type NavigateBetweenRostersButtonProps = {
     type: "left" | "right";

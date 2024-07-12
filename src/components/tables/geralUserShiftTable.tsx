@@ -31,7 +31,6 @@ export function GeralUserShiftTable({
 }) {
   const users = usersWithoutFilter.filter(user => user.name.toLowerCase().includes(search.toLowerCase()))
   const {toast} = useToast()
-  const rosterId = roster.id
 
   if(!shifts.length || shifts.length === 0){
     return (

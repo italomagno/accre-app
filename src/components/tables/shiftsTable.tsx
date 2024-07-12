@@ -6,9 +6,8 @@ import {
   TableCell,
   TableBody,
   Table,
-  TableCaption,
 } from '@/src/components/ui/table';
-import { createWorkDaysColumn, generateUniqueKey, getMonthFromRoster, handleCellColor } from '@/src/lib/utils';
+import { createWorkDaysColumn, generateUniqueKey, handleCellColor } from '@/src/lib/utils';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { ErrorTypes } from '@/src/types';
 import { useEffect } from 'react';

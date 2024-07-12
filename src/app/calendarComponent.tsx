@@ -4,22 +4,28 @@ import { Calendar } from '../components/ui/calendar';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { handleisSameDate } from '../lib/date';
 import { RegisterWorkDayButton } from '../components/register/workDay/RegisterWorkDayButton';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getDateFromRoster } from '../lib/utils';
 
 
 export function CalendarComponent({ shifts, rosters, workDays,user }: { shifts: Shift[],user:User , rosters: Roster[], workDays:WorkDay[]}) {
-    const [workDaysList, setWorkDaysList] = useState<WorkDay[]>(workDays)
+    const [workDaysList, setWorkDaysList] = useState<WorkDay[]>(()=>workDays)
+    const [defaultMonth, setDefaultMonth] = useState<Date>(()=>{
+        const findFistAvailable = rosters.find(roster => roster.blockChanges === false)
+        if(findFistAvailable){
+            return getDateFromRoster(findFistAvailable)
+        }
+        return new Date()
+    
+    })
     const [rostersDates, setRostersDates] = useState<{id:string,isAvailable:boolean,
         date:Date}[]>(() => rosters.map(roster => ({
+            
             id:roster.id,
-            isAvailable: true,
+            
+            isAvailable: !roster.blockChanges,
             date:getDateFromRoster(roster)})).sort((a,b)=>a.date.getTime() - b.date.getTime()).sort((a,b)=> (a.isAvailable ? 1 : 0) - (b.isAvailable ? 1 : 0) ))
-   
-   
-   
-   
-   
+    const [rosterId, setRosterId] = useState<string>()
    
             function handleUpdateWorkDay(workDay: WorkDay,rosterId:string){
         const alreadyExists = workDaysList.find((workDayInList)=>workDayInList.day.getDate() === workDay.day.getDate() && workDayInList.day.getMonth() === workDay.day.getMonth() && workDayInList.day.getFullYear() === workDay.day.getFullYear())
@@ -42,6 +48,14 @@ export function CalendarComponent({ shifts, rosters, workDays,user }: { shifts: 
             setWorkDaysList([...workDaysList,newWorkDay])
         }
     }
+    useEffect(()=>{
+        setRosterId(rostersDates[0].id)
+        const findFistAvailable = rosters.find(roster => roster.blockChanges === false)
+        if(findFistAvailable){
+            setDefaultMonth(getDateFromRoster(findFistAvailable))
+        }
+        setDefaultMonth(rostersDates[0].date)
+    },[])
         
     
     
@@ -49,11 +63,17 @@ export function CalendarComponent({ shifts, rosters, workDays,user }: { shifts: 
         <>
             <Calendar
                 mode='default'
-                defaultMonth={rostersDates[0].date}
+                defaultMonth={defaultMonth}
                 components={{
                     Day: (props) => 
                     {
                         const isSameMonth = props.date.getMonth() === props.displayMonth.getMonth()
+                         if(defaultMonth?.getMonth()!== props.date.getMonth()){
+                            const isAvailableShift = rostersDates.find(roster => roster.isAvailable && roster.date.getMonth() === props.date.getMonth() && roster.date.getFullYear() === props.date.getFullYear())
+                            if(!isAvailableShift) setRosterId(undefined)
+                                setRosterId(isAvailableShift?.id)
+                               
+                        }
                         const workDay =  workDaysList.find((workDay)=>workDay.day.getDate() === props.date.getDate() && workDay.day.getMonth() === props.date.getMonth() && workDay.day.getFullYear() === props.date.getFullYear())
                         const shiftsInThisWorkDay = workDay ? workDay.shiftsId.map(id => {
                             const shift = shifts.find(shift => shift.id === id);
@@ -66,7 +86,7 @@ export function CalendarComponent({ shifts, rosters, workDays,user }: { shifts: 
                                 {props.date.getDate()}
                                 <DialogComponent
                                     day={props.date}
-                                    rosterId={rostersDates.find(roster => roster.date.getMonth() === props.date.getMonth() && roster.date.getFullYear() === props.date.getFullYear())?.id}
+                                    rosterId={rosterId}
                                     workDay={workDay}
                                     shifts={shiftsInThisWorkDay}
                                     shiftInThisDay={shiftInThisDay}
@@ -81,7 +101,7 @@ export function CalendarComponent({ shifts, rosters, workDays,user }: { shifts: 
                                 
                                 <DialogComponent
                                     day={props.date}
-                                    rosterId={rostersDates.find(roster => roster.date.getMonth() === props.date.getMonth() && roster.date.getFullYear() === props.date.getFullYear())?.id}
+                                    rosterId={rosterId}
                                     workDay={workDay}
                                     shifts={shifts}
                                     shiftInThisDay={shiftInThisDay}
@@ -92,7 +112,10 @@ export function CalendarComponent({ shifts, rosters, workDays,user }: { shifts: 
                     }
                 }}
             />
-            <RegisterWorkDayButton workDays={workDaysList}/>    
+            <RegisterWorkDayButton
+             workDays={workDaysList}
+             rosterId={rosterId}
+             />    
 
         </>
     );

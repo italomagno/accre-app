@@ -65,7 +65,6 @@ export function  GeralUserAdminShiftTable({
   }
 
   const WorkDaysColumn = createWorkDaysColumn(roster)
-  const dateFromRoster = getDateFromRoster(roster)
   const counterUsersPerday = users.map(user => {
   const shiftPerDay = WorkDaysColumn.map(day => {
     const newDate = day

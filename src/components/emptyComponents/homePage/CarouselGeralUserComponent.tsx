@@ -1,11 +1,5 @@
 import { generateUniqueKey, getMonthFromRoster } from '@/src/lib/utils';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext
-} from '../../ui/carousel';
+
 import { ScrollArea, ScrollBar } from '../../ui/scroll-area';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { Search } from '../../search';
@@ -33,7 +27,7 @@ export function CarouselGeralUserComponent({
       ?
       null
       :
-            <ScrollArea  key={generateUniqueKey()} className='max-h-[dvh] w-full overflow-auto -z-10'>
+            <ScrollArea  key={generateUniqueKey()} className='max-h-[dvh] w-full overflow-auto'>
               <div className="mt-4 flex flex-col gap-4">
                 <p>{`Escala geral do mês de ${getMonthFromRoster(roster)}`}</p>
                 <Search value={search} />

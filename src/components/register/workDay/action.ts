@@ -147,6 +147,7 @@ export async function registerOrUpdateWorkDayByAdmin(ShiftNameWithVerticalBar:st
 
 export async function registerOrUpdateManyWorkDays(
   workDays: WorkDay[],
+  rosterId:string,
 ): Promise<ErrorTypes> {
   try {
     const session = await auth();
@@ -163,18 +164,19 @@ export async function registerOrUpdateManyWorkDays(
         message: user.message
       };
     }
+
     const rosterAvailablesToChange = await prisma.roster.findFirst({
-      where: {
-        departmentId: user.departmentId,
-        blockChanges: false
+      where:{
+        id:rosterId
       }
-    });
-    if (!rosterAvailablesToChange) {
+    })
+    if(!rosterAvailablesToChange){
       return {
         code: 404,
-        message: 'Não há escalas disponíveis para alteração'
+        message: 'Escala não encontrada'
       };
     }
+  
 
 
     if(user.block_changes){
@@ -205,9 +207,11 @@ export async function registerOrUpdateManyWorkDays(
         message: `Você precisa de pelo menos ${countShiftsOnWorkDays.filter((shift) => shift.isLessThanNecessary).map((shift) => `${shift.howManyLess} ${shift.name}`).join(', ')}`,
       };
     }
-    const workDaysWithoutId = workDays.filter((workDay) => !workDay.id || workDay.id === '0');
+    console.log("workDays: ",workDays)
+    const workSorted = workDays.sort((a, b) => { return a.day.getTime() - b.day.getTime() });
 
-    const fatigueRules = await checkFatigueRules(user,workDaysWithoutId,rosterAvailablesToChange)
+    console.log("workDaysWithoutId: ",workSorted)
+    const fatigueRules = await checkFatigueRules(user,workSorted,rosterAvailablesToChange)
     if(fatigueRules.code !== 200){
       return{
         code:400,
@@ -215,7 +219,7 @@ export async function registerOrUpdateManyWorkDays(
       }
     }
 
-
+    const workDaysWithoutId = workSorted.filter((workDay) => !workDay.id || workDay.id === '0');
 
    
     const workDaysToCreate = workDaysWithoutId.map((workDay) => {
@@ -307,7 +311,7 @@ async function checkFatigueRules(user:User,workDaysFromUser:WorkDay[],rosterAvai
   const IndexOfDayOfWorkThatComplete6Days:number[] = []
   const notRespectedHoursOfRes:ErrorTypes[] = []
 
-  const countDaysOfWorkInARow = numberOfDaysInRosterMonth.reduce((acc, dayOfWork) => {
+numberOfDaysInRosterMonth.reduce((acc, dayOfWork) => {
     var isSequenciDay = false
     const workDaytoday =  allWorkDays.find(workDayFromAllWorkDays => workDayFromAllWorkDays.day.getDate() === dayOfWork && workDayFromAllWorkDays.day.getMonth() === monthFromRoster)
     const workDayTomorrow = allWorkDays.find(workDayFromAllWorkDays => workDayFromAllWorkDays.day.getDate() === dayOfWork+1 && workDayFromAllWorkDays.day.getMonth() === monthFromRoster)
@@ -337,7 +341,7 @@ async function checkFatigueRules(user:User,workDaysFromUser:WorkDay[],rosterAvai
      
      const isNightShiftToday = today && checkIfThisWorkDayHasNightShift(workDaytoday,shifts)
     const isNightShiftYesterDay = yesterday && checkIfThisWorkDayHasNightShift(workDayYesterDay,shifts)
-
+    console.log(acc,today,workDaytoday?.shiftsId)
     const lessThan6days = acc <= 6
     if(today && tomorrow && !isNightShiftToday && !isNightShiftYesterDay && lessThan6days){
       const hasSequence = workDayTomorrow.day.getDate() - 1 === workDaytoday.day.getDate()? true : false
@@ -396,6 +400,7 @@ async function checkFatigueRules(user:User,workDaysFromUser:WorkDay[],rosterAvai
     return acc = 0
   }
   , 0);
+
 
   if(IndexOfDayOfWorkThatComplete6Days.length>0){
     return {
