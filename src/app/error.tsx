@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { LayoutComponent } from './LayoutComponent';
 import Link from 'next/link';
+import { Button } from '../components/ui/button';
 
 export default function Error({
   error,
@@ -20,8 +21,11 @@ export default function Error({
     <LayoutComponent>
     <main className="flex items-center justify-center w-dvw h-dvh text-3xl font-bold">
       <div>
-          Desculpe o Transtorno, ocorreu um erro inesperado.<Link href={"/settings/contato"}>Reporte Aqui por gentileza.</Link>
+          Desculpe o Transtorno, ocorreu um erro inesperado.
       </div>
+      <Button  variant={"link"}>
+        <Link  href={"/settings/contato"}>Reporte Aqui por gentileza.</Link>
+      </Button>
     </main>
     </LayoutComponent>
   );

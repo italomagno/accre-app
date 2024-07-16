@@ -3,10 +3,10 @@
 import { getUserByEmail } from "@/src/app/login/_actions";
 import { auth } from "@/src/lib/auth";
 import prisma from "@/src/lib/db/prisma/prismaClient";
+import { getMonthFromRosterInNumber } from "@/src/lib/utils";
 import { CreateRosterValues, ErrorTypes, UpdateRosterSchema, UpdateRosterValues, createRosterSchema } from "@/src/types";
-import { Months } from "@prisma/client";
+import { $Enums, Months, Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { parse } from "path";
 
 
 export async function createRoster(data:CreateRosterValues):Promise<ErrorTypes>{
@@ -40,7 +40,19 @@ export async function createRoster(data:CreateRosterValues):Promise<ErrorTypes>{
                 message: "Não é possível criar uma escala sem usuários cadastrados"
             }
         }
-
+        
+        const allusers = await prisma.user.findMany({
+            where: {
+                departmentId: admin.departmentId,
+            }
+        })
+        if(!allusers || allusers.length === 0){
+            prisma.$disconnect()
+            return {
+                code: 403,
+                message: "Não é possível criar uma escala sem usuários cadastrados"
+            }
+        }
         const hasRegisteredRoster = await prisma.roster.findMany({
             where: {
                 departmentId: admin.departmentId,
@@ -55,8 +67,21 @@ export async function createRoster(data:CreateRosterValues):Promise<ErrorTypes>{
                 message: "Já existe uma escala cadastrada para este mês"
             }
         }
-        const numberOfDaysInMonth = new Date(parseInt(data.year),parseInt(data.month),0).getDate()
+        const oneDay = 24*60*60*1000;
+        const numberOfDaysInMonth = Math.floor((new Date(parseInt(data.year), getMonthFromRosterInNumber({year: parseInt(data.year), month: data.month as $Enums.Months}) + 1, 0).getTime() - new Date(parseInt(data.year), getMonthFromRosterInNumber({year: parseInt(data.year), month: data.month as $Enums.Months})).getTime()) / oneDay);
         
+        
+        const workDays:Prisma.WorkDayCreateManyRosterInput[] = []
+        
+        allusers.forEach(user=>{
+            Array.from({length:numberOfDaysInMonth},(_,index)=>(
+                workDays.push({
+                day: new Date(parseInt(data.year),getMonthFromRosterInNumber({year:parseInt(data.year),month:data.month as $Enums.Months}),index+1),
+                userId:user.id,
+                departmentId:admin.departmentId,
+                shiftsId: []
+            })))
+        })
 
         const registeredShifts = await prisma.shift.findMany({
             where: {
@@ -92,6 +117,9 @@ export async function createRoster(data:CreateRosterValues):Promise<ErrorTypes>{
                         }
                     })
                 },
+                workDays: {
+                    createMany:{data:workDays}
+                }
             }
         })
         if(!createRosterWithAllUsers ){
@@ -190,11 +218,18 @@ export async function removeRoster( id:string){
         }
     }
 
+    const deleteAllWorkDays = await prisma.workDay.deleteMany({
+        where:{
+            rosterId: id
+        }
+    })
+
+
     const deletedRoster = await prisma.roster.delete({
         where:{
             id:id,
             departmentId: admin.departmentId
-        }
+        },
     })
     if(!deletedRoster){
         prisma.$disconnect()

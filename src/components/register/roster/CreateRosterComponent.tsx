@@ -111,7 +111,7 @@ export function CreateRosterComponent() {
                               <SelectValue placeholder="Escolha o ano..." />
                             </SelectTrigger>
                             <SelectContent>
-                              {[2024, 2025, 2026, 2027, 2028, 2029].map(
+                              {[new Date().getFullYear()-1,new Date().getFullYear(),new Date().getFullYear()+1].map(
                                 (year) => (
                                   <SelectItem
                                     key={generateUniqueKey()}

@@ -70,6 +70,10 @@ export const registerUserSchema = z.object({
     ).refine(value => value !== '', 'Departamento é obrigatório.'),
 })
 
+export function isErrorTypes(arg: any): arg is ErrorTypes {
+  return arg.code !== undefined;
+}
+
 const roleValues =  {
     "ADMIN":"ADMIN",
     "USER":"USER"

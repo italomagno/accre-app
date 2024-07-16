@@ -22,7 +22,7 @@ export default async function lancamento({
         
         if((!user || "code" in user) || "code" in rosters  || "code" in shifts  || "code" in workDays){
             return <LayoutComponent>
-                    <main className="flex flex-1 flex-col p-4 md:p-6 mt-4 w-dvw">
+                    <main className="flex justify-center items-center p-4 md:p-6 mt-4 w-dvw h-dvh">
                 <div className="flex items-center mb-8">
                     <h1 className="font-semibold text-lg md:text-2xl">Houve Um Problema ao Carregar a página de Lançamento</h1>
 
