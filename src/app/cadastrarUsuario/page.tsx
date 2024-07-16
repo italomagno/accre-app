@@ -2,8 +2,6 @@ import { RegisterUserComponent } from "@/src/components/register/user/RegisterUs
 import { LayoutComponent } from "../LayoutComponent";
 import { getDepartments } from "./actions";
 
- 
-
 export default async function cadastrarUsuario() {
         const departments = await getDepartments();
         if("code" in departments){

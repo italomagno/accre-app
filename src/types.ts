@@ -206,6 +206,11 @@ export const LoginSchema = z.object({
         required_error: "Preencher se é um afastamento é obrigatório"
       }
     ).default(false),
+    isOnlyToSup: z.boolean(
+      {
+        required_error: "Preencher se é apenas para supervisores é obrigatório"
+      }
+    ).default(false),
     dateStartEnd: DateStartEndSchema,
   })
 

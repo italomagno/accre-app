@@ -29,7 +29,7 @@ function googleTranslateElementInit() {
 }
 
 export function GoogleTranslate({ prefLangCookie,HandlePrefLangCookie }: { prefLangCookie: string, HandlePrefLangCookie?:(lang:string)=>Promise<void> }) {
-  const [langCookie, setLangCookie] = React.useState(decodeURIComponent(prefLangCookie));
+  const [langCookie, setLangCookie] = React.useState(prefLangCookie);
   const [selectedLanguage,setSelectedLanguage] = React.useState<LenguageProps>(languages[0]);
 
   useEffect(() => {
@@ -75,8 +75,11 @@ export function GoogleTranslate({ prefLangCookie,HandlePrefLangCookie }: { prefL
     HandlePrefLangCookie && HandlePrefLangCookie(lang)
     setLangCookie(lang);
     const element = document.querySelector(".goog-te-combo") as HTMLSelectElement;
-    element.value = value;
-    element.dispatchEvent(new Event("change"));
+    if(element) {
+        element.value = value;
+        element.dispatchEvent(new Event("change"));
+      }
+
     const iframe = document.querySelector("iframe");
     if (iframe) {
         iframe.style.visibility = "hidden";

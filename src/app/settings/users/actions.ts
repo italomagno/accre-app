@@ -288,7 +288,18 @@ export async function removeUser(id:string):Promise<ErrorTypes>{
         role: "ADMIN"
       }
     })
-    if(howManyAdmins === 1){
+    const userIsAdmin = await prisma.user.findFirst({
+      where:{
+        id
+      }
+    })
+    if(!userIsAdmin){
+      return {
+        code: 404,
+        message: "Usuário não encontrado"
+      }
+    }
+    if(howManyAdmins === 1 && userIsAdmin.role === "ADMIN"){
       return {
         code: 403,
         message: "Não é possível remover o único administrador do departamento"

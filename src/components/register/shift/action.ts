@@ -10,7 +10,6 @@ import { revalidatePath } from 'next/cache';
 
 export async function createShift(shiftValues: CreateShiftValues){
     try{
-        await createShiftSchema.parseAsync(shiftValues)
         const session = await auth()
         if(!session){
             return {
@@ -43,6 +42,7 @@ export async function createShift(shiftValues: CreateShiftValues){
             },
             start,
             end,
+            isOnlyToSup: shiftValues.isOnlyToSup
         }
         const shift = await prisma.shift.create({
             data: newShift

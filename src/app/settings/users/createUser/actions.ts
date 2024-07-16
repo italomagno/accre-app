@@ -292,6 +292,7 @@ export async function updateUser(id:string, data:UpdateUserValues):Promise<Error
             message: "Administrador não encontrado"
         }
     }
+
     if(admin.role !== "ADMIN"){
         return {
             code: 401,

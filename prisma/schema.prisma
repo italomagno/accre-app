@@ -132,6 +132,7 @@ model Shift {
   rostersId      String[] @db.ObjectId
   department     Department @relation(fields: [departmentId], references: [id])
   departmentId   String @db.ObjectId
+  isOnlyToSup    Boolean @default(false)
   isAvailable   Boolean @default(false)
   isAbscence    Boolean @default(false)
 }

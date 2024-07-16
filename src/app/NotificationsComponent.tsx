@@ -6,7 +6,7 @@ import { BellIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getUsersThatIsNotApproved } from "./settings/users/actions";
 
-export async function NotificationsComponent() {
+export function NotificationsComponent() {
     const router = useRouter();
     const [numberOfNotifications,setNumberOfNotifications] = useState(0);
 

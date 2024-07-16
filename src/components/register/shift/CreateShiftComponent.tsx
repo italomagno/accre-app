@@ -194,12 +194,42 @@ export function CreateShiftComponent() {
             />
             <FormField
               control={form.control}
-              name="dateStartEnd.isNextDay"
+              name="isOnlyToSup"
               render={({ field }) => {
                 return (
                   <FormItem>
                     <FormLabel>O turno passa para o dia seguinte?</FormLabel>
-
+                    <FormControl>
+                      <Select onValueChange={(e)=>{
+                        var input
+                        if(e === 'true'){
+                          input = true}
+                          if(e === 'false'){
+                            input = false
+                          }
+                        field.onChange(input)
+                        }}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={'true'}>Sim</SelectItem>
+                          <SelectItem value={'false'}>Não</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+            <FormField
+              control={form.control}
+              name="dateStartEnd.isNextDay"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>Esse turno está disponível apenas para supervisores?</FormLabel>
                     <FormControl>
                       <Select onValueChange={(e)=>{
                         var input
