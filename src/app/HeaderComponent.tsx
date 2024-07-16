@@ -1,9 +1,7 @@
 'use client'
 import { useRef, useState, useEffect } from "react";
 import { Logo } from "../components/ui/icons"
-import { ToggleThemeProviderButton } from "../components/theme/toggleThemeProviderButton"
-import { TriggerButton } from "./TriggerButton";
-import { NavMenu } from "./NavMenu";
+
 import Link from "next/link";
 
 

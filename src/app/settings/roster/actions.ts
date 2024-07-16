@@ -74,13 +74,7 @@ export async function getRostersBySession():Promise<Roster[] | ErrorTypes>{
                 message: "Usuário não encontrado"
             }
         }
-        if(user.role !== "ADMIN"){
-        prisma.$disconnect();
-            return {
-                code: 403,
-                message: "Usuário não autorizado"
-            }
-        }
+      
 
     
         const rosters = await prisma.roster.findMany({
@@ -117,13 +111,6 @@ export async function getRostersById(id:string):Promise<Roster[] | ErrorTypes>{
             return {
                 code: 404,
                 message: "Usuário não encontrado"
-            }
-        }
-        if(user.role !== "ADMIN"){
-        prisma.$disconnect();
-            return {
-                code: 403,
-                message: "Usuário não autorizado"
             }
         }
 

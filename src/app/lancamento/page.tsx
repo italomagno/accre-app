@@ -8,7 +8,6 @@ import {  getWorkDaysByUserEmail, getWorkDaysByUserSession } from './action';
 import { getUserByEmail } from '../login/_actions';
 import { auth } from '@/src/lib/auth';
 import { UniqueRosterCalendarComponent } from '../uniqueRosterCalendarComponent';
-import { ShiftsTable } from '@/src/components/tables/shiftsTable';
 
 
 export default async function lancamento({
@@ -40,11 +39,33 @@ const rosterId = searchParams.rosterId ?? ""
             return <LayoutComponent>
                     <main className="flex justify-center items-center p-4 md:p-6 mt-4 w-dvw h-dvh">
                 <div className="flex items-center mb-8">
-                    <h1 className="font-semibold text-lg md:text-2xl">Houve Um Problema ao Carregar a página de Lançamento</h1>
+                    <h1 className="font-semibold text-lg md:text-2xl">Houve o seguinte problema ao carregar a página lançamento:</h1>
+                    {
+                        "code" in user ? <p className="font-semibold text-lg md:text-2xl">{user.message} user</p> : null
+                    }
+                    {
+                        "code" in rosters ? <p className="font-semibold text-lg md:text-2xl">{rosters.message} rosters</p> : null
+                    }
+                    {
+                        "code" in shifts ? <p className="font-semibold text-lg md:text-2xl">{shifts.message} shifts</p> : null
+                    }
+                    {
+                        "code" in workDays ? <p className="font-semibold text-lg md:text-2xl">{workDays.message} workdays</p> : null
+                    }
 
                 </div>
                 </main>
                 </LayoutComponent>
+        }
+        if(user.isApproved === false){
+            return <LayoutComponent>
+            <main className="flex justify-center items-center p-4 md:p-6 mt-4 w-dvw h-dvh">
+            <div className="flex items-center mb-8">
+            <h1 className="font-semibold text-lg md:text-2xl">Você ainda não foi autorizado pelo administrador do seu orgão. Tente contato com ele.</h1>
+        </div>
+        </main>
+        </LayoutComponent>
+
         }
        
         return (

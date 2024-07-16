@@ -90,7 +90,7 @@ export const updateUserSchema = z.object({
 export const updateMyAccountSchema = z.object({
   name: z.string().min(3, 'O nome deve conter no mínimo 3 caracteres.').refine(value => value !== '', 'Nome é obrigatório.'),
   email: z.string().email('E-mail inválido.').refine(value => value !== '', 'E-mail é obrigatório.'),
-  password: z.string(),
+  password: z.string().min(6, 'A senha deve conter no mínimo 6 caracteres.'),
   function: z.string().refine(value => value !== '', 'Função Operacional é obrigatório.'),
   block_changes: z.boolean(),
   isOffice: z.boolean(),

@@ -68,7 +68,7 @@ model User {
   departmentId   String   @db.ObjectId
   workDay       WorkDay[]
   workDaysId     String[] @db.ObjectId
-  isApproved       Boolean @default(false)
+  isApproved     Boolean  @default(false)
 }
 
 enum Months {

@@ -45,6 +45,12 @@ export function SettingsNavigation({ role }: SettingsNavigationProps) {
           availableFor: 'ADMIN'
         },
         {
+          href: '/settings/users/usersRequests',
+          label: 'Solicitações',
+          availableFor: 'ADMIN'
+
+        },
+        {
           href: '/settings/users/createUser',
           label: 'Criar Usuário',
           availableFor: 'ADMIN'
