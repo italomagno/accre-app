@@ -5,7 +5,7 @@ import { auth } from "@/src/lib/auth";
 import prisma from "@/src/lib/db/prisma/prismaClient";
 import { getMonthFromRosterInNumber } from "@/src/lib/utils";
 import { CreateRosterValues, ErrorTypes, UpdateRosterSchema, UpdateRosterValues, createRosterSchema } from "@/src/types";
-import { $Enums, Months, Prisma } from "@prisma/client";
+import { $Enums, Months, Prisma, Roster } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 
@@ -68,7 +68,7 @@ export async function createRoster(data:CreateRosterValues):Promise<ErrorTypes>{
             }
         }
         const oneDay = 24*60*60*1000;
-        const numberOfDaysInMonth = Math.floor((new Date(parseInt(data.year), getMonthFromRosterInNumber({year: parseInt(data.year), month: data.month as $Enums.Months}) + 1, 0).getTime() - new Date(parseInt(data.year), getMonthFromRosterInNumber({year: parseInt(data.year), month: data.month as $Enums.Months})).getTime()) / oneDay);
+        const numberOfDaysInMonth = Math.floor((new Date(parseInt(data.year), getMonthFromRosterInNumber({year: parseInt(data.year), month: data.month as $Enums.Months} as Roster) + 1, 0).getTime() - new Date(parseInt(data.year), getMonthFromRosterInNumber({year: parseInt(data.year), month: data.month as $Enums.Months} as Roster)).getTime()) / oneDay);
         
         
         const workDays:Prisma.WorkDayCreateManyRosterInput[] = []
@@ -76,7 +76,7 @@ export async function createRoster(data:CreateRosterValues):Promise<ErrorTypes>{
         allusers.forEach(user=>{
             Array.from({length:numberOfDaysInMonth},(_,index)=>(
                 workDays.push({
-                day: new Date(parseInt(data.year),getMonthFromRosterInNumber({year:parseInt(data.year),month:data.month as $Enums.Months}),index+1),
+                day: new Date(parseInt(data.year),getMonthFromRosterInNumber({year:parseInt(data.year),month:data.month as $Enums.Months} as Roster),index+1),
                 userId:user.id,
                 departmentId:admin.departmentId,
                 shiftsId: []
