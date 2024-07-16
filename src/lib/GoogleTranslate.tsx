@@ -6,8 +6,8 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { generateUniqueKey } from "./utils";
 
 const languages = [
+{ label: "Portuguese", value: "pt", src: "https://flagcdn.com/h60/br.png" },
   { label: "English", value: "en", src: "https://flagcdn.com/h60/us.png" },
-  { label: "Portuguese", value: "pt", src: "https://flagcdn.com/h60/br.png" },
   { label: "German", value: "de", src: "https://flagcdn.com/h60/de.png" },
   { label: "French", value: "fr", src: "https://flagcdn.com/h60/fr.png" },
       // Add additional languages as needed
