@@ -92,7 +92,8 @@ export default async function shiftPage() {
                       start: startTime,
                       end: endTime,
                       isNextDay: isNexDay
-                    }
+                    },
+                    isOnlyToSup: false
                   };
                   return (
                     <TableRow key={shift.id}>
