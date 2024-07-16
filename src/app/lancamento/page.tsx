@@ -8,6 +8,7 @@ import {  getWorkDaysByUserEmail, getWorkDaysByUserSession } from './action';
 import { getUserByEmail } from '../login/_actions';
 import { auth } from '@/src/lib/auth';
 import { UniqueRosterCalendarComponent } from '../uniqueRosterCalendarComponent';
+import { ShiftsTable } from '@/src/components/tables/shiftsTable';
 
 
 export default async function lancamento({

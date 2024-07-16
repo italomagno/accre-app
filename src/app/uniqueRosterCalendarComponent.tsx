@@ -6,46 +6,74 @@ import { handleisSameDate } from '../lib/date';
 import { RegisterWorkDayButton } from '../components/register/workDay/RegisterWorkDayButton';
 import { useEffect, useState } from 'react';
 import { getDateFromRoster } from '../lib/utils';
+import { ShiftsTable } from '../components/tables/shiftsTable';
+import { getWorkDays } from './lancamento/action';
 
 
 export function UniqueRosterCalendarComponent({ shifts, roster, workDays,user,admin }: { shifts: Shift[],user:User,admin?:User , roster: Roster, workDays:WorkDay[]}) {
 
     const [workDaysList, setWorkDaysList] = useState<WorkDay[]>(()=>workDays)
+    const [previewWorkDays, setPreviewWorkDays] = useState<WorkDay[]>([])
     const [defaultMonth, setDefaultMonth] = useState<Date>(()=>{
-        
         return getDateFromRoster(roster)
     
     })
- 
-            function handleUpdateWorkDay(workDay: WorkDay,rosterId:string){
-        const alreadyExists = workDaysList.find((workDayInList)=>workDayInList.day.getDate() === workDay.day.getDate() && workDayInList.day.getMonth() === workDay.day.getMonth() && workDayInList.day.getFullYear() === workDay.day.getFullYear())
-        if(alreadyExists){
-            const updatedWorkDays = workDaysList.map((workDayInList)=>{
-                if(handleisSameDate(workDayInList.day,workDay.day)){
-                    return workDay
-                }
-                return workDayInList
-            })
-            setWorkDaysList(updatedWorkDays)
-        }
-        else{
-            const newWorkDay:WorkDay = {
+    function handleUpdateWorkDay(workDay: WorkDay, rosterId: string) {
+        console.log("Updating work day:", workDay);
+        
+        const alreadyExists = workDaysList.find((workDayInList) =>
+            handleisSameDate(workDayInList.day, workDay.day) && workDayInList.userId === user.id && workDayInList.rosterId === rosterId && workDay.id === workDayInList.id
+        );
+        
+        const alreadyExistsInPreview = previewWorkDays.find((workDayInList) =>
+            handleisSameDate(workDayInList.day, workDay.day) && workDayInList.userId === user.id
+        );
+    
+        if (alreadyExists) {
+            const updatedWorkDays = workDaysList.map((workDayInList) =>
+                handleisSameDate(workDayInList.day, workDay.day) && workDayInList.userId === user.id && workDayInList.rosterId === rosterId && workDay.id === workDayInList.id
+                    ? workDay
+                    : workDayInList
+            );
+            setWorkDaysList(updatedWorkDays);
+        } else {
+            const newWorkDay: WorkDay = {
                 ...workDay,
                 userId: user.id,
                 rosterId: rosterId
-
-            }
-            setWorkDaysList([...workDaysList,newWorkDay])
+            };
+            setWorkDaysList([...workDaysList, newWorkDay]);
         }
+    
+        if (alreadyExistsInPreview) {
+            const updatedWorkDays = previewWorkDays.map((workDayInList) =>
+                handleisSameDate(workDayInList.day, workDay.day) && workDayInList.userId === user.id
+                    ? { ...workDayInList, shiftsId: workDay.shiftsId }
+                    : workDayInList
+            );
+            setPreviewWorkDays(updatedWorkDays);
+        }
+        
+        console.log("Updated work days list:", workDaysList);
+        console.log("Updated preview work days list:", previewWorkDays);
+    }
+    
+   async function fetchWorkDays(){
+        const response = await getWorkDays()
+        if("code" in response){
+            return
+        }
+        setPreviewWorkDays(response)
     }
     useEffect(()=>{
             setDefaultMonth(getDateFromRoster(roster))
+            fetchWorkDays()
     },[])
-        
-    
     
     return (
-        <>
+        <div className='flex flex-col gap-2 items-center justify-center'>
+            <ShiftsTable shifts={shifts} users={[user]} roster={roster} workDays={previewWorkDays}
+            />
             <Calendar
                 mode='default'
                 defaultMonth={defaultMonth}
@@ -99,6 +127,6 @@ export function UniqueRosterCalendarComponent({ shifts, roster, workDays,user,ad
              hasRestrictionsToSave={false}
              />    
 
-        </>
+        </div>
     );
 }

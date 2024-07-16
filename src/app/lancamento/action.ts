@@ -242,3 +242,40 @@ export async function getWorkDaysByUserEmail(userEmail: string) {
 }
 
 
+export async function getWorkDays() {
+  const session = await auth();
+  if (!session) {
+    return {
+      code: 401,
+      message: 'Usuário não autenticado'
+    };
+  }
+  const email = session.user.email;
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email
+      }
+    });
+    if (!user) {
+      prisma.$disconnect();
+      return {
+        code: 404,
+        message: 'Usuário não encontrado'
+      };
+    }
+    const workDays = await prisma.workDay.findMany({
+      where: {
+        departmentId: user.departmentId
+      }
+    });
+    prisma.$disconnect();
+    return workDays;
+  } catch (e) {
+    return {
+      code: 500,
+      message: 'Erro ao buscar dias de trabalho'
+    };
+  }
+}
+

@@ -7,7 +7,7 @@ import {
   TableBody,
   Table,
 } from '@/src/components/ui/table';
-import { createWorkDaysColumn, generateUniqueKey, handleCellColor } from '@/src/lib/utils';
+import { createWorkDaysColumn, generateUniqueKey, getMonthFromRosterInNumber, handleCellColor } from '@/src/lib/utils';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { ErrorTypes } from '@/src/types';
 import { useEffect } from 'react';
@@ -60,7 +60,7 @@ export function ShiftsTable({
   const WorkDaysColumn = createWorkDaysColumn(roster)
   const counterShiftsPerday = shifts.map(shift => {
   const shiftPerDay = WorkDaysColumn.map(day => {
-      return workDays.filter(workDay => workDay.shiftsId.includes(shift.id) && workDay.day.getDate() === day).reduce((acc,curr) => {
+      return workDays.filter(workDay => workDay.shiftsId.includes(shift.id) && workDay.day.getDate() === day && workDay.day.getMonth() === getMonthFromRosterInNumber(roster)).reduce((acc,curr) => {
         return acc + 1
       }
       ,0)

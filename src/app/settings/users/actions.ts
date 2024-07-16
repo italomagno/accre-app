@@ -87,6 +87,45 @@ export async function getUsersWithFilter(query:string):Promise<ErrorTypes|User[]
 
 }
 
+
+export async function getAllusers():Promise<ErrorTypes|User[]>{
+  try{
+    const session = await auth()
+    if(!session){
+      return {
+        code: 401,
+        message: "Usuário não autenticado"
+      }
+    }
+    const email = session.user.email
+    const admin = await getUserByEmail(email)
+    if("code" in admin){
+      return admin
+    }
+ 
+    const users = await prisma.user.findMany({
+      where:{
+        departmentId: admin.departmentId
+      },
+    })
+    if(!users || users.length === 0){
+      prisma.$disconnect();
+      return{
+        code: 403,
+        message: "Não há usuários cadastrados"
+      }
+    }
+    prisma.$disconnect();
+    return users
+  }catch(e){
+    prisma.$disconnect();
+    return {
+      code: 500,
+      message: "Erro ao buscar usuários"
+    }
+  }
+
+}
 export async function removeUser(id:string):Promise<ErrorTypes>{
   try{
     const session = await auth()
