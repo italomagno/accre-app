@@ -148,6 +148,7 @@ export async function registerOrUpdateWorkDayByAdmin(ShiftNameWithVerticalBar:st
 export async function registerOrUpdateManyWorkDays(
   workDays: WorkDay[],
   rosterId:string,
+  hasRestrictions:boolean = true
 ): Promise<ErrorTypes> {
   try {
     const session = await auth();
@@ -200,7 +201,7 @@ export async function registerOrUpdateManyWorkDays(
       }
     });
 
-    const hasAtLeastOneShiftLessThanNecessary = countShiftsOnWorkDays.some((shift) => shift.isLessThanNecessary);
+    const hasAtLeastOneShiftLessThanNecessary = hasRestrictions ? countShiftsOnWorkDays.some((shift) => shift.isLessThanNecessary) : false;
     if (hasAtLeastOneShiftLessThanNecessary) {
       return {
         code: 400,
@@ -209,7 +210,7 @@ export async function registerOrUpdateManyWorkDays(
     }
     const workSorted = workDays.sort((a, b) => { return a.day.getTime() - b.day.getTime() });
 
-    const fatigueRules = await checkFatigueRules(user,workSorted,rosterAvailablesToChange)
+    const fatigueRules = hasRestrictions ? await checkFatigueRules(user,workSorted,rosterAvailablesToChange) : {code:200,message:'Regras de fadiga desativadas'}
     if(fatigueRules.code !== 200){
       return{
         code:400,

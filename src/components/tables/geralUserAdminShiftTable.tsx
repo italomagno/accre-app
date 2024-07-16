@@ -14,9 +14,9 @@ import {
 } from '@/src/lib/utils';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { useToast } from '../ui/use-toast';
-import { UpdateWorkDayCell } from './UpdateWorkDayCell';
-import { Ghost, Pen } from 'lucide-react';
+import {  Pen } from 'lucide-react';
 import { Button } from '../ui/button';
+import { useRouter } from 'next/navigation';
 
 export function GeralUserAdminShiftTable({
   shifts,
@@ -31,6 +31,7 @@ export function GeralUserAdminShiftTable({
   workDays: WorkDay[];
   search: string;
 }) {
+  const router = useRouter();
   const users = usersWithoutFilter.filter((user) =>
     user.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -104,7 +105,9 @@ export function GeralUserAdminShiftTable({
   ];
 
   return (
-    <Table>
+    <Table
+     className='w-relative'
+    >
       <TableHeader>
         <TableRow>
           {counterShiftsPerdayHeadings.map((heading, i) => {
@@ -128,13 +131,16 @@ export function GeralUserAdminShiftTable({
                   {user.name}
                 </div>
                   <div>
-                  <Button variant={"ghost"} size={"icon"}>
-                  <Pen size={10}/>
+                  <Button variant={"ghost"} size={"icon"}
+                  onClick={() => {
+                    router.push(`/lancamento?userEmail=${user.email}&rosterId=${roster.id}`)
+                  }}
+                  >
+                      <Pen size={10}/>
                   </Button>
                   
                 </div>
                 </div>
-                
                 </div>
                 
                 </TableCell>

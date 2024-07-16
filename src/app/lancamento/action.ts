@@ -1,7 +1,7 @@
 'use server';
 import { auth } from '@/src/lib/auth';
 import prisma from '@/src/lib/db/prisma/prismaClient';
-import { $Enums, } from '@prisma/client';
+import { $Enums, User, } from '@prisma/client';
 import { getUserByEmail } from '../login/_actions';
 
 export async function getWorkDaysByUserSession() {
@@ -200,6 +200,43 @@ export async function getAvailableShiftsDay(day: Date) {
     return {
       code: 500,
       message: 'Erro ao buscar turnos disponíveis'
+    };
+  }
+}
+
+export async function getWorkDaysByUserEmail(userEmail: string) {
+  const session = await auth();
+  if (!session) {
+    return {
+      code: 401,
+      message: 'Usuário não autenticado'
+    };
+  }
+  const email = userEmail
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email
+      }
+    });
+    if (!user) {
+      prisma.$disconnect();
+      return {
+        code: 404,
+        message: 'Usuário não encontrado'
+      };
+    }
+    const workDays = await prisma.workDay.findMany({
+      where: {
+        userId: user.id
+      }
+    });
+    prisma.$disconnect();
+    return workDays;
+  } catch (e) {
+    return {
+      code: 500,
+      message: 'Erro ao buscar dias de trabalho'
     };
   }
 }

@@ -97,3 +97,49 @@ export async function getRostersBySession():Promise<Roster[] | ErrorTypes>{
         }
     }
 }
+export async function getRostersById(id:string):Promise<Roster[] | ErrorTypes>{
+    try{
+    const session = await auth()
+    if(!session){
+        return {
+            code: 401,
+            message: "Usuário não autenticado"
+        }
+    }
+    const email = session.user.email
+        const user = await prisma.user.findUnique({
+            where:{
+                email
+            }
+        })
+        if(!user){
+        prisma.$disconnect();
+            return {
+                code: 404,
+                message: "Usuário não encontrado"
+            }
+        }
+        if(user.role !== "ADMIN"){
+        prisma.$disconnect();
+            return {
+                code: 403,
+                message: "Usuário não autorizado"
+            }
+        }
+
+    
+        const rosters = await prisma.roster.findMany({
+            where:{
+                departmentId: user.departmentId,
+                id
+            }
+        })
+        prisma.$disconnect();
+        return rosters
+    }catch(e){
+        return {
+            code: 500,
+            message: "Erro ao buscar escalas"
+        }
+    }
+}
