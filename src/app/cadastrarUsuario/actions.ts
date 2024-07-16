@@ -3,6 +3,7 @@ import { hashCredential } from '@/src/lib/bcrypt';
 import { Department, Function, User } from '@prisma/client';
 import prisma from "@/src/lib/db/prisma/prismaClient";
 import { ErrorTypes, RegisterUserValues } from "@/src/types";
+import { auth } from '@/src/lib/auth';
 
 export async function getDepartments(): Promise<Department[] | ErrorTypes>{
     try {
@@ -21,9 +22,45 @@ export async function getDepartments(): Promise<Department[] | ErrorTypes>{
     }
     
 }
+export async function updateAllUsersToApproved():Promise<ErrorTypes>{
+    try {
+        const users = await prisma.user.updateMany({
+            where:{
+                isApproved: false
+            },
+            data:{
+                isApproved: true
+            }
+        });
+        if(!users){
+            await prisma.$disconnect();
+            return {
+                code: 500,
+                message: "Erro ao aprovar usuários."
+            };
+        }
+        return {
+            code: 200,
+            message: "Usuários aprovados com sucesso."
+        }
+    }catch(err){
+        await prisma.$disconnect();
+        return {
+            code: 500,
+            message: "Erro ao aprovar usuários."
+        };
+    }
+}
 
 export async function registerUser(data: RegisterUserValues):Promise<User | ErrorTypes>{
     try {
+        const session = await auth();
+        const admin = await prisma.user.findFirst({
+            where:{
+                email: session?.user.email
+            }
+        });
+        
         const user = await prisma.user.create({
             data:{
                 name: data.name,
@@ -31,7 +68,8 @@ export async function registerUser(data: RegisterUserValues):Promise<User | Erro
                 password: hashCredential(data.password),
                 role: "USER",
                 departmentId: data.departmentId,
-                function: data.function as Function
+                function: data.function as Function,
+                isApproved: admin?.role === "ADMIN" ? true : false
             }
         });
         if(!user){

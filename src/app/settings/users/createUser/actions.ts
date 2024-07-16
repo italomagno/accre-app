@@ -140,7 +140,8 @@ export async function createManyUsers(users:Pick<User, "name" | "email" | "funct
             ...user,
             role:"USER" as $Enums.Role,
             departmentId: departmentId,
-            password: hashCredential("123456789")
+            password: hashCredential("123456789"),
+            isApproved: admin?.role === "ADMIN" ? true : false
         }
     })
     try{    

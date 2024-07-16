@@ -25,9 +25,7 @@ export function LayoutComponent({children,isLogin = false}:LayoutComponentProps)
                 <div className="grid grid-cols-1 min-h-screen lg:grid-cols-1fr">
                   <HeaderComponent>
                     <ToggleThemeProviderButton />
-                    <TriggerButton >
-                      <NavMenu />
-                    </TriggerButton>
+                   
                     <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon" >
@@ -39,13 +37,16 @@ export function LayoutComponent({children,isLogin = false}:LayoutComponentProps)
               <DropdownMenuLabel><Link href="/settings/myAccount">Minha Conta</Link></DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem><Link href="/settings">Configurações</Link></DropdownMenuItem>
-              <DropdownMenuItem>Contato</DropdownMenuItem>
+              <DropdownMenuItem><Link href="/settings/contact">Contato</Link></DropdownMenuItem>
               <DropdownMenuSeparator/>
               <DropdownMenuItem>
                 <LogOutButton />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <TriggerButton >
+                      <NavMenu />
+                    </TriggerButton>
                   </HeaderComponent>
                   <div className="flex flex-col">
                   <div className='overflow-x-auto mt-14'>
