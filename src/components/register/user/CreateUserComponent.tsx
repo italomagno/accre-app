@@ -28,7 +28,7 @@ export function CreateUserComponent( {department}:RegisterUserProps){
     const onSubmit = async(data:RegisterUserValues) => {
         data.departmentId = department.id;
         data.password = "123456789";
-        const result = await registerUser(data);
+        const result = await registerUser(data,true);
         if(!result){
           toast({
             title: "Erro ao cadastrar usuário",

@@ -46,25 +46,29 @@ export async function handleFileInputForManyUsers(prevState:any,formData: FormDa
     const hasNameOnHeaders = headers.includes('name')
     const hasEmailOnHeaders = headers.includes('email')
     const hasFunctionOnHeaders = headers.includes('function')
-    if(!hasNameOnHeaders || !hasEmailOnHeaders || !hasFunctionOnHeaders){
+    const hasIsOfficeOnHeaders = headers.includes('isOffice')
+    if(!hasNameOnHeaders || !hasEmailOnHeaders || !hasFunctionOnHeaders || !hasIsOfficeOnHeaders){
         return {
             code: 400,
-            message: "Arquivo CSV deve conter as colunas name e email e Function."
+            message: "Arquivo CSV deve conter as colunas name, email,isOffice e Function."
         }
     }
     const indexName = headers.split(',').indexOf('name')
     const indexEmail = headers.split(',').indexOf('email')
     const indexRole = headers.split(',').indexOf('function')
+    const indexIsOffice = headers.split(',').indexOf('isOfficeS')
 
 
     
     const users = lines.map((line) => {
         const values = line.split(',')
         const userFunction:Function = Object.keys($Enums.Function).includes(values[indexRole]) ? values[indexRole] as Function : "OPE" as Function
+        
         return {
             name: values[indexName],
             email: values[indexEmail],
-            function: userFunction as Function
+            function: userFunction as Function,
+            isOffice: values[indexIsOffice] ?? false
         }
     })
 
@@ -83,6 +87,7 @@ export async function handleFileInputForManyUsers(prevState:any,formData: FormDa
             message: `"Usuários sem função": ${usersWithoutFunction.map((user) => user.name).join(', ')}`
         }
     }
+   
 
     return {
         code: 200,

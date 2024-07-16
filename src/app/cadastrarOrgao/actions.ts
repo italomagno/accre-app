@@ -27,7 +27,8 @@ export async function createDepartment(department:CreateDepartmentAndUserValues)
                         name: department.name,
                         email: department.email,
                         password: hashCredential(department.password),
-                        role: "ADMIN"
+                        role: "ADMIN",
+                        isApproved:true
                     }
                 }
             },

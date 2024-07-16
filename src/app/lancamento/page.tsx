@@ -8,7 +8,6 @@ import {  getWorkDaysByUserEmail, getWorkDaysByUserSession } from './action';
 import { getUserByEmail } from '../login/_actions';
 import { auth } from '@/src/lib/auth';
 import { UniqueRosterCalendarComponent } from '../uniqueRosterCalendarComponent';
-import { updateAllUsersToApproved } from '../cadastrarUsuario/actions';
 
 
 export default async function lancamento({
@@ -58,6 +57,25 @@ const rosterId = searchParams.rosterId ?? ""
                 </main>
                 </LayoutComponent>
         }
+
+        if(rosters.length === 0){
+            return <LayoutComponent>
+            <main className="flex justify-center items-center p-4 md:p-6 mt-4 w-dvw h-dvh">
+            <div className="flex items-center mb-8">
+            <h1 className="font-semibold text-lg md:text-2xl">Você ainda não tem escalas cadastradas. Entre em contato com o administrador do seu orgão.</h1>
+            </div>
+            </main>
+            </LayoutComponent>
+            }
+            if(shifts.length === 0){
+                return <LayoutComponent>
+                <main className="flex justify-center items-center p-4 md:p-6 mt-4 w-dvw h-dvh">
+                <div className="flex items-center mb-8">
+                <h1 className="font-semibold text-lg md:text-2xl">Ainda não há turnos cadastrados. Entre em contato com o administrador do seu orgão.</h1>
+                </div>
+                </main>
+                </LayoutComponent>
+                }
         if(user.isApproved === false){
             return <LayoutComponent>
             <main className="flex justify-center items-center p-4 md:p-6 mt-4 w-dvw h-dvh">

@@ -7,7 +7,7 @@ import { ErrorTypes, registerUserSchema ,RegisterUserValues} from '../../../type
 import { Input } from '@/src/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/src/components/ui/form';
 import Image from 'next/image';
-import { applyCpfMask, applySaramMask, generateUniqueKey } from "../../../lib/utils";
+import {generateUniqueKey } from "../../../lib/utils";
 import { useToast } from "../../ui/use-toast";
 import { Separator } from "../../ui/separator";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/src/components/ui/select";

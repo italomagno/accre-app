@@ -52,15 +52,8 @@ export async function updateAllUsersToApproved():Promise<ErrorTypes>{
     }
 }
 
-export async function registerUser(data: RegisterUserValues):Promise<User | ErrorTypes>{
+export async function registerUser(data: RegisterUserValues,isApproved = false):Promise<User | ErrorTypes>{
     try {
-        const session = await auth();
-        const admin = await prisma.user.findFirst({
-            where:{
-                email: session?.user.email
-            }
-        });
-        
         const user = await prisma.user.create({
             data:{
                 name: data.name,
@@ -69,7 +62,7 @@ export async function registerUser(data: RegisterUserValues):Promise<User | Erro
                 role: "USER",
                 departmentId: data.departmentId,
                 function: data.function as Function,
-                isApproved: admin?.role === "ADMIN" ? true : false
+                isApproved
             }
         });
         if(!user){
