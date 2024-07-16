@@ -20,7 +20,6 @@ type UpdateWorkDayCellProps = {
 
 export function UpdateWorkDayCell({day,roster,shiftName,user,shifts}:UpdateWorkDayCellProps){
     const {toast} = useToast()
-    const router = useRouter()
 
     const onlyShifts = shifts.filter(shift => shift.isAbscence === false && shift.isAvailable === true)
     const combinations = onlyShifts.map(shift =>{ 

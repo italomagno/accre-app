@@ -78,7 +78,7 @@ const usersByRoster = users
               type="right"
             />
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 md:grid-cols-2 gap-32 px-14">
+          <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-32 px-14">
             <>
             <CarouselShiftsComponent
             roster={currentRoster}

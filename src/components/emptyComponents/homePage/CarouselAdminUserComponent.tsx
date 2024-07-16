@@ -30,20 +30,21 @@ export function CarouselAdminUserComponent({
       :
       
       
-            <ScrollArea  key={generateUniqueKey()} className='max-h-[dvh] w-full overflow-auto '>
+              <div className='flex flex-col gap-2'>
               <div className="mt-4 flex flex-col gap-4">
-                <Search value={search} />
-              </div>
-                <GeralUserAdminShiftTable
-                  search={search}
-                  roster={roster}
-                  shifts={shifts}
-                  users={users}
-                  workDays={workDays}
-                />
+            <Search value={search} />
+          </div>
+          <ScrollArea key={generateUniqueKey()} className='max-h-[300px] w-full overflow-auto '>
+              <GeralUserAdminShiftTable
+                search={search}
+                roster={roster}
+                shifts={shifts}
+                users={users}
+                workDays={workDays} />
 
-              <ScrollBar  orientation='horizontal'/>
+              <ScrollBar orientation='horizontal' />
             </ScrollArea>
+            </div>
 
 
     }

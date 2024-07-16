@@ -27,7 +27,7 @@ export function CarouselGeralUserComponent({
       ?
       null
       :
-            <ScrollArea  key={generateUniqueKey()} className='max-h-[dvh] w-full overflow-auto'>
+            <ScrollArea  key={generateUniqueKey()} className='max-h-[300px] w-full overflow-auto'>
               <div className="mt-4 flex flex-col gap-4">
                 <p>{`Escala geral do mês de ${getMonthFromRoster(roster)}`}</p>
                 <Search value={search} />
