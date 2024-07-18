@@ -36,6 +36,7 @@ import {
   InputOTPSlot
 } from '../../ui/input-otp';
 import { createShift } from './action';
+import { Separator } from '../../ui/separator';
 
 export function CreateShiftComponent() {
   const { toast } = useToast();
@@ -87,7 +88,6 @@ export function CreateShiftComponent() {
                     );
                   }}
                 />
-
                 <FormField
                   control={form.control}
                   name="quantity"
@@ -98,6 +98,8 @@ export function CreateShiftComponent() {
                         <FormControl>
                           <Input
                             type="number"
+                            min={0}
+                            max={99}
                             placeholder="Quantidade de Turno por dia"
                             {...field}
                           />
@@ -116,20 +118,103 @@ export function CreateShiftComponent() {
                 return (
                   <FormItem>
                     <FormLabel>
-                      Quantidade mínima necessária desse Turno em um Dia
+                      Quantidade mínima necessária desse Turno que deve ser lançada em um mês.
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
-                        placeholder="Minimo de turnos por dia"
+                         min={0}
+                          max={99}
+                        placeholder="Minimo de turnos no mês"
                         {...field}
                       />
                     </FormControl>
+                    <FormDescription>
+                      Se o valor for 0, esse campo será ignorado.
+                </FormDescription>
                     <FormMessage />
                   </FormItem>
                 );
               }}
             />
+            <FormField
+              control={form.control}
+              name="maxQuantity"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>
+                      Quantidade Máxima que o usuário poderá lançar desse turno em no mês.
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                         min={0}
+                          max={99}
+                        placeholder="Máximo de turnos no mês"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Se o valor for 0, esse campo será ignorado.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+            <Separator  />
+            <FormField
+              control={form.control}
+              name="quantityInWeekEnd"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>Quantidade desse Turno em um Final de Semana</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                         min={0}
+                          max={99}
+                        placeholder="Quantidade de Turno por final de semana"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Se o valor for 0, esse campo será ignorado.
+                </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+            <FormField
+              control={form.control}
+              name="minQuantityInWeekEnd"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>
+                      Quantidade mínima necessária desse Turno que deve ser lançada em um mês.
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                         min={0}
+                          max={99}
+                        placeholder="Minimo de turnos no mês"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Se o valor for 0, esse campo será ignorado.
+                </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+            <Separator />
             <FormField
               control={form.control}
               name="dateStartEnd.start"

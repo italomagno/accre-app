@@ -35,6 +35,9 @@ export async function createShift(shiftValues: CreateShiftValues){
             ...shiftsWithoutDateStartEnd,
             minQuantity: parseInt(shiftValues.minQuantity ?? "0"),
             quantity: parseInt(shiftValues.quantity ?? "1"),
+            quantityInWeekEnd: parseInt(shiftValues.quantityInWeekEnd ?? "0"),
+            minQuantityInWeekEnd: parseInt(shiftValues.minQuantityInWeekEnd ?? "0"),
+            maxQuantity: parseInt(shiftValues.maxQuantity ?? "0"),
             department: {
                 connect: {
                     id: admin.departmentId

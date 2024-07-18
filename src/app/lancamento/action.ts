@@ -1,7 +1,7 @@
 'use server';
 import { auth } from '@/src/lib/auth';
 import prisma from '@/src/lib/db/prisma/prismaClient';
-import { $Enums, User, } from '@prisma/client';
+import { $Enums } from '@prisma/client';
 import { getUserByEmail } from '../login/_actions';
 
 export async function getWorkDaysByUserSession() {

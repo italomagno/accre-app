@@ -37,6 +37,7 @@ import {
 } from '../../ui/input-otp';
 import { updateShift } from './action';
 import { useRouter } from 'next/navigation';
+import { Separator } from '../../ui/separator';
 
 type UpdateShiftComponentProps = {
   id: string;
@@ -82,7 +83,7 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col w-full justify-evenly gap-4"
           >
-            <div className="flex w-full justify-evenly gap-4">
+             <div className="flex w-full justify-evenly gap-4">
               <div className="w-full flex flex-col gap-3">
                 <FormField
                   control={form.control}
@@ -99,7 +100,6 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
                     );
                   }}
                 />
-
                 <FormField
                   control={form.control}
                   name="quantity"
@@ -110,6 +110,8 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
                         <FormControl>
                           <Input
                             type="number"
+                            min={0}
+                            max={99}
                             placeholder="Quantidade de Turno por dia"
                             {...field}
                           />
@@ -128,20 +130,103 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
                 return (
                   <FormItem>
                     <FormLabel>
-                      Quantidade mínima necessária desse Turno em um Dia
+                      Quantidade mínima necessária desse Turno que deve ser lançada em um mês.
                     </FormLabel>
                     <FormControl>
                       <Input
                         type="number"
-                        placeholder="Minimo de turnos por dia"
+                         min={0}
+                          max={99}
+                        placeholder="Minimo de turnos no mês"
                         {...field}
                       />
                     </FormControl>
+                    <FormDescription>
+                      Se o valor for 0, esse campo será ignorado.
+                </FormDescription>
                     <FormMessage />
                   </FormItem>
                 );
               }}
             />
+            <FormField
+              control={form.control}
+              name="maxQuantity"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>
+                      Quantidade Máxima que o usuário poderá lançar desse turno em no mês.
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                         min={0}
+                          max={99}
+                        placeholder="Máximo de turnos no mês"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Se o valor for 0, esse campo será ignorado.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+            <Separator  />
+            <FormField
+              control={form.control}
+              name="quantityInWeekEnd"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>Quantidade desse Turno em um Final de Semana</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                         min={0}
+                          max={99}
+                        placeholder="Quantidade de Turno por final de semana"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Se o valor for 0, esse campo será ignorado.
+                </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+            <FormField
+              control={form.control}
+              name="minQuantityInWeekEnd"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>
+                      Quantidade mínima necessária desse Turno que deve ser lançada em um mês.
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                         min={0}
+                          max={99}
+                        placeholder="Minimo de turnos no mês"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Se o valor for 0, esse campo será ignorado.
+                </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+            <Separator />
             <FormField
               control={form.control}
               name="dateStartEnd.start"
@@ -206,17 +291,44 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
             />
             <FormField
               control={form.control}
-              name="dateStartEnd.isNextDay"
+              name="isOnlyToSup"
               render={({ field }) => {
                 return (
                   <FormItem>
                     <FormLabel>O turno passa para o dia seguinte?</FormLabel>
-
                     <FormControl>
-                      <Select
-                      defaultValue={String(field.value)}
-                      
-                      onValueChange={(e)=>{
+                      <Select onValueChange={(e)=>{
+                        var input
+                        if(e === 'true'){
+                          input = true}
+                          if(e === 'false'){
+                            input = false
+                          }
+                        field.onChange(input)
+                        }}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={'true'}>Sim</SelectItem>
+                          <SelectItem value={'false'}>Não</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+            <FormField
+              control={form.control}
+              name="dateStartEnd.isNextDay"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>Esse turno está disponível apenas para supervisores?</FormLabel>
+                    <FormControl>
+                      <Select onValueChange={(e)=>{
                         var input
                         if(e === 'true'){
                           input = true}
@@ -247,9 +359,7 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
                   <FormItem>
                     <FormLabel>O Turno é um afastamento?</FormLabel>
                     <FormControl>
-                      <Select
-                      defaultValue={String(field.value)}
-                      onValueChange={(e)=>{
+                      <Select onValueChange={(e)=>{
                         var input
                         if(e === 'true'){
                           input = true}
@@ -280,10 +390,7 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
                   <FormItem>
                     <FormLabel>O Turno está disponível?</FormLabel>
                     <FormControl>
-                      <Select 
-                      defaultValue={String(field.value)}
-                    
-                      onValueChange={(e)=>{
+                      <Select onValueChange={(e)=>{
                         var input
                         if(e === 'true'){
                           input = true}

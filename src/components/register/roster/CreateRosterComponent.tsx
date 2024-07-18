@@ -27,6 +27,7 @@ import { createRoster } from '../../../app/settings/roster/createRoster/action';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -164,6 +165,30 @@ export function CreateRosterComponent() {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+              <FormField
+              control={form.control}
+              name="minQuantityOnWeekend"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>Quantidade mínima de turnos no fim de semana.</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={100}
+                        placeholder="Quantidade Mínima de turnos no fim de semana"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Se não houver necessidade de turnos no fim de semana, deixe o campo em branco ou com o valor 0.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 );

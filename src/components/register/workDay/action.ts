@@ -168,15 +168,17 @@ export async function registerOrUpdateManyWorkDays(
 
     const rosterAvailablesToChange = await prisma.roster.findFirst({
       where:{
-        id:rosterId
+        id:rosterId,
+        blockChanges:false
       }
     })
     if(!rosterAvailablesToChange){
       return {
         code: 404,
-        message: 'Escala não encontrada'
+        message: 'Escala bloqueada para alterações.'
       };
     }
+    const minWorkingDaysOnWeekEnd = rosterAvailablesToChange.minWorkingDaysOnWeekEnd ?? 0
   
 
 
@@ -189,23 +191,60 @@ export async function registerOrUpdateManyWorkDays(
 
     const shifts = await prisma.shift.findMany();
 
+  var totalOfShiftsInWeekEnds = 0
+
+
+
+
     const countShiftsOnWorkDays = shifts.map((shift) => {
+      var qntOfThisShiftOnWeekends = 0
       const count = workDays.reduce((acc, workDay) => {
+        if(workDay.day.getDay() === 0 || workDay.day.getDay() === 6){
+          if(workDay.shiftsId.includes(shift.id)){
+            qntOfThisShiftOnWeekends++
+            totalOfShiftsInWeekEnds++
+
+          }
+        }
         return workDay.shiftsId.includes(shift.id) ? acc + 1 : acc;
       }, 0);
       return {
         ...shift,
         necessaryQnt: shift.minQuantity,
         isLessThanNecessary: count < shift.minQuantity,
+        isMoreThanMax: count > (!shift.maxQuantity  || shift.maxQuantity === 0 ? 999 : shift.maxQuantity),
+        hasLessThanMinNecessaryOnWeekEnds: qntOfThisShiftOnWeekends < (!shift.minQuantityInWeekEnd || shift.minQuantityInWeekEnd === 0 ? 0 : shift.minQuantityInWeekEnd),
         howManyLess: shift.minQuantity - count
       }
     });
+
+    if(totalOfShiftsInWeekEnds < minWorkingDaysOnWeekEnd){
+      return {
+        code: 400,
+        message: `Você precisa de pelo menos ${minWorkingDaysOnWeekEnd} turnos nos finais de semana`
+      };
+    }
+
+    const hasAtLeastOneShiftMoreThanMax = hasRestrictions ? countShiftsOnWorkDays.some((shift) => shift.isMoreThanMax) : false;
+    if (hasAtLeastOneShiftMoreThanMax) {
+      return {
+        code: 400,
+        message: `Você não pode ter mais do que ${countShiftsOnWorkDays.filter((shift) => shift.isMoreThanMax).map((shift) => `${shift.maxQuantity} ${shift.name}`).join(', ')}`,
+      };
+    }
 
     const hasAtLeastOneShiftLessThanNecessary = hasRestrictions ? countShiftsOnWorkDays.some((shift) => shift.isLessThanNecessary) : false;
     if (hasAtLeastOneShiftLessThanNecessary) {
       return {
         code: 400,
         message: `Você precisa de pelo menos ${countShiftsOnWorkDays.filter((shift) => shift.isLessThanNecessary).map((shift) => `${shift.howManyLess} ${shift.name}`).join(', ')}`,
+      };
+    }
+    const hasAtLeastOneShiftLessThanNecessaryOnWeekEnds = hasRestrictions ? countShiftsOnWorkDays.some((shift) => shift.hasLessThanMinNecessaryOnWeekEnds) : false;
+    if (hasAtLeastOneShiftLessThanNecessaryOnWeekEnds) {
+      return {
+        code: 400,
+        message: `Você precisa de pelo menos ${countShiftsOnWorkDays.filter((shift) => shift.hasLessThanMinNecessaryOnWeekEnds).map((shift) => `${shift.minQuantityInWeekEnd} ${shift.name}`).join(', ')} nos finais de semana`,
       };
     }
     const workSorted = workDays.sort((a, b) => { return a.day.getTime() - b.day.getTime() });

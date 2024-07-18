@@ -96,6 +96,7 @@ model Roster{
   users          User[]
   minWorkingHoursPerRoster Int? 
   maxWorkingHoursPerRoster Int? 
+  minWorkingDaysOnWeekEnd Int @default(0)
   department     Department @relation(fields: [departmentId], references: [id])
   departmentId   String @db.ObjectId
   shifts         Shift[] @relation(fields: [shiftsId], references: [id])
@@ -128,6 +129,9 @@ model Shift {
   end            DateTime
   quantity       Int @default(0)
   minQuantity    Int  @default(0)
+  quantityInWeekEnd Int @default(0)
+  minQuantityInWeekEnd Int @default(0)
+  maxQuantity    Int  @default(0)
   rosters        Roster[] @relation(fields: [rostersId], references: [id])
   rostersId      String[] @db.ObjectId
   department     Department @relation(fields: [departmentId], references: [id])

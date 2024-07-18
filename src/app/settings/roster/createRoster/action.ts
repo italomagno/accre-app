@@ -102,6 +102,7 @@ export async function createRoster(data:CreateRosterValues):Promise<ErrorTypes>{
                 year: parseInt(data.year),
                 minWorkingHoursPerRoster: parseInt(data.minHours),
                 maxWorkingHoursPerRoster: parseInt(data.maxHours),
+                minWorkingDaysOnWeekEnd: data.minQuantityOnWeekend ? data.minQuantityOnWeekend : 0,
                 departmentId: admin.departmentId,
                 users: {
                     connect: registeredNormalUsers.map(user => {

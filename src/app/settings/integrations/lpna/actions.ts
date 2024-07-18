@@ -855,8 +855,11 @@ export async function getLPNAData(): Promise<ErrorTypes | {users: User[], shifts
         }
         )
 
-        const shifts = [...shiftsFromOpe, ...shiftsFromSup]
-
+        const onlyShifts = [...shiftsFromOpe, ...shiftsFromSup].flat()
+        const shifts = [...onlyShifts, ...abscences]
+        
+        //ToDo getUsersFromLPNA
+        //alo
        
 
     }catch(error){

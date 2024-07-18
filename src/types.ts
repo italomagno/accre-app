@@ -162,7 +162,9 @@ export const UpdateRosterSchema = z.object({
   maxWorkingHoursPerRoster: z.number({
     required_error: 'Máximo de horas é obrigatório'
   }),
-  blockChanges: z.boolean().default(false)
+  blockChanges: z.boolean().default(false),
+  minQuantityOnWeekend: z
+  .number().default(0).optional(),
 });
 
 export type UpdateRosterValues = z.infer<typeof UpdateRosterSchema>;
@@ -222,7 +224,9 @@ export const createRosterSchema = z.object({
     .string({
       required_error: 'Máximo de horas é obrigatório'
     })
-    .refine((value) => value !== '', 'Máximo de horas é obrigatório.')
+    .refine((value) => value !== '', 'Máximo de horas é obrigatório.'),
+    minQuantityOnWeekend: z
+    .number().default(0),
 });
 
 export type CreateRosterValues = z.infer<typeof createRosterSchema>;
@@ -246,6 +250,15 @@ export const createShiftSchema = z.object({
       (value) => parseInt(value) >= 0,
       'Quantidade de turnos deve ser maior ou igual a 0'
     ),
+  quantityInWeekEnd: z
+    .string()
+    .default('0'),
+  minQuantityInWeekEnd: z
+    .string()
+    .default('0'),
+    maxQuantity: z
+    .string()
+    .default('0'),
   minQuantity: z
     .string({
       required_error: 'Quantidade mínima de turnos é obrigatório'
