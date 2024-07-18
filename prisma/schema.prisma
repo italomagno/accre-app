@@ -8,7 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 enum DepartmentTypes {
   ACC
   APP
@@ -36,6 +35,7 @@ model Department {
   shifts         Shift[]
   workDays       WorkDay[]
   isApproved     Boolean @default(true)
+  LPNASession    LPNASession[]
 }
 
 enum Role {
@@ -135,6 +135,19 @@ model Shift {
   isOnlyToSup    Boolean @default(false)
   isAvailable   Boolean @default(false)
   isAbscence    Boolean @default(false)
+}
+
+model LPNASession {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  created_at     DateTime @default(now())
+  login          String
+  password       String
+  token          String
+  department     Department @relation(fields: [departmentId], references: [id])
+  departmentId   String @db.ObjectId
+  access_token   String
+  token_type     String
+  expires_in     Int      
 }
 
 
