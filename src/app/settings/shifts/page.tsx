@@ -2,7 +2,6 @@
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -93,7 +92,10 @@ export default async function shiftPage() {
                       end: endTime,
                       isNextDay: isNexDay
                     },
-                    isOnlyToSup: false
+                    isOnlyToSup: false,
+                    quantityInWeekEnd: '0',
+                    minQuantityInWeekEnd: '0',
+                    maxQuantity: '0'
                   };
                   return (
                     <TableRow key={shift.id}>

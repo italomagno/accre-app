@@ -17,12 +17,17 @@ import { SignInLPNAComponent } from '@/src/components/register/lpna/SignInLPNACo
 import { getLPNAData } from './actions';
 import { isErrorTypes } from '@/src/types';
 import { EraseDataLpnaButton } from './EraseDataLPNAButton';
+import { cookies } from 'next/headers';
 
 export default async function integrateWithLpnaPage({
   searchParams
 }: {
   searchParams: { q: string; offset: string };
 }) {
+
+  async function handleRemoveCookie(){
+    cookies().delete('access_token')
+  }
   const search = searchParams.q ?? '';
   const department = await getDepartmentBySession();
   const hasErrorOnDepartment = 'code' in department;
@@ -41,7 +46,8 @@ export default async function integrateWithLpnaPage({
   if (hasErrorOnLPNA) {
     return (
       <EmptyComponentCard error={lpnaData} title="Erro">
-        <EraseDataLpnaButton />
+        <EraseDataLpnaButton
+        handleRemoveCookie={handleRemoveCookie} />
       </EmptyComponentCard>
     );
   }
@@ -67,7 +73,9 @@ export default async function integrateWithLpnaPage({
                 <li>Quantidade de escalas: {rosters.length}</li>
                 </ul>
             </div>
-            <EraseDataLpnaButton />
+            <EraseDataLpnaButton
+            handleRemoveCookie={handleRemoveCookie}
+            />
         </>
         
         : 

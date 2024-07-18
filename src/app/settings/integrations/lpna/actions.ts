@@ -1,3 +1,4 @@
+"use server"
 import { getUserByEmail } from "@/src/app/login/_actions";
 import { auth } from "@/src/lib/auth";
 import prisma from "@/src/lib/db/prisma/prismaClient";
@@ -860,6 +861,12 @@ export async function getLPNAData(): Promise<ErrorTypes | {users: User[], shifts
         
         //ToDo getUsersFromLPNA
         //alo
+
+        return {
+            users: [],
+            shifts:[],
+            rosters:[]
+        }
        
 
     }catch(error){
