@@ -59,11 +59,13 @@ export function ShiftsTable({
   const WorkDaysColumn = createWorkDaysColumn(roster)
   const counterShiftsPerday = shifts.map(shift => {
   const shiftPerDay = WorkDaysColumn.map(workdayObject => {
-      const {day} = workdayObject
-      return workDays.filter(workDay => workDay.shiftsId.includes(shift.id) && workDay.day.getDate() === day && workDay.day.getMonth() === getMonthFromRosterInNumber(roster)).reduce((acc,curr) => {
+      const {day, isWeekend} = workdayObject
+      return {
+        cellData:workDays.filter(workDay => workDay.shiftsId.includes(shift.id) && workDay.day.getDate() === day && workDay.day.getMonth() === getMonthFromRosterInNumber(roster)).reduce((acc,curr) => {
         return acc + 1
       }
-      ,0)
+      ,0),
+      isWeekend}
     })
     return {
       shift,
@@ -104,7 +106,7 @@ export function ShiftsTable({
                       <TableCell>{shift.name}</TableCell>
                       {
                         days.map((day,i) => {
-                          return <TableCell key={generateUniqueKey()} variant={handleCellColor(shift,day)}>{day}</TableCell>
+                          return <TableCell key={generateUniqueKey()} variant={handleCellColor(shift,day)}>{day.cellData}</TableCell>
                         
                         })
                       }

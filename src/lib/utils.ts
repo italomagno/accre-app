@@ -68,15 +68,19 @@ export function getDateFromRoster(roster:Pick<Roster,"month" | "year" | "id">) {
   const {month, year} = roster;
   return new Date(`${month} ${2}, ${year}`);
 }
-export function handleCellColor(shift:(Pick<Shift,"id" | "name" | "quantity"> & Partial<{[key:string]:unknown}>),cellData:number):'lessThanNecessary' | 'moreThanNecessary' | 'hasNecessary'{
+export function handleCellColor(shift:(Pick<Shift,"id" | "name" | "quantity"> & Partial<{[key:string]:unknown}>),day:{
+  cellData: number,
+  isWeekend: boolean
+}):'lessThanNecessary' | 'moreThanNecessary' | 'hasNecessary'| "lessThanNecessaryWeekEnd" | "moreThanNecessaryWeekEnd" | "hasNecessaryWeekEnd"{
+  const {cellData,isWeekend} = day;
   if(shift.quantity > cellData){
-    return "lessThanNecessary"
+    return isWeekend ?"lessThanNecessaryWeekEnd":"lessThanNecessary"
   }
   if(shift.quantity < cellData){
-    return "moreThanNecessary"
+    return isWeekend? "moreThanNecessaryWeekEnd":"moreThanNecessary"
   }
   if(shift.quantity === cellData){
-    return "hasNecessary"
+    return isWeekend? "hasNecessaryWeekEnd":"hasNecessary"
   }
 
   return "lessThanNecessary"
