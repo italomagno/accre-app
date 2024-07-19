@@ -2,6 +2,7 @@
 import { getUserByEmail } from "@/src/app/login/_actions";
 import { auth } from "@/src/lib/auth";
 import prisma from "@/src/lib/db/prisma/prismaClient";
+import { getDateFromRoster } from "@/src/lib/utils";
 import { ErrorTypes, LoginLPNAValues, isErrorTypes } from "@/src/types";
 import { $Enums, Roster, Shift, User } from "@prisma/client";
 import { cookies } from "next/headers";
@@ -416,8 +417,8 @@ const getLPNARosterData = async (access_token: string): Promise<ErrorTypes | LPN
             message: "Erro ao buscar dados de escalas da LPNA"
         }
     }
-
 }
+
 const ModelResponseFromLPNAShiftData = {
         "status": true,
         "message": "",
@@ -652,7 +653,8 @@ const ModelResponseFromLPNAShiftData = {
             },
         ]}
 
-        type LPNAShiftResponse = typeof ModelResponseFromLPNAShiftData
+type LPNAShiftResponse = typeof ModelResponseFromLPNAShiftData
+
 
 
 const getLPNShiftsData = async (access_token: string):Promise<ErrorTypes | LPNAShiftResponse>=> {
@@ -682,6 +684,604 @@ const getLPNShiftsData = async (access_token: string):Promise<ErrorTypes | LPNAS
             code: 500,
             message: "Erro ao buscar dados de turnos da LPNA"
         }
+    }
+}
+
+const ModelFunctionFromLPNA = {
+    "status": true,
+    "message": "",
+    "data": {
+        "periods": [
+            "Manh\u00e3",
+            "Tarde",
+            "Noite",
+            "Pernoite"
+        ],
+        "regimes": [
+            "24",
+            "18",
+            "17",
+            "16",
+            "15",
+            "14",
+            "13",
+            "12",
+            "10",
+            "9",
+            "8",
+            "7",
+            "6",
+            "5",
+            "4",
+            "3",
+            "2",
+            "1"
+        ],
+        "functions": [
+            "Operador (OPE)",
+            "Supervisor (SPVS)",
+            "Estagi\u00e1rio (EST)",
+            "Chf Controlador(CC)",
+            "Avaliador (AVL)",
+            "Coordenador (COOR)"
+        ],
+        "habilitation_type": {
+            "6": "Controle de \u00c1rea por Vigil\u00e2ncia (ACC VGL)",
+            "29": "Chefe de Equipe de \u00d3rg\u00e3o ATC (CHEQ)"
+        }
+    }
+}
+
+type LPNAFunctionsResponse = typeof ModelFunctionFromLPNA
+
+const ModelUsersFromLPNA = {
+        "status": true,
+        "message": "",
+        "data": {
+            "A": [
+                {
+                    "id": "13176dd3-44ae-11ef-a377-02420a000b13",
+                    "effective_id": "85a27f79-1db3-4e54-81f6-bd15e2078cd2",
+                    "register_id": "224529c9-bb6b-4c8b-a90d-88517584110b",
+                    "name": "MARCELO DA SILVA FRANCISCO",
+                    "war_name": "FRANCISCO",
+                    "indicative": "KGSC",
+                    "graduation": "SO",
+                    "photo": "http:\/\/servicos.decea.mil.br\/lpna\/app3\/_inc\/foto.cfm?f=E4C84B45-80C7-4250-9AE6A184F0EC8457",
+                    "eplis_level": 3,
+                    "eplis_year": 2023,
+                    "eplis_is_valid": 0,
+                    "legend": "A001",
+                    "hasFunctionInstructor": true,
+                    "maintenance": false,
+                    "days": {
+                        "25": {
+                            "absence": [
+                                {
+                                    "type": "Miss\u00e3o",
+                                    "description": null
+                                }
+                            ]
+                        },
+                        "26": {
+                            "absence": [
+                                {
+                                    "type": "Miss\u00e3o",
+                                    "description": null
+                                }
+                            ]
+                        },
+                        "27": {
+                            "absence": [
+                                {
+                                    "type": "Miss\u00e3o",
+                                    "description": null
+                                }
+                            ]
+                        },
+                        "28": {
+                            "absence": [
+                                {
+                                    "type": "Miss\u00e3o",
+                                    "description": null
+                                }
+                            ]
+                        },
+                        "29": {
+                            "absence": [
+                                {
+                                    "type": "Miss\u00e3o",
+                                    "description": null
+                                }
+                            ]
+                        },
+                        "30": {
+                            "absence": [
+                                {
+                                    "type": "Miss\u00e3o",
+                                    "description": null
+                                }
+                            ]
+                        },
+                        "31": {
+                            "absence": [
+                                {
+                                    "type": "Miss\u00e3o",
+                                    "description": null
+                                }
+                            ]
+                        },
+                        "21": {
+                            "shift": [
+                                {
+                                    "id": "1317fd26-44ae-11ef-a377-02420a000b13",
+                                    "shift_id": "79250096-f9c5-4a50-a497-4a335091e638",
+                                    "shift": "P1",
+                                    "swap_code": "1317fd26-44ae-11ef-a377-02420a000b13",
+                                    "escalation_id": "1317b01b-44ae-11ef-a377-02420a000b13",
+                                    "active_about_notice": 0,
+                                    "is_about_notice": "N",
+                                    "workload": 3840,
+                                    "ruleBroken": []
+                                }
+                            ],
+                            "ruleBroken": []
+                        },
+                        "1": {
+                            "shift": [
+                                {
+                                    "id": "1398577a-44ae-11ef-a377-02420a000b13",
+                                    "shift_id": "79250096-f9c5-4a50-a497-4a335091e638",
+                                    "shift": "P1",
+                                    "swap_code": "1398577a-44ae-11ef-a377-02420a000b13",
+                                    "escalation_id": "139814f7-44ae-11ef-a377-02420a000b13",
+                                    "active_about_notice": 0,
+                                    "is_about_notice": "N",
+                                    "workload": 3840,
+                                    "ruleBroken": []
+                                }
+                            ],
+                            "ruleBroken": []
+                        },
+                        "15": {
+                            "shift": [
+                                {
+                                    "id": "141b80bf-44ae-11ef-a377-02420a000b13",
+                                    "shift_id": "4f70adee-9cc1-40c3-b77f-44d7ac5f7075",
+                                    "shift": "R",
+                                    "swap_code": "141b80bf-44ae-11ef-a377-02420a000b13",
+                                    "escalation_id": "141b447d-44ae-11ef-a377-02420a000b13",
+                                    "active_about_notice": 0,
+                                    "is_about_notice": "N",
+                                    "workload": 3840,
+                                    "ruleBroken": []
+                                }
+                            ],
+                            "ruleBroken": []
+                        },
+                        "17": {
+                            "shift": [
+                                {
+                                    "id": "149ffd5d-44ae-11ef-a377-02420a000b13",
+                                    "shift_id": "4f70adee-9cc1-40c3-b77f-44d7ac5f7075",
+                                    "shift": "R",
+                                    "swap_code": "149ffd5d-44ae-11ef-a377-02420a000b13",
+                                    "escalation_id": "149fc25d-44ae-11ef-a377-02420a000b13",
+                                    "active_about_notice": 0,
+                                    "is_about_notice": "N",
+                                    "workload": 3840,
+                                    "ruleBroken": []
+                                }
+                            ],
+                            "ruleBroken": []
+                        },
+                        "13": {
+                            "shift": [
+                                {
+                                    "id": "1520ffb5-44ae-11ef-a377-02420a000b13",
+                                    "shift_id": "6a59ce34-33c2-4d87-b312-d677cd72cda1",
+                                    "shift": "P2",
+                                    "swap_code": "1520ffb5-44ae-11ef-a377-02420a000b13",
+                                    "escalation_id": "1520d3a6-44ae-11ef-a377-02420a000b13",
+                                    "active_about_notice": 0,
+                                    "is_about_notice": "N",
+                                    "workload": 3840,
+                                    "ruleBroken": []
+                                }
+                            ],
+                            "ruleBroken": []
+                        },
+                        "11": {
+                            "shift": [
+                                {
+                                    "id": "15a0c202-44ae-11ef-a377-02420a000b13",
+                                    "shift_id": "4f70adee-9cc1-40c3-b77f-44d7ac5f7075",
+                                    "shift": "R",
+                                    "swap_code": "15a0c202-44ae-11ef-a377-02420a000b13",
+                                    "escalation_id": "15a080a1-44ae-11ef-a377-02420a000b13",
+                                    "active_about_notice": 0,
+                                    "is_about_notice": "N",
+                                    "workload": 3840,
+                                    "ruleBroken": []
+                                }
+                            ],
+                            "ruleBroken": []
+                        },
+                        "6": {
+                            "shift": [
+                                {
+                                    "id": "161fb14d-44ae-11ef-a377-02420a000b13",
+                                    "shift_id": "6a59ce34-33c2-4d87-b312-d677cd72cda1",
+                                    "shift": "P2",
+                                    "swap_code": "161fb14d-44ae-11ef-a377-02420a000b13",
+                                    "escalation_id": "161f7372-44ae-11ef-a377-02420a000b13",
+                                    "active_about_notice": 0,
+                                    "is_about_notice": "N",
+                                    "workload": 3840,
+                                    "ruleBroken": []
+                                }
+                            ],
+                            "ruleBroken": []
+                        },
+                        "20": {
+                            "shift": [
+                                {
+                                    "id": "169df85d-44ae-11ef-a377-02420a000b13",
+                                    "shift_id": "4f70adee-9cc1-40c3-b77f-44d7ac5f7075",
+                                    "shift": "R",
+                                    "swap_code": "169df85d-44ae-11ef-a377-02420a000b13",
+                                    "escalation_id": "169dcb8e-44ae-11ef-a377-02420a000b13",
+                                    "active_about_notice": 0,
+                                    "is_about_notice": "N",
+                                    "workload": 3840,
+                                    "ruleBroken": []
+                                }
+                            ],
+                            "ruleBroken": []
+                        }
+                    },
+                    "subTotal": {
+                        "amount": 8,
+                        "shifts": {
+                            "P1": {
+                                "amount": 2,
+                                "shift": "P1",
+                                "shift_id": "79250096-f9c5-4a50-a497-4a335091e638"
+                            },
+                            "R": {
+                                "amount": 4,
+                                "shift": "R",
+                                "shift_id": "4f70adee-9cc1-40c3-b77f-44d7ac5f7075"
+                            },
+                            "P2": {
+                                "amount": 2,
+                                "shift": "P2",
+                                "shift_id": "6a59ce34-33c2-4d87-b312-d677cd72cda1"
+                            }
+                        }
+                    },
+                    "workload": {
+                        "monthly": 3840,
+                        "bimonthly": {
+                            "workload": 2850,
+                            "amount_scales": 1,
+                            "workload_expected": 10
+                        },
+                        "quarterly": {
+                            "workload": 2850,
+                            "amount_scales": 1,
+                            "workload_expected": 40
+                        }
+                    },
+                    "workloadOtherFunctions": {
+                        "Supervisor (SPVS)": {
+                            "monthly": 2835
+                        }
+                    }
+                },
+  
+            ]},
+            
+}
+const ModelUsersArrayFromLPNA = [
+    {
+        "id": "13176dd3-44ae-11ef-a377-02420a000b13",
+        "effective_id": "85a27f79-1db3-4e54-81f6-bd15e2078cd2",
+        "register_id": "224529c9-bb6b-4c8b-a90d-88517584110b",
+        "name": "MARCELO DA SILVA FRANCISCO",
+        "war_name": "FRANCISCO",
+        "indicative": "KGSC",
+        "graduation": "SO",
+        "photo": "http:\/\/servicos.decea.mil.br\/lpna\/app3\/_inc\/foto.cfm?f=E4C84B45-80C7-4250-9AE6A184F0EC8457",
+        "eplis_level": 3,
+        "eplis_year": 2023,
+        "eplis_is_valid": 0,
+        "legend": "A001",
+        "hasFunctionInstructor": true,
+        "maintenance": false,
+        "days": {
+            "25": {
+                "absence": [
+                    {
+                        "type": "Miss\u00e3o",
+                        "description": null
+                    }
+                ]
+            },
+            "26": {
+                "absence": [
+                    {
+                        "type": "Miss\u00e3o",
+                        "description": null
+                    }
+                ]
+            },
+            "27": {
+                "absence": [
+                    {
+                        "type": "Miss\u00e3o",
+                        "description": null
+                    }
+                ]
+            },
+            "28": {
+                "absence": [
+                    {
+                        "type": "Miss\u00e3o",
+                        "description": null
+                    }
+                ]
+            },
+            "29": {
+                "absence": [
+                    {
+                        "type": "Miss\u00e3o",
+                        "description": null
+                    }
+                ]
+            },
+            "30": {
+                "absence": [
+                    {
+                        "type": "Miss\u00e3o",
+                        "description": null
+                    }
+                ]
+            },
+            "31": {
+                "absence": [
+                    {
+                        "type": "Miss\u00e3o",
+                        "description": null
+                    }
+                ]
+            },
+            "21": {
+                "shift": [
+                    {
+                        "id": "1317fd26-44ae-11ef-a377-02420a000b13",
+                        "shift_id": "79250096-f9c5-4a50-a497-4a335091e638",
+                        "shift": "P1",
+                        "swap_code": "1317fd26-44ae-11ef-a377-02420a000b13",
+                        "escalation_id": "1317b01b-44ae-11ef-a377-02420a000b13",
+                        "active_about_notice": 0,
+                        "is_about_notice": "N",
+                        "workload": 3840,
+                        "ruleBroken": []
+                    }
+                ],
+                "ruleBroken": []
+            },
+            "1": {
+                "shift": [
+                    {
+                        "id": "1398577a-44ae-11ef-a377-02420a000b13",
+                        "shift_id": "79250096-f9c5-4a50-a497-4a335091e638",
+                        "shift": "P1",
+                        "swap_code": "1398577a-44ae-11ef-a377-02420a000b13",
+                        "escalation_id": "139814f7-44ae-11ef-a377-02420a000b13",
+                        "active_about_notice": 0,
+                        "is_about_notice": "N",
+                        "workload": 3840,
+                        "ruleBroken": []
+                    }
+                ],
+                "ruleBroken": []
+            },
+            "15": {
+                "shift": [
+                    {
+                        "id": "141b80bf-44ae-11ef-a377-02420a000b13",
+                        "shift_id": "4f70adee-9cc1-40c3-b77f-44d7ac5f7075",
+                        "shift": "R",
+                        "swap_code": "141b80bf-44ae-11ef-a377-02420a000b13",
+                        "escalation_id": "141b447d-44ae-11ef-a377-02420a000b13",
+                        "active_about_notice": 0,
+                        "is_about_notice": "N",
+                        "workload": 3840,
+                        "ruleBroken": []
+                    }
+                ],
+                "ruleBroken": []
+            },
+            "17": {
+                "shift": [
+                    {
+                        "id": "149ffd5d-44ae-11ef-a377-02420a000b13",
+                        "shift_id": "4f70adee-9cc1-40c3-b77f-44d7ac5f7075",
+                        "shift": "R",
+                        "swap_code": "149ffd5d-44ae-11ef-a377-02420a000b13",
+                        "escalation_id": "149fc25d-44ae-11ef-a377-02420a000b13",
+                        "active_about_notice": 0,
+                        "is_about_notice": "N",
+                        "workload": 3840,
+                        "ruleBroken": []
+                    }
+                ],
+                "ruleBroken": []
+            },
+            "13": {
+                "shift": [
+                    {
+                        "id": "1520ffb5-44ae-11ef-a377-02420a000b13",
+                        "shift_id": "6a59ce34-33c2-4d87-b312-d677cd72cda1",
+                        "shift": "P2",
+                        "swap_code": "1520ffb5-44ae-11ef-a377-02420a000b13",
+                        "escalation_id": "1520d3a6-44ae-11ef-a377-02420a000b13",
+                        "active_about_notice": 0,
+                        "is_about_notice": "N",
+                        "workload": 3840,
+                        "ruleBroken": []
+                    }
+                ],
+                "ruleBroken": []
+            },
+            "11": {
+                "shift": [
+                    {
+                        "id": "15a0c202-44ae-11ef-a377-02420a000b13",
+                        "shift_id": "4f70adee-9cc1-40c3-b77f-44d7ac5f7075",
+                        "shift": "R",
+                        "swap_code": "15a0c202-44ae-11ef-a377-02420a000b13",
+                        "escalation_id": "15a080a1-44ae-11ef-a377-02420a000b13",
+                        "active_about_notice": 0,
+                        "is_about_notice": "N",
+                        "workload": 3840,
+                        "ruleBroken": []
+                    }
+                ],
+                "ruleBroken": []
+            },
+            "6": {
+                "shift": [
+                    {
+                        "id": "161fb14d-44ae-11ef-a377-02420a000b13",
+                        "shift_id": "6a59ce34-33c2-4d87-b312-d677cd72cda1",
+                        "shift": "P2",
+                        "swap_code": "161fb14d-44ae-11ef-a377-02420a000b13",
+                        "escalation_id": "161f7372-44ae-11ef-a377-02420a000b13",
+                        "active_about_notice": 0,
+                        "is_about_notice": "N",
+                        "workload": 3840,
+                        "ruleBroken": []
+                    }
+                ],
+                "ruleBroken": []
+            },
+            "20": {
+                "shift": [
+                    {
+                        "id": "169df85d-44ae-11ef-a377-02420a000b13",
+                        "shift_id": "4f70adee-9cc1-40c3-b77f-44d7ac5f7075",
+                        "shift": "R",
+                        "swap_code": "169df85d-44ae-11ef-a377-02420a000b13",
+                        "escalation_id": "169dcb8e-44ae-11ef-a377-02420a000b13",
+                        "active_about_notice": 0,
+                        "is_about_notice": "N",
+                        "workload": 3840,
+                        "ruleBroken": []
+                    }
+                ],
+                "ruleBroken": []
+            }
+        },
+        "subTotal": {
+            "amount": 8,
+            "shifts": {
+                "P1": {
+                    "amount": 2,
+                    "shift": "P1",
+                    "shift_id": "79250096-f9c5-4a50-a497-4a335091e638"
+                },
+                "R": {
+                    "amount": 4,
+                    "shift": "R",
+                    "shift_id": "4f70adee-9cc1-40c3-b77f-44d7ac5f7075"
+                },
+                "P2": {
+                    "amount": 2,
+                    "shift": "P2",
+                    "shift_id": "6a59ce34-33c2-4d87-b312-d677cd72cda1"
+                }
+            }
+        },
+        "workload": {
+            "monthly": 3840,
+            "bimonthly": {
+                "workload": 2850,
+                "amount_scales": 1,
+                "workload_expected": 10
+            },
+            "quarterly": {
+                "workload": 2850,
+                "amount_scales": 1,
+                "workload_expected": 40
+            }
+        },
+        "workloadOtherFunctions": {
+            "Supervisor (SPVS)": {
+                "monthly": 2835
+            }
+        }
+    },
+
+]
+type LPNAUsersArrayResponse = typeof ModelUsersArrayFromLPNA
+
+type LPNAUsersResponse = typeof ModelUsersFromLPNA
+
+
+const getUsersFromLPNA = async (roster: Roster, access_token: string): Promise<ErrorTypes | LPNAUsersArrayResponse[]> => {
+    try {
+    const users:LPNAUsersArrayResponse[] = []
+        const getFunctionsFromLPNA = await fetch("https://api.decea.mil.br/escala/api/model/data/form", {
+            method: "GET",
+            headers: {
+                " Authorization": `Bearer ${access_token}`
+            }
+        })
+        if(getFunctionsFromLPNA.status !== 200){
+            return {
+                code: getFunctionsFromLPNA.status,
+                message: `Erro ao buscar funções na LPNA. O erro retornado pela LPNA foi o seguinte: ${getFunctionsFromLPNA.statusText}`
+            }
+        }
+        const functions = (await getFunctionsFromLPNA.json() as LPNAFunctionsResponse).data.functions.filter(functionName => !functionName.toLowerCase().includes("ope") && !functionName.toLowerCase().includes("sup"))
+
+        const getGroupsPerFunctionFromLpnas = await Promise.all(functions.map(async functionName => {
+            return {
+                functionName,
+                response : await fetch(`https://api.decea.mil.br/escala/api/scale/general/${roster.id}/groups/${functionName}`, {
+                method: "GET",
+                headers: {
+                    " Authorization": `Bearer ${access_token}`
+                }
+            })
+    }}))
+        const getUsersFromLPNA = await Promise.all(getGroupsPerFunctionFromLpnas.map(async group => {
+            const letters = await group.response.json()
+            const usersFromLPNA = await Promise.all(letters.data.map(async (letter:any) => {
+                const response = await fetch(`https://api.decea.mil.br/escala/api/scale/general/${roster.id}/groups/${group.functionName}/${letter}`, {
+                    method: "GET",
+                    headers: {
+                        " Authorization": `Bearer ${access_token}`
+                    }
+                })
+                const usersFromLpna = (await response.json() as LPNAUsersResponse).data[letter as "A"].map(user => {
+                    users.push(user as unknown as LPNAUsersArrayResponse)
+                })
+            }))
+        }))
+
+
+        return users
+
+    } catch (error) {
+        return {
+            code: 500,
+            message: "Erro ao buscar usuários da LPNA"
+        }
+        
     }
 }
 
@@ -771,6 +1371,7 @@ export async function getLPNAData(): Promise<ErrorTypes | {users: User[], shifts
         } as unknown as $Enums.Months;
         const rosters= lpnaRosterData.data.map(roster => {
             const Roster = {
+                id: roster.id,
                 month:  convertReferenceMonthToRosterMonth[parseFloat(roster.reference_month)] as $Enums.Months,
                 year: parseFloat(roster.reference_year),
                 minWorkingHoursPerRoster: lpnaDepartmentData.data.workload_base,
@@ -780,7 +1381,46 @@ export async function getLPNAData(): Promise<ErrorTypes | {users: User[], shifts
             }
             return Roster
         }
-        )
+        ).sort((a,b) => getDateFromRoster(b).getTime() - getDateFromRoster(a).getTime()) as Roster[]
+        const lastRosterToGetUsers = rosters[0] as Roster ?? {id:""} as Roster
+        const lpnaUsersData = await getUsersFromLPNA(lastRosterToGetUsers, access_token)
+        const hasErrorOnUsers = isErrorTypes(lpnaUsersData)
+        if(hasErrorOnUsers){
+            return {
+                code: lpnaUsersData.code,
+                message: lpnaUsersData.message
+            }
+        }
+        const users = lpnaUsersData.flat().map(user => {
+            const getFirstLettersFromFullName = user.name.split(" ").map(name => {
+                const checkIfContainsPreposition = name.toLowerCase().includes("da") || name.toLowerCase().includes("de") || name.toLowerCase().includes("do") || name.toLowerCase().includes("dos") || name.toLowerCase().includes("das")
+                if(!checkIfContainsPreposition){
+                    return name[0]
+                }
+                return ""
+            }).join("")
+            const newUser = {
+                id: user.id,
+                created_at: new Date(),
+                name:`${user.graduation} ${user.war_name}`,
+                saram: "",
+                cpf: "",
+                password: null,
+                email: `${user.war_name.toLowerCase().split(" ").join("")}${getFirstLettersFromFullName}@fab.mil.br`,
+                block_changes: false,
+                isOffice: false,
+                function: "OPE",
+                role: "USER",
+                rosterId: null,
+                departmentId: admin.departmentId,
+                workDaysId: [],
+                isApproved: true,
+            }
+            return newUser
+
+        }) as User[]
+
+
         const abscences = lpnaShiftAbcesesData.data.map(abscence => {
             var start
             var end
@@ -857,15 +1497,13 @@ export async function getLPNAData(): Promise<ErrorTypes | {users: User[], shifts
         )
 
         const onlyShifts = [...shiftsFromOpe, ...shiftsFromSup].flat()
-        const shifts = [...onlyShifts, ...abscences]
+        const shifts = [...onlyShifts, ...abscences] as Shift[]
         
-        //ToDo getUsersFromLPNA
-        //alo
 
         return {
-            users: [],
-            shifts:[],
-            rosters:[]
+            users,
+            shifts,
+            rosters
         }
        
 
