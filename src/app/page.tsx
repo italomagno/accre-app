@@ -47,6 +47,8 @@ export default async function IndexPage({
           
         />
   )
+
+  
   if(shifts.length === 0) return (
     
         <EmptyHomePageComponent

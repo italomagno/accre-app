@@ -58,17 +58,7 @@ export async function getAvailableShiftsDay(day: Date) {
         };
         }
 
-    const department = await prisma.department.findUnique({
-      where: {
-        id: user.departmentId
-      }
-    });
-    if (!department) {
-      return {
-        code: 404,
-        message: 'Órgão não encontrado'
-      };
-    }
+
     const monthInEnglishWithThreeLetters = day
       .toLocaleString('en', { month: 'short' })
       .toUpperCase() as keyof typeof $Enums.Months;
@@ -78,7 +68,7 @@ export async function getAvailableShiftsDay(day: Date) {
       where: {
         month: month,
         year: day.getFullYear(),
-        departmentId: department.id
+        departmentId: user.departmentId
       }
     });
     if (!rosterByMonthAndYear) {
@@ -88,14 +78,22 @@ export async function getAvailableShiftsDay(day: Date) {
       };
     }
 
-    const shifts = await prisma.shift.findMany({
-      where: {
-        departmentId: department.id,
-        rostersId: {
-          has: rosterByMonthAndYear.id
-        }
+    const supShifts = await prisma.shift.findMany({
+      where:{
+          departmentId: user.departmentId,
+          isOnlyToSup: true
       }
-    });
+  })
+  const userIsAdmin = user.role === "ADMIN"
+  const userIsSup = user.function === "SUP"
+  const opeShifts =  await prisma.shift.findMany({
+      where:{
+          departmentId: user.departmentId,
+          isOnlyToSup: false
+      }
+  }) 
+
+  const shifts = userIsAdmin ? [...supShifts, ...opeShifts] : userIsSup ? [...supShifts, ...opeShifts] : opeShifts
 
     if (!shifts) {
       return {
@@ -105,7 +103,7 @@ export async function getAvailableShiftsDay(day: Date) {
     }
     const workDays = await prisma.workDay.findMany({
       where:{
-        departmentId: department.id,
+        departmentId: user.departmentId,
         day
       }
     });

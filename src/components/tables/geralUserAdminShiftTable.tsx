@@ -114,18 +114,22 @@ export function GeralUserAdminShiftTable({
       <TableHeaderSticky>
           {counterShiftsPerdayHeadings.map((heading, i) => {
             return (
-             <TableCell variant={typeof heading === "string" ? undefined : heading.isWeekend === true? "isWeekend" : undefined} key={generateUniqueKey()}>{typeof heading === "string" ? heading : heading.day}</TableCell>
+             <TableCell 
+             className={ typeof heading === 'string' ?"text-center w-20 first:sticky first:left-0 first:bg-muted/80 first:border-r-transparent" : ""}
+             variant={typeof heading === "string" ? undefined : heading.isWeekend === true? "isWeekend" : undefined} key={generateUniqueKey()}>{typeof heading === "string" ? heading : heading.day}</TableCell>
 
             );
           })}
       </TableHeaderSticky>
-
+      {/* ( td:first-child {
+            @apply  sticky left-0 bg-muted/80 border-r-transparent;
+          } */}
       <TableBody >
         {counterUsersPerday.map((userShifts) => {
           const { user, days } = userShifts;
           return (
-            <TableRow key={generateUniqueKey()}>
-              <TableCell className="text-center w-20">
+            <TableRow key={generateUniqueKey()} className='first:sticky first:left-0 first:bg-muted/80 first:border-r-transparent'>
+              <TableCell className="text-center w-20 first:sticky first:left-0 first:bg-muted/80 first:border-r-transparent">
                 <div className='flex flex-col gap-2'>
                 <div className='grid grid-cols-[1fr_20px] text-center items-center'>
                   <div className='text-center'>

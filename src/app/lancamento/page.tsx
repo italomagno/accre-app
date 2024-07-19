@@ -4,7 +4,7 @@ import { CalendarComponent } from '@/src/app/calendarComponent';
 import { LayoutComponent } from '../LayoutComponent';
 import { getRostersById, getRostersBySession } from '../settings/roster/actions';
 import { getAvailableShifts } from '../settings/shifts/action';
-import {  getWorkDaysByUserEmail, getWorkDaysByUserSession } from './action';
+import {  getWorkDaysByUserEmail } from './action';
 import { getUserByEmail } from '../login/_actions';
 import { auth } from '@/src/lib/auth';
 import { UniqueRosterCalendarComponent } from '../uniqueRosterCalendarComponent';

@@ -116,6 +116,7 @@ export function GeralUserShiftTable({
           {counterShiftsPerdayHeadings.map((heading, i) => {
             return (
               <TableCell
+              className={ typeof heading === 'string' ?"text-center w-20 first:sticky first:left-0 first:bg-muted/80 first:border-r-transparent" : ""}
                 variant={
                   typeof heading === 'string'
                     ? undefined
@@ -135,8 +136,9 @@ export function GeralUserShiftTable({
         {counterUsersPerday.map((userShifts) => {
           const { user, days } = userShifts;
           return (
-            <TableRow key={generateUniqueKey()}>
-              <TableCell>{user.name}</TableCell>
+            <TableRow key={generateUniqueKey()} className='first:sticky first:left-0 first:bg-muted/80 first:border-r-transparent'>
+                      <TableCell className="text-center w-20 first:sticky first:left-0 first:bg-muted/80 first:border-r-transparent">
+                {user.name}</TableCell>
               {days.map((cellData, i) => {
                 return (
                   <TableCell

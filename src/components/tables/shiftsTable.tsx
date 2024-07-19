@@ -109,6 +109,7 @@ export function ShiftsTable({
         {counterShiftsPerdayHeadings.map((heading, i) => {
           return (
             <TableCell
+            className={ typeof heading === 'string' ?"text-center w-20 first:sticky first:left-0 first:bg-muted/80 first:border-r-transparent" : ""}
               variant={
                 typeof heading === 'string'
                   ? undefined
@@ -128,8 +129,11 @@ export function ShiftsTable({
         {counterShiftsPerday.map((rowData, i) => {
           const { shift, days } = rowData;
           return (
-            <TableRow key={generateUniqueKey()}>
-              <TableCell>{shift.name}</TableCell>
+            <TableRow key={generateUniqueKey()} >
+              <TableCell 
+                  className='first:sticky first:left-0 first:bg-muted/80 first:border-r-transparent'
+              
+              >{shift.name}</TableCell>
               {days.map((day, i) => {
                 return (
                   <TableCell

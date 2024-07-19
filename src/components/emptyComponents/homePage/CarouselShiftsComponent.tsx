@@ -1,7 +1,5 @@
-import {  getMonthFromRoster } from '@/src/lib/utils';
 import { ShiftsTable } from '../../tables/shiftsTable';
 
-import { ScrollArea, ScrollBar } from '../../ui/scroll-area';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 
 type CarrouselComponentProps = {

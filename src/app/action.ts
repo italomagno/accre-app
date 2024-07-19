@@ -40,7 +40,6 @@ export async function handleFechDataToShiftsTable():Promise<ErrorTypes | {shifts
 
         const shifts = userIsAdmin ? [...supShifts, ...opeShifts] : userIsSup ? [...supShifts, ...opeShifts] : opeShifts
 
-
     
         const users = await prisma.user.findMany({
             where:{
