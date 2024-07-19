@@ -102,7 +102,7 @@ export async function createRoster(data:CreateRosterValues):Promise<ErrorTypes>{
                 year: parseInt(data.year),
                 minWorkingHoursPerRoster: parseInt(data.minHours),
                 maxWorkingHoursPerRoster: parseInt(data.maxHours),
-                minWorkingDaysOnWeekEnd: data.minQuantityOnWeekend ? data.minQuantityOnWeekend : 0,
+                minWorkingDaysOnWeekEnd: data.minQuantityOnWeekend ? parseInt(data.minQuantityOnWeekend) : 0,
                 departmentId: admin.departmentId,
                 users: {
                     connect: registeredNormalUsers.map(user => {
@@ -181,6 +181,9 @@ export async function updateRoster(id:string,data:UpdateRosterValues):Promise<Er
             data:{
                 ...data,
                 year:parseInt(data.year),
+                minWorkingDaysOnWeekEnd: data.minQuantityOnWeekend ? parseInt(data.minQuantityOnWeekend) : 0,
+                minWorkingHoursPerRoster: data.minWorkingHoursPerRoster ? data.minWorkingHoursPerRoster : 0,
+                maxWorkingHoursPerRoster: data.maxWorkingHoursPerRoster ? data.maxWorkingHoursPerRoster : 0,
                 month: data.month as Months,
             }
         })

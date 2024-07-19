@@ -1,7 +1,7 @@
 "use client"
-import { SVGProps, use, useEffect, useState } from "react"
+import { SVGProps, useEffect, useState } from "react"
 import { Button } from "./button"
-import { useFormState, useFormStatus } from "react-dom"
+import { useFormState } from "react-dom"
 import { createManyUsers, handleFileInputForManyUsers } from "@/src/app/settings/users/createUser/actions"
 import { useToast } from "./use-toast"
 import { User } from "@prisma/client"
@@ -17,9 +17,8 @@ export function FileInput({search}:FileInputProps) {
   const [users, setUsers] = useState<Pick<User, "name" | "email" | "function">[]>()
   const [returnOfSaving, setreturnOfSaving] = useState<ErrorTypes>()
   const [callBackFromFileUpload,formActionToUploadFile]= useFormState(handleFileInputForManyUsers,null)
+  const [isPending,setIsPending] = useState(false)
 
-
-  const {pending} = useFormStatus()
 
 
   useEffect(()=>{
@@ -43,6 +42,7 @@ export function FileInput({search}:FileInputProps) {
   }
   ,[callBackFromFileUpload])
   useEffect(()=>{
+    setIsPending(false)
     if(returnOfSaving){
       if(returnOfSaving.code === 200){
         toast({
@@ -66,7 +66,8 @@ export function FileInput({search}:FileInputProps) {
       users && users.length > 0 ?
       <>
       <UserTable users={users} search={search}  />
-      <Button disabled={pending} onClick={async ()=>{
+      <Button disabled={isPending} onClick={async ()=>{
+        setIsPending(true)
         const returnofsaving = await createManyUsers(users)
         setreturnOfSaving(returnofsaving)
       }}>Salvar Usuários</Button>
@@ -82,7 +83,7 @@ export function FileInput({search}:FileInputProps) {
               <input type="file" accept=".csv" name="file" className="absolute inset-0 w-full h-full cursor-pointer pointer-events-auto" />
           </div>
           <p className="text-sm text-muted-foreground">Apenas arquivos .csv são aceitos. Tamanho máximo do arquivo é: 5MB.</p>
-          <Button disabled={pending} type="submit">Ler arquivo CSV.</Button>
+          <Button disabled={isPending} type="submit">Ler arquivo CSV.</Button>
           </form>
       </div>
     }

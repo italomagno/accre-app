@@ -15,9 +15,16 @@ export async function getShifts(){
             message: "Usuário não autenticado"
         }
     }
+    const user = await getUserByEmail(session.user.email)
+    if("code" in user){
+        return {
+            code: 403,
+            message: user.message
+        }
+    }
     const shifts = await prisma.shift.findMany({
         where: {
-            departmentId: session.user.departmentId
+            departmentId: user.departmentId
         }
     })
     if(!shifts || shifts.length === 0){
@@ -37,9 +44,18 @@ export async function getAvailableShifts(){
             message: "Usuário não autenticado"
         }
     }
+    const user = await getUserByEmail(session.user.email)
+    if("code" in user){
+        return {
+            code: 403,
+            message: user.message
+        }
+    }
+
+
     const shifts = await prisma.shift.findMany({
         where: {
-            departmentId: session.user.departmentId,
+            departmentId: user.departmentId,
             isAvailable: true
         }
     })

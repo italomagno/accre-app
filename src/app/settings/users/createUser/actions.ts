@@ -139,7 +139,7 @@ export async function createManyUsers(users:Pick<User, "name" | "email" | "funct
         }
     }
 
-    const newUsers= users.map((user) => {
+    const nUsers= users.map((user) => {
         prisma.$disconnect()
         return {
             ...user,
@@ -157,13 +157,10 @@ export async function createManyUsers(users:Pick<User, "name" | "email" | "funct
                 }
             }
         })
-        if(alreadyCreatedUsers.length > 0){
-            prisma.$disconnect()
-            return {
-                code: 400,
-                message: `Usuários já existentes:  ${alreadyCreatedUsers.map((user,i) => ` ( ${i+1} ) nome: ${user.name} e email: ${user.email}`).join(`, \n\n`)}. Remova-os do arquivo CSV e tente novamente.`
-            }
-        }
+
+        const newUsers = nUsers.filter((user) => !alreadyCreatedUsers.map((user) => user.email).includes(user.email))
+        
+
         const createdUsers = await prisma.user.createMany({
             data: newUsers
         })
@@ -174,10 +171,18 @@ export async function createManyUsers(users:Pick<User, "name" | "email" | "funct
                 message: "Erro ao criar usuários"
             }
         }
+        
         if(createdUsers.count < users.length){
+            if(alreadyCreatedUsers.length > 0){
+                prisma.$disconnect()
+                return {
+                    code: 200,
+                    message: `Usuários criados com sucesso, porém os seguintes usuários não foram criados pois já existentem:  ${alreadyCreatedUsers.map((user,i) => ` ( ${i+1} ) nome: ${user.name} e email: ${user.email}`).join(`, \n\n`)}.`
+                }
+            }
         prisma.$disconnect()
             return {
-                code: 500,
+                code: 200,
                 message: `Foram criados apenas ${createdUsers.count} usuários de ${users.length}`
             }
         }

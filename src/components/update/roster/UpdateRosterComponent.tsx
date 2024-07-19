@@ -145,6 +145,9 @@ export function UpdateRosterComponent({ defaultRosterValues,id }: UpdateRosterCo
                     <FormLabel>Minimo de horas por controlador</FormLabel>
                     <FormControl>
                       <Input
+                      defaultValue={field.value}
+                       min={0}
+                       max={300}
                         type="number"
                         placeholder="Minimo de horas por controlador"
                         {...field}
@@ -164,6 +167,9 @@ export function UpdateRosterComponent({ defaultRosterValues,id }: UpdateRosterCo
                     <FormLabel>Máximo de horas por controlador</FormLabel>
                     <FormControl>
                       <Input
+                      defaultValue={field.value}
+                        min={0}
+                        max={300}
                         type="number"
                         placeholder="Máximo de horas por controlador"
                         {...field}
@@ -218,6 +224,7 @@ export function UpdateRosterComponent({ defaultRosterValues,id }: UpdateRosterCo
                     <FormLabel>Quantidade mínima de turnos no fim de semana.</FormLabel>
                     <FormControl>
                       <Input
+                      defaultValue={field.value}
                         type="number"
                         min={0}
                         max={100}

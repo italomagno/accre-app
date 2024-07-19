@@ -164,7 +164,7 @@ export const UpdateRosterSchema = z.object({
   }),
   blockChanges: z.boolean().default(false),
   minQuantityOnWeekend: z
-  .number().default(0).optional(),
+  .string().default("0").optional(),
 });
 
 export type UpdateRosterValues = z.infer<typeof UpdateRosterSchema>;
@@ -226,7 +226,7 @@ export const createRosterSchema = z.object({
     })
     .refine((value) => value !== '', 'Máximo de horas é obrigatório.'),
     minQuantityOnWeekend: z
-    .number().default(0),
+    .string().default("0"),
 });
 
 export type CreateRosterValues = z.infer<typeof createRosterSchema>;
