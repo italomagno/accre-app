@@ -78,7 +78,7 @@ const usersByRoster = users
               type="right"
             />
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-32 px-14">
+          <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-2 px-14">
             <>
             <div className='grid grid-rows-subgrid'>
 
@@ -93,10 +93,11 @@ const usersByRoster = users
             workDays={workDaysByRoster} 
             />
             </div>
+            <div></div>
+
               {
                 user.role === "ADMIN" 
                   ? <>
-                  <div></div>
                   <div className='col-span-2'>
                     <CarouselAdminUserComponent
                       roster={currentRoster}
@@ -108,13 +109,17 @@ const usersByRoster = users
                   </div>
                   </>
 
-                  : <CarouselGeralUserComponent 
+                  : 
+                  <div className='col-span-2'>
+
+                  <CarouselGeralUserComponent 
                       roster={currentRoster}
                       search={search}
                       shifts={shifts}
                       workDays={workDaysByRoster}
                       users={usersByRoster}
                     />
+                  </div>
               }
             
             </>

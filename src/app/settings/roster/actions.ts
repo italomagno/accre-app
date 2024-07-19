@@ -4,6 +4,7 @@ import { auth } from "@/src/lib/auth"
 import prisma from "@/src/lib/db/prisma/prismaClient"
 import { ErrorTypes } from "@/src/types"
 import { Roster } from "@prisma/client"
+import { getUserByEmail } from "../../login/_actions"
 
 
 export async function getRosters():Promise<Roster[] | ErrorTypes>{
@@ -61,29 +62,28 @@ export async function getRostersBySession():Promise<Roster[] | ErrorTypes>{
             message: "Usuário não autenticado"
         }
     }
-    const email = session.user.email
-        const user = await prisma.user.findUnique({
-            where:{
-                email
-            }
-        })
-        if(!user){
-        prisma.$disconnect();
-            return {
+  const user = await getUserByEmail(session.user.email)
+        if("code" in user){
+            return{
                 code: 404,
-                message: "Usuário não encontrado"
+                message: user.message
+            
             }
         }
       
 
     
-        const rosters = await prisma.roster.findMany({
+        const rosters = await prisma.roster.findFirst({
             where:{
-                departmentId: user.departmentId
+                departmentId: user.departmentId,
+                blockChanges: false
             }
         })
+        if(!rosters){
+            return []
+        }
         prisma.$disconnect();
-        return rosters
+        return [rosters]
     }catch(e){
         return {
             code: 500,
@@ -113,16 +113,26 @@ export async function getRostersById(id:string):Promise<Roster[] | ErrorTypes>{
                 message: "Usuário não encontrado"
             }
         }
+        if(user.role !== "ADMIN"){
+        prisma.$disconnect();
+            return {
+                code: 403,
+                message: "Usuário não autorizado"
+            }
+        }
 
     
-        const rosters = await prisma.roster.findMany({
+        const rosters = await prisma.roster.findUnique({
             where:{
                 departmentId: user.departmentId,
                 id
             }
         })
+        if(!rosters){
+            return []
+        }
         prisma.$disconnect();
-        return rosters
+        return [rosters]
     }catch(e){
         return {
             code: 500,

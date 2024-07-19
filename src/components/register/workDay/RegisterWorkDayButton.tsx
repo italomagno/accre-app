@@ -18,7 +18,7 @@ type WorkDayButton = {
 export function RegisterWorkDayButton({workDays,rosterId, isAdmin,hasRestrictionsToSave = true}: WorkDayButton){
   const { toast } = useToast()
   const router = useRouter()
-
+console.log(rosterId)
   async function handleSaveProposal(){
     const response = await registerOrUpdateManyWorkDays(workDays,rosterId,hasRestrictionsToSave)
     if("code" in response){
@@ -37,7 +37,6 @@ export function RegisterWorkDayButton({workDays,rosterId, isAdmin,hasRestriction
       }
     }
   }
-    
 
     return(
         <Button

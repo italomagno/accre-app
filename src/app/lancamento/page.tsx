@@ -8,6 +8,7 @@ import {  getWorkDaysByUserEmail, getWorkDaysByUserSession } from './action';
 import { getUserByEmail } from '../login/_actions';
 import { auth } from '@/src/lib/auth';
 import { UniqueRosterCalendarComponent } from '../uniqueRosterCalendarComponent';
+import { getDateFromRoster } from '@/src/lib/utils';
 
 
 export default async function lancamento({
@@ -62,7 +63,7 @@ const rosterId = searchParams.rosterId ?? ""
             return <LayoutComponent>
             <main className="flex justify-center items-center p-4 md:p-6 mt-4 w-dvw h-dvh">
             <div className="flex items-center mb-8">
-            <h1 className="font-semibold text-lg md:text-2xl">Você ainda não tem escalas cadastradas. Entre em contato com o administrador do seu orgão.</h1>
+            <h1 className="font-semibold text-lg md:text-2xl">Não há escalas cadastradas para edição. Entre em contato com o administrador do seu orgão.</h1>
             </div>
             </main>
             </LayoutComponent>
@@ -86,6 +87,17 @@ const rosterId = searchParams.rosterId ?? ""
         </LayoutComponent>
 
         }
+        if(user.block_changes === true){
+            return <LayoutComponent>
+            <main className="flex justify-center items-center p-4 md:p-6 mt-4 w-dvw h-dvh">
+            <div className="flex items-center mb-8">
+            <h1 className="font-semibold text-lg md:text-2xl">Ainda não chegou sua vêz de propor sua escala. Solicite ao escalante.</h1>
+        </div>
+        </main>
+        </LayoutComponent>
+
+        }
+        const roster = rosters[0]
        
         return (
             <LayoutComponent>
@@ -101,14 +113,14 @@ const rosterId = searchParams.rosterId ?? ""
                         admin.role === "ADMIN"  && rosterId ?
                         <UniqueRosterCalendarComponent
                         admin={admin}
-                        roster={rosters[0]}
+                        roster={roster}
                         shifts={shifts}
                         workDays={workDays}
                         user={user}
                         />:
                         <CalendarComponent
-                        admin={admin}
-                        rosters={rosters}
+                        defaultMonth={getDateFromRoster(roster)}
+                        rosterId={roster.id}
                         shifts={shifts}
                         workDays={workDays}
                         user={user}
