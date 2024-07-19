@@ -84,7 +84,7 @@ const TableHead = React.forwardRef<
 TableHead.displayName = "TableHead"
 
 interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElement> {
-  variant?: 'lessThanNecessary' | 'moreThanNecessary' | 'hasNecessary' ;
+  variant?: 'lessThanNecessary' | 'moreThanNecessary' | 'hasNecessary' | "isWeekend" ;
 }
 
 const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
@@ -95,13 +95,16 @@ const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
 
     switch (variant) {
       case 'lessThanNecessary':
-        variantStyles = theme === 'light' ? 'bg-red-200' : 'bg-red-700';
+        variantStyles = theme === 'light' ? 'bg-red-200' : 'bg-red-500';
         break;
       case 'moreThanNecessary':
-        variantStyles = theme === 'light' ? 'bg-blue-200' : 'bg-blue-700';
+        variantStyles = theme === 'light' ? 'bg-blue-200' : 'bg-blue-500';
         break;
       case 'hasNecessary':
-        variantStyles = theme === 'light' ? 'bg-green-200' : 'bg-green-700';
+        variantStyles = theme === 'light' ? 'bg-green-200' : 'bg-green-500';
+        break;
+      case 'isWeekend':
+        variantStyles = theme === 'light' ? 'bg-muted/100' : 'bg-muted/100';
         break;
       default:
         break;

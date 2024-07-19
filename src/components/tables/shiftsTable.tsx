@@ -59,7 +59,8 @@ export function ShiftsTable({
 
   const WorkDaysColumn = createWorkDaysColumn(roster)
   const counterShiftsPerday = shifts.map(shift => {
-  const shiftPerDay = WorkDaysColumn.map(day => {
+  const shiftPerDay = WorkDaysColumn.map(workdayObject => {
+      const {day} = workdayObject
       return workDays.filter(workDay => workDay.shiftsId.includes(shift.id) && workDay.day.getDate() === day && workDay.day.getMonth() === getMonthFromRosterInNumber(roster)).reduce((acc,curr) => {
         return acc + 1
       }
@@ -70,7 +71,7 @@ export function ShiftsTable({
       days: [...shiftPerDay]
     }
   })
-  const counterShiftsPerdayHeadings = ["Turno",...WorkDaysColumn.map(day => day.toString())]
+  const counterShiftsPerdayHeadings = ["Turno",...WorkDaysColumn]
 
 
  useEffect(() => {
@@ -90,7 +91,7 @@ export function ShiftsTable({
               <TableRow>
               {
                 counterShiftsPerdayHeadings.map((heading,i) => {
-                  return <TableCell key={generateUniqueKey()}>{heading}</TableCell>
+                  return <TableCell variant={typeof heading === "string" ? undefined : heading.isWeekend === true? "isWeekend" : undefined} key={generateUniqueKey()}>{typeof heading === "string" ? heading : heading.day}</TableCell>
                 })
               }
               </TableRow>

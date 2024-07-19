@@ -78,7 +78,8 @@ export function GeralUserAdminShiftTable({
   const WorkDaysColumn = createWorkDaysColumn(roster);
   const counterUsersPerday = users.map((user) => {
     const shiftPerDay = WorkDaysColumn.map((day) => {
-      const newDate = day;
+      const newDate = day.day;
+      const isWeekend = day.isWeekend;
       const workDay = workDays.find(
         (workDay) =>
           workDay.userId === user.id && workDay.day.getDate() === newDate
@@ -92,7 +93,9 @@ export function GeralUserAdminShiftTable({
           ? shiftsInThisWorkDay.map((shift) => shift.name).join(' | ')
           : '-';
       if (!workDay) return '-';
-      return shiftInThisDay;
+      return {shiftInThisDay,
+        isWeekend
+      };
     });
     return {
       user,
@@ -101,7 +104,7 @@ export function GeralUserAdminShiftTable({
   });
   const counterShiftsPerdayHeadings = [
     'Usuário',
-    ...WorkDaysColumn.map((day) => day.toString())
+    ...WorkDaysColumn
   ];
 
   return (
@@ -112,9 +115,8 @@ export function GeralUserAdminShiftTable({
         <TableRow>
           {counterShiftsPerdayHeadings.map((heading, i) => {
             return (
-              <TableHead className="text-center" key={generateUniqueKey()}>
-                {heading}
-              </TableHead>
+             <TableCell variant={typeof heading === "string" ? undefined : heading.isWeekend === true? "isWeekend" : undefined} key={generateUniqueKey()}>{typeof heading === "string" ? heading : heading.day}</TableCell>
+
             );
           })}
         </TableRow>
@@ -146,7 +148,8 @@ export function GeralUserAdminShiftTable({
                 </TableCell>
               {days.map((cellData, i) => {
                 return (
-                  <TableCell key={generateUniqueKey()}>{cellData}</TableCell>
+                  <TableCell variant={typeof cellData === "string" ? undefined : cellData.isWeekend === true? "isWeekend" : undefined} key={generateUniqueKey()}>{typeof cellData === "string" ? cellData : cellData.shiftInThisDay}</TableCell>
+
                 );
               })}
             </TableRow>

@@ -6,108 +6,158 @@ import {
   TableHeader,
   TableCell,
   TableBody,
-  Table,
+  Table
 } from '@/src/components/ui/table';
-import { createWorkDaysColumn, generateUniqueKey, getDateFromRoster } from '@/src/lib/utils';
+import {
+  createWorkDaysColumn,
+  generateUniqueKey,
+  getDateFromRoster
+} from '@/src/lib/utils';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { useToast } from '../ui/use-toast';
 import { handleisSameDate } from '@/src/lib/date';
 type UserToUserTable = {
-  id:string,
-  name:string
-}
+  id: string;
+  name: string;
+};
 export function GeralUserShiftTable({
   shifts,
-  users:usersWithoutFilter,
+  users: usersWithoutFilter,
   roster,
   workDays,
-  search,
+  search
 }: {
-  shifts:(Shift & Partial<{[key:string]:any}>)[],
-  users: (User & Partial<{[key:string]:any}>)[],
-  roster: Pick<Roster,"month" | "year" | "id">,
-  workDays: WorkDay[]
-  search: string
+  shifts: (Shift & Partial<{ [key: string]: any }>)[];
+  users: (User & Partial<{ [key: string]: any }>)[];
+  roster: Pick<Roster, 'month' | 'year' | 'id'>;
+  workDays: WorkDay[];
+  search: string;
 }) {
-  const users = usersWithoutFilter.filter(user => user.name.toLowerCase().includes(search.toLowerCase()))
-  const {toast} = useToast()
+  const users = usersWithoutFilter.filter((user) =>
+    user.name.toLowerCase().includes(search.toLowerCase())
+  );
+  const { toast } = useToast();
 
-  if(!shifts.length || shifts.length === 0){
+  if (!shifts.length || shifts.length === 0) {
     return (
       <>
-      <div><p>Nenhum Turno Foi cadastrado ainda</p></div>
-    </>
-  )
-  }
-  if(!usersWithoutFilter.length || usersWithoutFilter.length === 0){
-    return (
-      <>
-      <div><p>Nenhum Usuário Foi cadastrado ainda</p></div>
+        <div>
+          <p>Nenhum Turno Foi cadastrado ainda</p>
+        </div>
       </>
-  )
+    );
   }
-  if(!users.length || users.length === 0){
+  if (!usersWithoutFilter.length || usersWithoutFilter.length === 0) {
     return (
       <>
-      <div><p>Nenhum Usuário encontrado</p></div>
-
+        <div>
+          <p>Nenhum Usuário Foi cadastrado ainda</p>
+        </div>
       </>
-  )
+    );
   }
-
-  if(!roster){
+  if (!users.length || users.length === 0) {
     return (
       <>
-      <div><p>Essa Escala não Foi cadastrada ainda</p></div>
-
+        <div>
+          <p>Nenhum Usuário encontrado</p>
+        </div>
       </>
-    )
+    );
   }
 
-  const WorkDaysColumn = createWorkDaysColumn(roster)
-  const dateFromRoster = getDateFromRoster(roster)
-  const counterUsersPerday = users.map(user => {
-  const shiftPerDay = WorkDaysColumn.map(day => {
-    const newDate = new Date(dateFromRoster.getFullYear(),dateFromRoster.getMonth(),day)
-    const workDay = workDays.find(workDay => workDay.userId.includes(user.id) && handleisSameDate(workDay.day,newDate))
-    const shiftsInThisWorkDay = workDay?.shiftsId.flatMap(shiftId => shifts.filter(shift => shift.id === shiftId)) || [];
-    const shiftInThisDay = shiftsInThisWorkDay.length > 0 ? shiftsInThisWorkDay.map(shift => shift.name).join(" | ") : "-";
-    if(!workDay) return "-"
-    return shiftInThisDay
-    })
+  if (!roster) {
+    return (
+      <>
+        <div>
+          <p>Essa Escala não Foi cadastrada ainda</p>
+        </div>
+      </>
+    );
+  }
+  const WorkDaysColumn = createWorkDaysColumn(roster);
+  const dateFromRoster = getDateFromRoster(roster);
+  const counterUsersPerday = users.map((user) => {
+    const shiftPerDay = WorkDaysColumn.map((workdayFromDayColumn) => {
+      const { day, isWeekend } = workdayFromDayColumn;
+      const newDate = new Date(
+        dateFromRoster.getFullYear(),
+        dateFromRoster.getMonth(),
+        day
+      );
+      const workDay = workDays.find(
+        (workDay) =>
+          workDay.userId.includes(user.id) &&
+          handleisSameDate(workDay.day, newDate)
+      );
+      const shiftsInThisWorkDay =
+        workDay?.shiftsId.flatMap((shiftId) =>
+          shifts.filter((shift) => shift.id === shiftId)
+        ) || [];
+      const shiftInThisDay =
+        shiftsInThisWorkDay.length > 0
+          ? shiftsInThisWorkDay.map((shift) => shift.name).join(' | ')
+          : '-';
+      if (!workDay) return '-';
+      return { shiftInThisDay, isWeekend };
+    });
     return {
       user,
       days: [...shiftPerDay]
-    }
-  })
-  const counterShiftsPerdayHeadings  = ["Usuário",...WorkDaysColumn.map(day => day.toString())]
+    };
+  });
+  const counterShiftsPerdayHeadings = ['Usuário', ...WorkDaysColumn];
 
   return (
     <Table>
-      <TableHeader className='sticky top-0 w-fit'>
+      <TableHeader className="sticky top-0 w-fit">
         <TableRow>
           {counterShiftsPerdayHeadings.map((heading, i) => {
-            return <TableCell key={generateUniqueKey()}>{heading}</TableCell>;
+            return (
+              <TableCell
+                variant={
+                  typeof heading === 'string'
+                    ? undefined
+                    : heading.isWeekend === true
+                      ? 'isWeekend'
+                      : undefined
+                }
+                key={generateUniqueKey()}
+              >
+                {typeof heading === 'string' ? heading : heading.day}
+              </TableCell>
+            );
           })}
         </TableRow>
       </TableHeader>
-      <TableBody >
+      <TableBody>
         {counterUsersPerday.map((userShifts) => {
           const { user, days } = userShifts;
           return (
             <TableRow key={generateUniqueKey()}>
-              <TableCell >{user.name}</TableCell>
+              <TableCell>{user.name}</TableCell>
               {days.map((cellData, i) => {
-                return <TableCell key={generateUniqueKey()}>{<p className="w-24">{cellData}</p>}</TableCell>;
-              })} 
+                return (
+                  <TableCell
+                    variant={
+                      typeof cellData === 'string'
+                        ? undefined
+                        : cellData.isWeekend === true
+                          ? 'isWeekend'
+                          : undefined
+                    }
+                    key={generateUniqueKey()}
+                  >
+                    {typeof cellData === 'string'
+                      ? cellData
+                      : cellData.shiftInThisDay}
+                  </TableCell>
+                );
+              })}
             </TableRow>
           );
         })}
       </TableBody>
     </Table>
-
   );
 }
-
-
-

@@ -44,7 +44,15 @@ export function createWorkDaysColumn(roster:Pick<Roster,"month" | "year" | "id">
   const {month, year} = roster;
   const monthStringInEnglishToNumberToCollectDaysInMonth = new Date(`${month} 1, ${year}`).getMonth();
   const daysInMonth = new Date(year, monthStringInEnglishToNumberToCollectDaysInMonth+1, 0).getDate();
-  return Array.from({ length: daysInMonth }, (_, i) => i + 1);
+
+  return Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
+    const isWeekend = new Date(`${month} ${day}, ${year}`).getDay();
+
+    return {day,
+      isWeekend: isWeekend === 0 || isWeekend === 6
+    }
+  
+  });
 }
 export function getMonthFromRoster(roster:Pick<Roster,"month" | "year" | "id">) {
   const {month, year} = roster;

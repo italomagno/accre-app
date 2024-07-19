@@ -15,8 +15,8 @@ export function LogOutButton(){
               await handleLogOut()
                 router.push("/login")
                   }}> 
-                    <Power className="h-4 w-4 mr-2" />
-                          Logout
+                    <Power className="h-4 w-4 mr-2 text-lg" />
+                          {`Sair `}😢
 
         </Button>
     )

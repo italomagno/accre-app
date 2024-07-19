@@ -1,8 +1,11 @@
 "use client"
-import { SettingsIcon} from "lucide-react";
+import {  SettingsIcon} from "lucide-react";
 import { NavItem } from "./nav-item";
 import { HiOutlineRocketLaunch } from "react-icons/hi2";
 import { DashboardLogo } from "../components/ui/icons";
+import { Separator } from "../components/ui/separator";
+import { LogOutButton } from '../components/ui/LogOutButton';
+
 
 
 
@@ -20,14 +23,13 @@ export function NavMenu() {
                     <HiOutlineRocketLaunch  className="h-4 w-4" />
                     Lançamento
                   </NavItem>
-                 {/*  <NavItem href="/users">
-                    <UsersIcon className="h-4 w-4" />
-                    Usuários
-                  </NavItem> */}
                   <NavItem href="/settings">
                     <SettingsIcon className="h-4 w-4" />
                     Configurações
                   </NavItem>
+                  <Separator  className="my-6"/>
+                  <LogOutButton />
+
                 </nav>
               </div>
     )
