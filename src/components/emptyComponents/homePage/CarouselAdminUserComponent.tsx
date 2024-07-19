@@ -34,16 +34,12 @@ export function CarouselAdminUserComponent({
               <div className="mt-4 flex flex-col gap-4">
             <Search value={search} />
           </div>
-          <ScrollArea key={generateUniqueKey()} className='max-h-[300px] w-full overflow-auto '>
               <GeralUserAdminShiftTable
                 search={search}
                 roster={roster}
                 shifts={shifts}
                 users={users}
                 workDays={workDays} />
-
-              <ScrollBar orientation='horizontal' />
-            </ScrollArea>
             </div>
 
 

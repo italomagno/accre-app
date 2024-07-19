@@ -16,6 +16,7 @@ import {
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { useToast } from '../ui/use-toast';
 import { handleisSameDate } from '@/src/lib/date';
+import { TableHeaderSticky } from './TableHeaderSticky';
 type UserToUserTable = {
   id: string;
   name: string;
@@ -110,8 +111,8 @@ export function GeralUserShiftTable({
 
   return (
     <Table>
-      <TableHeader className="sticky top-0 w-fit">
-        <TableRow>
+      
+      <TableHeaderSticky>
           {counterShiftsPerdayHeadings.map((heading, i) => {
             return (
               <TableCell
@@ -128,8 +129,8 @@ export function GeralUserShiftTable({
               </TableCell>
             );
           })}
-        </TableRow>
-      </TableHeader>
+      </TableHeaderSticky>
+
       <TableBody>
         {counterUsersPerday.map((userShifts) => {
           const { user, days } = userShifts;

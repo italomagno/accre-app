@@ -73,4 +73,7 @@
   body {
     @apply bg-background text-foreground;
   }
+  td:first-child {
+    @apply  sticky left-0 bg-muted/80 border-r-transparent;
+  }
 }

@@ -53,7 +53,7 @@ export function CalendarComponent({ shifts, rosters, workDays,user,admin }: { sh
         setRosterId(rostersDates[0].id)
         const findFistAvailable = rosters.find(roster => roster.blockChanges === false)
         if(admin && findFistAvailable === undefined){
-            console.log(rosters[0])
+
             setDefaultMonth(getDateFromRoster(rosters[0]))
         }
         if(findFistAvailable){

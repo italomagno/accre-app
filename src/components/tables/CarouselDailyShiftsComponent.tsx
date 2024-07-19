@@ -30,7 +30,7 @@ export function CarouselDailyShiftsComponent() {
 
   async function getShifts() {
     const response = await getShiftsFilteredPerDay(date ?? new Date());
-    console.log(response);
+
     if ('code' in response) {
       toast({
         title: 'Erro',

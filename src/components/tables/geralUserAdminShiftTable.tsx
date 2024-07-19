@@ -17,6 +17,7 @@ import { useToast } from '../ui/use-toast';
 import {  Pen } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
+import { TableHeaderSticky } from './TableHeaderSticky';
 
 export function GeralUserAdminShiftTable({
   shifts,
@@ -109,19 +110,17 @@ export function GeralUserAdminShiftTable({
 
   return (
     <Table
-     className='w-relative'
     >
-      <TableHeader>
-        <TableRow>
+      <TableHeaderSticky>
           {counterShiftsPerdayHeadings.map((heading, i) => {
             return (
              <TableCell variant={typeof heading === "string" ? undefined : heading.isWeekend === true? "isWeekend" : undefined} key={generateUniqueKey()}>{typeof heading === "string" ? heading : heading.day}</TableCell>
 
             );
           })}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
+      </TableHeaderSticky>
+
+      <TableBody >
         {counterUsersPerday.map((userShifts) => {
           const { user, days } = userShifts;
           return (

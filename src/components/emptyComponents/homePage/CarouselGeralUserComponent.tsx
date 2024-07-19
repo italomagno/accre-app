@@ -27,21 +27,16 @@ export function CarouselGeralUserComponent({
       ?
       null
       :
-            <ScrollArea  key={generateUniqueKey()} className='max-h-[300px] w-full overflow-auto'>
-              <div className="mt-4 flex flex-col gap-4">
-                <p>{`Escala geral do mês de ${getMonthFromRoster(roster)}`}</p>
-                <Search value={search} />
-              </div>
-                <GeralUserShiftTable
-                  search={search}
-                  roster={roster}
-                  shifts={shifts}
-                  users={users}
-                  workDays={workDays}
-                />
+              <><div className="mt-4 flex flex-col gap-4">
+            <p>{`Escala geral do mês de ${getMonthFromRoster(roster)}`}</p>
+            <Search value={search} />
+          </div><GeralUserShiftTable
+              search={search}
+              roster={roster}
+              shifts={shifts}
+              users={users}
+              workDays={workDays} /></>
 
-              <ScrollBar  orientation='horizontal'/>
-            </ScrollArea>
 
     }
   

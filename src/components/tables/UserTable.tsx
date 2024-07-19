@@ -27,7 +27,6 @@ export function UserTable({users,search}: UserTableProps ) {
 
     async function handleRemoveUser(id:string){
       const result = await removeUser(id)
-      console.log(result)
       return result
     }
     
