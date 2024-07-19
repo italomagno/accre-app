@@ -69,10 +69,10 @@ export function getDateFromRoster(roster:Pick<Roster,"month" | "year" | "id">) {
   return new Date(`${month} ${2}, ${year}`);
 }
 export function handleCellColor(shift:(Pick<Shift,"id" | "name" | "quantity"> & Partial<{[key:string]:unknown}>),cellData:number):'lessThanNecessary' | 'moreThanNecessary' | 'hasNecessary'{
-  if(shift.quantity < cellData){
+  if(shift.quantity > cellData){
     return "lessThanNecessary"
   }
-  if(shift.quantity > shift.quantity){
+  if(shift.quantity < cellData){
     return "moreThanNecessary"
   }
   if(shift.quantity === cellData){

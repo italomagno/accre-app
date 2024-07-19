@@ -32,7 +32,6 @@ export function ShiftsTable({
   errors?: ErrorTypes
 }) {
   const {toast} = useToast()
-  const rosterId = roster.id
 
   if(!shifts.length || shifts.length === 0){
     return (
