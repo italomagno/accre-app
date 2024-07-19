@@ -1,22 +1,20 @@
 "use client";
-import { generateUniqueKey, getMonthFromRoster } from "@/src/lib/utils";
-import { Roster } from "@prisma/client";
-import { NavigateBetweenDaysButton } from "./NavigateBetweenDaysButton";
+import { generateUniqueKey } from "@/src/lib/utils";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import React, { useEffect, useState } from "react";
 import { getShiftsFilteredPerDay } from "../update/shift/action";
 import { useToast } from "../ui/use-toast";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { DatePickerDemo } from "./datePickerDemo";
 
 
 
-type CarouselDailyShiftsComponentProps = {
-    roster: Roster
-    day: number
-}
 
-export function CarouselDailyShiftsComponent({day,roster}: CarouselDailyShiftsComponentProps){
+
+export function CarouselDailyShiftsComponent(){
     const {toast} = useToast()
+    const [date, setDate] = React.useState<Date>()
+
     const [shifts, setShifts]= useState<{
         Turno: string;
         Escalado: {
@@ -25,7 +23,8 @@ export function CarouselDailyShiftsComponent({day,roster}: CarouselDailyShiftsCo
     }[]>([])
 
     async function getShifts(){
-        const response = await getShiftsFilteredPerDay(roster,day)
+        const response = await getShiftsFilteredPerDay(date ?? new Date())
+        console.log(response)
         if('code' in response){
             toast({
                 title: 'Erro',
@@ -39,28 +38,19 @@ export function CarouselDailyShiftsComponent({day,roster}: CarouselDailyShiftsCo
 
     useEffect(() => {
         getShifts()
-    },[])
+    },[date])
 
     const headers = Object.keys(shifts[0] ?? {})
 
     return (
-        <div  className="flex flex-col gap-5">
-        <div className='my-14 w-full flex items-center justify-between px-7'>
-        <NavigateBetweenDaysButton 
-          roster={roster}
-          type="left"
+        <div  className="flex flex-col gap-5 justify-center items-center">
+        <DatePickerDemo
+        date={date}
+        setDate={setDate}
         />
-        <div>
-          <p className="text-lg">{ `Escala do dia ${day} do mês de ${getMonthFromRoster(roster) ?? 'desconhecido'} de ${roster.year}`}</p>
-        </div>
-        <NavigateBetweenDaysButton 
-          roster={roster}
-          type="right"
-        />
-      </div>
       <ScrollArea  key={generateUniqueKey()} className='max-h-[dvh] w-full overflow-auto '>
       <Table>
-  <TableCaption>{shifts.length <= 0 ? `Ainda não há escalados para o dia ${day}`:`Lista de escalados para o dia ${day}`}</TableCaption>
+  <TableCaption>{shifts.length <= 0 ? `Ainda não há escalados para o dia ${date?.getDate() ?? new Date().getDate()}`:`Lista de escalados para o dia ${date?.getDate() ?? new Date().getDate()}`}</TableCaption>
   {
         shifts.length > 0 &&
     <>

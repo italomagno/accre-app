@@ -80,21 +80,34 @@ const usersByRoster = users
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-32 px-14">
             <>
+            <div className='grid grid-rows-subgrid'>
+
+            <CarouselDailyShiftsComponent
+            />
+            </div>
+            <div className='col-span-2'>
             <CarouselShiftsComponent
             roster={currentRoster}
             shifts={shifts}
             users={usersByRoster}
             workDays={workDaysByRoster} 
             />
+            </div>
               {
                 user.role === "ADMIN" 
-                  ? <CarouselAdminUserComponent
+                  ? <>
+                  <div></div>
+                  <div className='col-span-2'>
+                    <CarouselAdminUserComponent
                       roster={currentRoster}
                       search={search}
                       shifts={shifts}
                       workDays={workDaysByRoster}
                       users={usersByRoster}
                     />
+                  </div>
+                  </>
+
                   : <CarouselGeralUserComponent 
                       roster={currentRoster}
                       search={search}
@@ -103,10 +116,7 @@ const usersByRoster = users
                       users={usersByRoster}
                     />
               }
-            <CarouselDailyShiftsComponent
-              roster={currentRoster}
-              day={day}
-            />
+            
             </>
           </div>
         </>

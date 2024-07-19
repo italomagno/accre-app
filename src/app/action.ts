@@ -22,11 +22,25 @@ export async function handleFechDataToShiftsTable():Promise<ErrorTypes | {shifts
                 message: user.message
             }
         }
-        const shifts = await prisma.shift.findMany({
+        
+        const supShifts = await prisma.shift.findMany({
             where:{
-                departmentId: user.departmentId
+                departmentId: user.departmentId,
+                isOnlyToSup: true
             }
         })
+        const userIsAdmin = user.role === "ADMIN"
+        const userIsSup = user.function === "SUP"
+        const opeShifts =  await prisma.shift.findMany({
+            where:{
+                departmentId: user.departmentId,
+                isOnlyToSup: false
+            }
+        }) 
+
+        const shifts = userIsAdmin ? [...supShifts, ...opeShifts] : userIsSup ? [...supShifts, ...opeShifts] : opeShifts
+
+
     
         const users = await prisma.user.findMany({
             where:{

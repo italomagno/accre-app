@@ -1,7 +1,7 @@
 'use server';
 import { getUserByEmail } from '@/src/app/login/_actions';
 import { auth } from '@/src/lib/auth';
-import { handleDateStartEnd } from '@/src/lib/date';
+import { handleDateStartEnd, handleisSameDate } from '@/src/lib/date';
 import prisma from '@/src/lib/db/prisma/prismaClient';
 import { getMonthFromRosterInNumber } from '@/src/lib/utils';
 import { CreateShiftValues, ErrorTypes, createShiftSchema } from '@/src/types';
@@ -133,7 +133,7 @@ export async function updateShift(id: string, shiftValues: CreateShiftValues) {
   }
 }
 
-export async function getShiftsFilteredPerDay(roster: Roster, day: number):Promise<{
+export async function getShiftsFilteredPerDay( day: Date):Promise<{
   Turno: string;
   Escalado: {
       name: string;
@@ -147,16 +147,18 @@ export async function getShiftsFilteredPerDay(roster: Roster, day: number):Promi
         message: 'Usuário não autenticado'
       };
     }
+    const user = await getUserByEmail(session.user.email);
+    if ('code' in user) {
+      return {
+        code: 403,
+        message: user.message
+      };
+    }
 
     const shifts = await prisma.shift.findMany({
       where:{
-        departmentId:roster.departmentId,
+        departmentId:user.departmentId,
         isAbscence:false,
-        workDay:{
-          some:{
-            day: new Date(roster.year, getMonthFromRosterInNumber(roster), day)
-          }
-        }
         },
       select: {
         id: true,
@@ -166,12 +168,11 @@ export async function getShiftsFilteredPerDay(roster: Roster, day: number):Promi
       start:'asc'
     }
     });
-    const user = await prisma.user.findMany({
+    const users = await prisma.user.findMany({
       where:{
-        departmentId:roster.departmentId,
+        departmentId:user.departmentId,
         workDay:{
           some:{
-            day: new Date(roster.year, getMonthFromRosterInNumber(roster), day),
             shiftsId:{
               hasSome: shifts.map(shift=>shift.id)
             }
@@ -186,7 +187,7 @@ export async function getShiftsFilteredPerDay(roster: Roster, day: number):Promi
     const newVectorToReturn = shifts.map(shift=>{
       return{
           Turno:shift.name,
-          Escalado:user.filter(user=>user.workDay.some(workDay=>workDay.shiftsId.includes(shift.id))).map(user=>{return{name:user.name}})
+          Escalado:users.filter(user=>user.workDay.some(workDay=>workDay.shiftsId.includes(shift.id) && handleisSameDate(workDay.day,day))).map(user=>{return{name:user.name}})
       }
     })
 
