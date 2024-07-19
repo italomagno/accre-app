@@ -122,7 +122,7 @@ model WorkDay {
 model Shift {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   created_at     DateTime @default(now())
-  name           String  @unique
+  name           String  
   workDay        WorkDay[] @relation(fields: [workDayId], references: [id])
   workDayId      String[] @db.ObjectId
   start          DateTime
