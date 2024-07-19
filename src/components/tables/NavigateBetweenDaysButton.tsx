@@ -15,7 +15,7 @@ export function NavigateBetweenDaysButton({ roster, type }: NavigateBetweenRoste
     const router = useRouter();
     const pathName = usePathname();
     const searchParams = useSearchParams();
-    const days = createWorkDaysColumn(roster)
+    const days = createWorkDaysColumn(roster).map(day => day.day);
     const [isPending, startTransition] = useTransition();
     
     const currentDay = parseInt(searchParams.get('day') || '');

@@ -343,7 +343,7 @@ async function checkFatigueRules(user:User,workDaysFromUser:WorkDay[],rosterAvai
 
 
 
-  const numberOfDaysInRosterMonth = createWorkDaysColumn(rosterAvailablesToChange)
+  const numberOfDaysInRosterMonth = createWorkDaysColumn(rosterAvailablesToChange).map(day=>day.day)
   const monthFromRoster = getMonthFromRosterInNumber(rosterAvailablesToChange)
 
   const IndexOfDayOfWorkThatComplete6Days:number[] = []
