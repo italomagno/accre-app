@@ -11,7 +11,6 @@ import { Button } from '../components/ui/button';
 import { LogOutButton } from '../components/ui/LogOutButton';
 import Link from 'next/link';
 import { NotificationsComponent } from './NotificationsComponent';
-import { GoogleTranslate } from '../lib/GoogleTranslate';
 type LayoutComponentProps={
     children:React.ReactNode
     isLogin?:boolean
@@ -26,7 +25,7 @@ export function LayoutComponent({children,isLogin = false}:LayoutComponentProps)
                 :
                 <div className="grid grid-cols-1 min-h-screen lg:grid-cols-1fr">
                   <HeaderComponent>
-                    <GoogleTranslate prefLangCookie={'pt'}  />
+                    {/* <GoogleTranslate prefLangCookie={'pt'}  /> */}
                     <NotificationsComponent />
                     <ToggleThemeProviderButton />
                    

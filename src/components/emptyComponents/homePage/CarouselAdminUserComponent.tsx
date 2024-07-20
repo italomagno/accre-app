@@ -1,10 +1,9 @@
-import { generateUniqueKey, getMonthFromRoster } from '@/src/lib/utils';
 
-import { ScrollArea, ScrollBar } from '../../ui/scroll-area';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
-import { Search } from '../../search';
+
 
 import { GeralUserAdminShiftTable } from '../../tables/geralUserAdminShiftTable';
+
 
 type CarrouselComponentProps = {
   roster: Roster | null;
@@ -21,6 +20,8 @@ export function CarouselAdminUserComponent({
   users,
   search
 }: CarrouselComponentProps) {
+
+
   return (
     <>
     {
@@ -30,17 +31,14 @@ export function CarouselAdminUserComponent({
       :
       
       
-              <div className='flex flex-col gap-2'>
-              <div className="mt-4 flex flex-col gap-4">
-            <Search value={search} />
-          </div>
+              
               <GeralUserAdminShiftTable
                 search={search}
                 roster={roster}
                 shifts={shifts}
                 users={users}
                 workDays={workDays} />
-            </div>
+        
 
 
     }

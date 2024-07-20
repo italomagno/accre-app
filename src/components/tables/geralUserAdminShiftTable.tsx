@@ -11,13 +11,16 @@ import {
 import {
   createWorkDaysColumn,
   generateUniqueKey,
+  getDateFromRoster,
 } from '@/src/lib/utils';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { useToast } from '../ui/use-toast';
-import {  Pen } from 'lucide-react';
+import {  Download, Pen } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
 import { TableHeaderSticky } from './TableHeaderSticky';
+import { Search } from '../search';
+import { downloadCSV } from '@/src/app/action';
 
 export function GeralUserAdminShiftTable({
   shifts,
@@ -108,7 +111,63 @@ export function GeralUserAdminShiftTable({
     ...WorkDaysColumn
   ];
 
+  async function handleDownloadCSV() {
+    const resultFromDownloadCSV = await downloadCSV(counterShiftsPerdayHeadings.map(day=>{
+      if(typeof day === 'string'){
+        return day
+      }
+      return String(day.day)
+    }), counterUsersPerday.map(row=>{
+
+      return [row.user.name, ...row.days.map(day=>{
+        if(typeof day === 'string'){
+          return day
+        }
+        return day.shiftInThisDay
+      })]
+    }), `escala-${roster.id}.csv`);
+    if(resultFromDownloadCSV.code === 200){
+      const dateFromRoster = getDateFromRoster(roster)
+      const filename = `escala-${dateFromRoster.getMonth()}-${dateFromRoster.getFullYear()}.csv`;
+      const csvContent = resultFromDownloadCSV.data;
+      if(!csvContent){
+        toast({
+          title: 'Erro',
+          description: 'Erro ao baixar arquivo',
+        });
+        return
+      }
+      const blob = new Blob([csvContent?.csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+    
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast({
+        title: 'Sucesso',
+        description: 'Arquivo baixado com sucesso',
+      });
+
+  }else{
+    toast({
+      title: 'Erro',
+      description: resultFromDownloadCSV.message,
+    });
+  }
+  }
+
   return (
+    <div className='flex flex-col gap-2'>
+    <div className="mt-4 grid grid-cols-[1fr_50px] gap-5 w-full">
+            <Search value={search} />
+              <Button variant={"ghost"}>
+                <Download size={24} onClick={handleDownloadCSV}/>
+              </Button>
+              </div>
     <Table
     >
       <TableHeaderSticky>
@@ -121,9 +180,6 @@ export function GeralUserAdminShiftTable({
             );
           })}
       </TableHeaderSticky>
-      {/* ( td:first-child {
-            @apply  sticky left-0 bg-muted/80 border-r-transparent;
-          } */}
       <TableBody >
         {counterUsersPerday.map((userShifts) => {
           const { user, days } = userShifts;
@@ -160,5 +216,6 @@ export function GeralUserAdminShiftTable({
         })}
       </TableBody>
     </Table>
+    </div>
   );
 }

@@ -2,8 +2,9 @@
 
 import { auth } from "@/src/lib/auth"
 import prisma from "@/src/lib/db/prisma/prismaClient"
-import { ErrorTypes } from "@/src/types"
+import { ErrorTypes, isErrorTypes } from "@/src/types"
 import { $Enums } from "@prisma/client"
+import { getUserByEmail } from "../login/_actions"
 
 
 
@@ -16,18 +17,15 @@ export async function getUserRole():Promise<$Enums.Role| ErrorTypes> {
         }
     }
 
-    const user = await prisma.user.findUnique({
-        where:{
-            email:session.user.email
-        }
-    })
-    if(!user){
-        prisma.$disconnect();
+    const user = await getUserByEmail(session.user.email)
+    const isErrorInUser = isErrorTypes(user)
+    if(isErrorInUser){
         return {
-            code: 404,
-            message: "Usuário não encontrado"
+            code: user.code,
+            message: user.message
         }
     }
+    
     prisma.$disconnect();
     return user.role 
 }

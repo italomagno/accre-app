@@ -65,6 +65,7 @@ export async function registerOrUpdateWorkDayByAdmin(ShiftNameWithVerticalBar:st
 
     const workDaysFromUser = (await prisma.workDay.findMany({
       where:{
+        departmentId:user.departmentId,
         userId:user.id,
         rosterId:roster.id,
       },
@@ -118,6 +119,7 @@ export async function registerOrUpdateWorkDayByAdmin(ShiftNameWithVerticalBar:st
         where:{
           id:workDayExist.id,
           userId:user.id,
+          departmentId:user.departmentId,
           day:new Date(roster.year,getMonthFromRosterInNumber(roster),day)
         },
         data:{
@@ -166,8 +168,15 @@ export async function registerOrUpdateManyWorkDays(
       };
     }
 
+
+   
+    
+    
     const rosterAvailablesToChange = await prisma.roster.findFirst({
       where:{
+
+        departmentId:user.departmentId,
+
         id:rosterId,
         blockChanges:false
       }
@@ -189,7 +198,11 @@ export async function registerOrUpdateManyWorkDays(
       };
     }
 
-    const shifts = await prisma.shift.findMany();
+    const shifts = await prisma.shift.findMany({
+      where:{
+        departmentId:user.departmentId
+      }
+    });
 
   var totalOfShiftsInWeekEnds = 0
 
