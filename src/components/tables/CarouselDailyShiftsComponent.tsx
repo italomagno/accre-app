@@ -28,7 +28,7 @@ export function CarouselDailyShiftsComponent() {
     }[]
   >([]);
 
-  async function getShifts() {
+  async function handleGetShifts() {
     const response = await getShiftsFilteredPerDay(date ?? new Date());
 
     if ('code' in response) {
@@ -42,7 +42,7 @@ export function CarouselDailyShiftsComponent() {
   }
 
   useEffect(() => {
-    getShifts();
+    handleGetShifts();
   }, [date]);
 
   const headers = Object.keys(shifts[0] ?? {});

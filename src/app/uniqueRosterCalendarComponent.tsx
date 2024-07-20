@@ -19,7 +19,6 @@ export function UniqueRosterCalendarComponent({ shifts, roster, workDays,user,ad
     
     })
     function handleUpdateWorkDay(workDay: WorkDay, rosterId: string) {
-        console.log("Updating work day:", workDay);
         
         const alreadyExists = workDaysList.find((workDayInList) =>
             handleisSameDate(workDayInList.day, workDay.day) && workDayInList.userId === user.id && workDayInList.rosterId === rosterId && workDay.id === workDayInList.id
@@ -54,8 +53,6 @@ export function UniqueRosterCalendarComponent({ shifts, roster, workDays,user,ad
             setPreviewWorkDays(updatedWorkDays);
         }
         
-        console.log("Updated work days list:", workDaysList);
-        console.log("Updated preview work days list:", previewWorkDays);
     }
     
    async function fetchWorkDays(){

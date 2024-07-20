@@ -3,9 +3,8 @@ import { getUserByEmail } from '@/src/app/login/_actions';
 import { auth } from '@/src/lib/auth';
 import { handleDateStartEnd, handleisSameDate } from '@/src/lib/date';
 import prisma from '@/src/lib/db/prisma/prismaClient';
-import { getMonthFromRosterInNumber } from '@/src/lib/utils';
 import { CreateShiftValues, ErrorTypes, createShiftSchema } from '@/src/types';
-import { Prisma, Roster } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 export async function createShift(shiftValues: CreateShiftValues) {
@@ -23,6 +22,14 @@ export async function createShift(shiftValues: CreateShiftValues) {
       return {
         code: 403,
         message: admin.message
+      };
+    }
+
+    const isUserAdmin = admin.role === 'ADMIN';
+    if (!isUserAdmin) {
+      return {
+        code: 401,
+        message: 'Usuário não autorizado'
       };
     }
 
@@ -59,6 +66,7 @@ export async function createShift(shiftValues: CreateShiftValues) {
 }
 
 export async function updateShift(id: string, shiftValues: CreateShiftValues) {
+  console.log(shiftValues);
   try {
    const error = await createShiftSchema.parseAsync(shiftValues);
     const session = await auth();
@@ -91,7 +99,9 @@ export async function updateShift(id: string, shiftValues: CreateShiftValues) {
         }
       },
       start,
-      end
+      end,
+      isOnlyToSup: shiftValues.isOnlyToSup
+
     };
     const hasShiftWithSameName = await prisma.shift.findFirst({
       where: {

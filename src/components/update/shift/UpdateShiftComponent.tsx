@@ -51,7 +51,10 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
   const [isLoading,setIsLoading] = useState(false);
 
   const form = useForm<CreateShiftValues>({
-    resolver: zodResolver(createShiftSchema),defaultValues: defaultShiftValues
+    resolver: zodResolver(createShiftSchema),defaultValues: {
+      ...defaultShiftValues,
+      isOnlyToSup: defaultShiftValues.isOnlyToSup ? true : false,
+    }
   })
 
   async function onSubmit(data: CreateShiftValues) {
@@ -296,7 +299,7 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
             />
             <FormField
               control={form.control}
-              name="isOnlyToSup"
+              name="dateStartEnd.isNextDay"
               render={({ field }) => {
                 return (
                   <FormItem>
@@ -310,7 +313,9 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
                             input = false
                           }
                         field.onChange(input)
-                        }}>
+                        }}
+                        defaultValue={String(field.value)}
+                        >
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione..." />
                         </SelectTrigger>
@@ -327,7 +332,7 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
             />
             <FormField
               control={form.control}
-              name="dateStartEnd.isNextDay"
+              name="isOnlyToSup"
               render={({ field }) => {
                 return (
                   <FormItem>
@@ -341,7 +346,10 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
                             input = false
                           }
                         field.onChange(input)
-                        }}>
+                        }}
+                        defaultValue={String(field.value) ?? "false"}
+                        value={String(field.value) ?? "false"}
+                        >
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione..." />
                         </SelectTrigger>
@@ -372,7 +380,10 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
                             input = false
                           }
                         field.onChange(input)
-                        }}>
+                        }}
+                        defaultValue={String(field.value) ?? "false"}
+                        value={String(field.value) ?? "false"}
+                        >
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione..." />
                         </SelectTrigger>
@@ -403,7 +414,10 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
                             input = false
                           }
                         field.onChange(input)
-                        }}>
+                        }}
+                        defaultValue={String(field.value) ?? "false"}
+                        value={String(field.value) ?? "false"}
+                        >
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione..." />
                         </SelectTrigger>

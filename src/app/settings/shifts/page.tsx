@@ -92,10 +92,10 @@ export default async function shiftPage() {
                       end: endTime,
                       isNextDay: isNexDay
                     },
-                    isOnlyToSup: false,
-                    quantityInWeekEnd: '0',
-                    minQuantityInWeekEnd: '0',
-                    maxQuantity: '0'
+                    isOnlyToSup: shift.isOnlyToSup,
+                    quantityInWeekEnd: String(shift.quantityInWeekEnd),
+                    minQuantityInWeekEnd: String(shift.minQuantityInWeekEnd),
+                    maxQuantity: String(shift.maxQuantity),
                   };
                   return (
                     <TableRow key={shift.id}>

@@ -56,9 +56,10 @@ export async function getAvailableShifts(){
     const shifts = await prisma.shift.findMany({
         where: {
             departmentId: user.departmentId,
-            isAvailable: true
         }
     })
+
+
     if(!shifts || shifts.length === 0){
         prisma.$disconnect()
         return {
@@ -166,8 +167,10 @@ export async function getShiftsAndAbscence(){
             message: "Não há turnos cadastrados"
         }
     }
-    const abscences = shifts.filter(shift=>shift.isAbscence === true)
-    const shiftsWithouAbscence = shifts.filter(shift=>shift.isAbscence === false)
+    const isUserSupervisor = user.function === "SUP"
+    const isUserAdmin = user.role === "ADMIN"
+    const abscences = isUserAdmin ? shifts.filter(shift=>shift.isAbscence === true ) : isUserSupervisor ? shifts.filter(shift=>shift.isAbscence === true ) :shifts.filter(shift=>shift.isAbscence === true && !shift.isOnlyToSup)
+    const shiftsWithouAbscence =isUserAdmin ?shifts.filter(shift=>shift.isAbscence === false ):  isUserSupervisor ? shifts.filter(shift=>shift.isAbscence === false ) : shifts.filter(shift=>shift.isAbscence === false && !shift.isOnlyToSup)
 
   return {
         shifts: shiftsWithouAbscence,
