@@ -237,6 +237,12 @@ export async function registerOrUpdateManyWorkDays(
         message: `Você precisa de pelo menos ${minWorkingDaysOnWeekEnd} turnos nos finais de semana`
       };
     }
+    const IsOffice = user.isOffice
+    console.log(hasRestrictions, "before")
+    if(IsOffice){
+      hasRestrictions = false
+    }
+    console.log(hasRestrictions, "after")
 
     const hasAtLeastOneShiftMoreThanMax = hasRestrictions ? countShiftsOnWorkDays.some((shift) => shift.isMoreThanMax) : false;
     if (hasAtLeastOneShiftMoreThanMax) {
