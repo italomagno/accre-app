@@ -34,8 +34,8 @@ export function RemoveButton({id,handleRemoveItem}: RemoveButtonProps) {
                 description: result.message,
             })
         }
+        setIsLoading(false)
     }
-    setIsLoading(false)
 
     return (
      
