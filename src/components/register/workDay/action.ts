@@ -238,11 +238,9 @@ export async function registerOrUpdateManyWorkDays(
       };
     }
     const IsOffice = user.isOffice
-    console.log(hasRestrictions, "before")
     if(IsOffice){
       hasRestrictions = false
     }
-    console.log(hasRestrictions, "after")
 
     const hasAtLeastOneShiftMoreThanMax = hasRestrictions ? countShiftsOnWorkDays.some((shift) => shift.isMoreThanMax) : false;
     if (hasAtLeastOneShiftMoreThanMax) {
