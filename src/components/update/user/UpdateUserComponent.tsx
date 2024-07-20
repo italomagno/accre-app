@@ -30,6 +30,7 @@ import {
 } from '../../ui/form';
 
 import { updateUser } from '@/src/app/settings/users/createUser/actions';
+import { useState } from 'react';
 
 type UpdateUserComponentProps = {
   id: string;
@@ -38,11 +39,14 @@ type UpdateUserComponentProps = {
 
 export function UpdateUserComponent({ defaultUserValues,id }: UpdateUserComponentProps) {
   const { toast } = useToast();
+  const [isLoading,setIsLoading] = useState(false);
+
   const form = useForm<UpdateUserValues>({
     resolver: zodResolver(updateUserSchema),defaultValues: defaultUserValues
   })
 
   async function onSubmit(data: UpdateUserValues) {
+     setIsLoading(true);
     const result = await updateUser(id,data);
     if ('code' in result && result.code !== 200) {
       toast({
@@ -54,6 +58,7 @@ export function UpdateUserComponent({ defaultUserValues,id }: UpdateUserComponen
       title: 'Sucesso!',
       description: "Usuário atualizado com sucesso!"
     });
+    setIsLoading(false);
   }
 
   return (
@@ -226,7 +231,7 @@ export function UpdateUserComponent({ defaultUserValues,id }: UpdateUserComponen
             />
           
             <CardFooter className="border-t px-6 py-4">
-              <Button type="submit">Atualizar Usuário</Button>
+              <Button disabled={isLoading} type="submit">Atualizar Usuário</Button>
             </CardFooter>
           </form>
         </Form>

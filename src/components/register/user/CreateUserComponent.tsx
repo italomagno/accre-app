@@ -13,6 +13,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form, FormDes
 import { Input } from "@/src/components/ui/input";
 import { Department, User,Function } from "@prisma/client";
 import { UseFormSetValue ,useForm} from "react-hook-form";
+import { useState } from "react";
 
 
 interface RegisterUserProps{
@@ -20,12 +21,13 @@ interface RegisterUserProps{
 }
 
 export function CreateUserComponent( {department}:RegisterUserProps){
-          
+        const [isLoading,setIsLoading] = useState(false);
     const router = useRouter()
 
     const {toast} = useToast();
 
     const onSubmit = async(data:RegisterUserValues) => {
+        setIsLoading(true);
         data.departmentId = department.id;
         data.password = "123456789";
         const result = await registerUser(data,true);
@@ -48,7 +50,7 @@ export function CreateUserComponent( {department}:RegisterUserProps){
             })
         }
 
-
+        setIsLoading(false);
     };
     const functionHeadingKeys = Object.keys(Function)
 
@@ -171,7 +173,7 @@ export function CreateUserComponent( {department}:RegisterUserProps){
           
   
           
-          <Button disabled={form.formState.isSubmitting} className='w-full' type="submit">Fazer Cadastro</Button>
+          <Button disabled={isLoading} className='w-full' type="submit">Fazer Cadastro</Button>
         </form>
         </Form>
     )

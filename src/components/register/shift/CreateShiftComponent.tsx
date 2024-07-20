@@ -37,14 +37,17 @@ import {
 } from '../../ui/input-otp';
 import { createShift } from './action';
 import { Separator } from '../../ui/separator';
+import { useState } from 'react';
 
 export function CreateShiftComponent() {
   const { toast } = useToast();
   const form = useForm<CreateShiftValues>({
     resolver: zodResolver(createShiftSchema)
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   async function onSubmit(data: CreateShiftValues) {
+    setIsLoading(true);
     const result = await createShift(data);
     if ('code' in result && result.code !== 200) {
       toast({
@@ -57,6 +60,7 @@ export function CreateShiftComponent() {
       title: 'Sucesso!',
       description: "Turno criado com sucesso!"
     });
+    setIsLoading(false);
   }
 
   return (
@@ -402,7 +406,7 @@ export function CreateShiftComponent() {
               }}
             />
             <CardFooter className="border-t px-6 py-4">
-              <Button type="submit">Criar turno</Button>
+              <Button disabled={isLoading} type="submit">Criar turno</Button>
             </CardFooter>
           </form>
         </Form>

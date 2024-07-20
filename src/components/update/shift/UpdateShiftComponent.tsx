@@ -38,6 +38,7 @@ import {
 import { updateShift } from './action';
 import { useRouter } from 'next/navigation';
 import { Separator } from '../../ui/separator';
+import { useState } from 'react';
 
 type UpdateShiftComponentProps = {
   id: string;
@@ -47,11 +48,14 @@ type UpdateShiftComponentProps = {
 export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftComponentProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const [isLoading,setIsLoading] = useState(false);
+
   const form = useForm<CreateShiftValues>({
     resolver: zodResolver(createShiftSchema),defaultValues: defaultShiftValues
   })
 
   async function onSubmit(data: CreateShiftValues) {
+    setIsLoading(true);
     const result = await updateShift(id,data);
     if ('code' in result && result.code !== 200) {
 
@@ -68,6 +72,7 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
       description: "Turno atualizado com sucesso!"
     });
     router.refresh();
+    setIsLoading(false);
     
   }
 
@@ -414,7 +419,7 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
               }}
             />
             <CardFooter className="border-t px-6 py-4">
-              <Button type="submit">Atualizar Turno</Button>
+              <Button disabled={isLoading} type="submit">Atualizar Turno</Button>
             </CardFooter>
           </form>
         </Form>

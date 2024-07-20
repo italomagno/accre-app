@@ -33,6 +33,7 @@ import {
 import { generateUniqueKey } from '@/src/lib/utils';
 import { Months } from '@prisma/client';
 import { updateRoster } from '@/src/app/settings/roster/createRoster/action';
+import { useState } from 'react';
 
 type UpdateRosterComponentProps = {
   id: string;
@@ -41,11 +42,14 @@ type UpdateRosterComponentProps = {
 
 export function UpdateRosterComponent({ defaultRosterValues,id }: UpdateRosterComponentProps) {
   const { toast } = useToast();
+  const [isLoading,setIsLoading] = useState(false);
+
   const form = useForm<UpdateRosterValues>({
     resolver: zodResolver(UpdateRosterSchema),defaultValues: defaultRosterValues
   })
 
   async function onSubmit(data: UpdateRosterValues) {
+    setIsLoading(true);
     const result = await updateRoster(id,data);
     if ('code' in result && result.code !== 200) {
       toast({
@@ -57,6 +61,7 @@ export function UpdateRosterComponent({ defaultRosterValues,id }: UpdateRosterCo
       title: 'Sucesso!',
       description: "Escala atualizada com sucesso!"
     });
+    setIsLoading(false);
   }
 
   return (
@@ -241,7 +246,7 @@ export function UpdateRosterComponent({ defaultRosterValues,id }: UpdateRosterCo
               }}
             />
             <CardFooter className="border-t px-6 py-4">
-              <Button type="submit">Atualizar Escala</Button>
+              <Button disabled={isLoading} type="submit">Atualizar Escala</Button>
             </CardFooter>
           </form>
         </Form>

@@ -16,7 +16,7 @@ export function LogOutButton(){
                 router.push("/login")
                   }}> 
                     <Power className="h-4 w-4 mr-2 text-lg" />
-                          {`Sair `}😢
+                          {`Sair `}
 
         </Button>
     )

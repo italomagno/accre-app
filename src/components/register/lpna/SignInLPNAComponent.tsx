@@ -11,13 +11,16 @@ import { useToast } from "../../ui/use-toast";
 import { LoginLPNASchema, LoginLPNAValues } from "@/src/types";
 import { Checkbox } from "../../ui/checkbox";
 import { signInOnLPNA } from '@/src/app/settings/integrations/lpna/actions';
+import { useState } from 'react';
 
 
 export function SignInLPNAComponent() {
   const {toast} = useToast();
   const router = useRouter();
+  const [isLoading,setIsLoading] = useState(false);
 
   const onSubmit = async (data: LoginLPNAValues) => {
+    setIsLoading(true);
     const result = await signInOnLPNA(data);
     if ("code" in result && result.code === 200) {
       showToast("Sucesso!", result.message);
@@ -25,6 +28,7 @@ export function SignInLPNAComponent() {
     } else {
       showToast("Erro", result.message);
     }
+  setIsLoading(false);
   };
 
   const showToast = (title: string, description: string) => {
@@ -124,7 +128,7 @@ export function SignInLPNAComponent() {
             </FormItem>
           )}
         />
-        <Button disabled={form.formState.isSubmitting} className='w-full' type="submit">Fazer Login</Button>
+        <Button disabled={isLoading} className='w-full' type="submit">Fazer Login</Button>
       </form>
       </Form>
           </div>

@@ -6,6 +6,8 @@ import { ErrorTypes } from "@/src/types";
 import { Button } from "../ui/button";
 import { PopoverContent, PopoverTrigger } from "@/src/components/ui/popover";
 import { Popover } from "../ui/popover";
+import { useState } from "react";
+
 
 type RemoveButtonProps = {
     id: string;
@@ -15,8 +17,11 @@ type RemoveButtonProps = {
 
 export function RemoveButton({id,handleRemoveItem}: RemoveButtonProps) {
     const {toast} = useToast()
+    const [isLoading,setIsLoading] = useState(false);
+
 
     async function handleRemove(){
+        setIsLoading(true)
         const result = await handleRemoveItem(id)
         if("code" in result && result.code === 200){
             toast({
@@ -30,6 +35,7 @@ export function RemoveButton({id,handleRemoveItem}: RemoveButtonProps) {
             })
         }
     }
+    setIsLoading(false)
 
     return (
      
@@ -41,7 +47,7 @@ export function RemoveButton({id,handleRemoveItem}: RemoveButtonProps) {
         </PopoverTrigger>
       <PopoverContent className="flex flex-col gap-4">
       Tem certeza que deseja remover?
-      <Button onClick={handleRemove} variant="destructive">Sim</Button>
+      <Button disabled={isLoading} onClick={handleRemove} variant="destructive">Sim</Button>
       </PopoverContent>
       </Popover>
       

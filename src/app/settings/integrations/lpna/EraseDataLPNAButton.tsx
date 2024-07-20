@@ -1,4 +1,3 @@
-
 import { Button } from "@/src/components/ui/button";
 
 type EraseDataLpnaButtonProps = {
@@ -9,7 +8,6 @@ type EraseDataLpnaButtonProps = {
 export function  EraseDataLpnaButton( {handleRemoveCookie}: EraseDataLpnaButtonProps) {
     return (
         <Button onClick={async()=>{
-            "use server"
             const result = await handleRemoveCookie()
         }} variant="link">Apagar dados da LPNA e tentar novamente</Button>
     )

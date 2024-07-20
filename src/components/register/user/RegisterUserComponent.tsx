@@ -15,6 +15,7 @@ import { Function, User } from "@prisma/client";
 import { registerUser } from "@/src/app/cadastrarUsuario/actions";
 import { signInOnServerActions } from "@/src/app/login/_actions";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface RegisterUserProps{
     departments: {
@@ -25,10 +26,12 @@ interface RegisterUserProps{
 
 export function RegisterUserComponent( {departments}:RegisterUserProps){
   const router = useRouter()
+  const [isLoading,setIsLoading] = useState(false);
 
     const {toast} = useToast();
 
     const onSubmit = async(data:RegisterUserValues) => {
+        setIsLoading(true);
   
         const result = await registerUser(data);
         if(!result){
@@ -73,7 +76,7 @@ export function RegisterUserComponent( {departments}:RegisterUserProps){
                 })
             }
         }
-
+        setIsLoading(false);
 
     };
 
@@ -230,7 +233,7 @@ export function RegisterUserComponent( {departments}:RegisterUserProps){
         
 
         
-        <Button disabled={form.formState.isSubmitting} className='w-full' type="submit">Fazer Cadastro</Button>
+        <Button disabled={isLoading} className='w-full' type="submit">Fazer Cadastro</Button>
       </form>
       </Form>
           </div>

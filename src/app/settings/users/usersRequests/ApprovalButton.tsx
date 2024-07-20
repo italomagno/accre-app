@@ -2,6 +2,7 @@
 import { Button } from "@/src/components/ui/button";
 import { useToast } from "@/src/components/ui/use-toast";
 import { deleteUserById, saveUserApproval } from "../actions";
+import { useState } from "react";
 
 type ApprovalButtonProps = {
     id: string;
@@ -10,8 +11,10 @@ type ApprovalButtonProps = {
 
 export function ApprovalButton( {id}:ApprovalButtonProps){
     const {toast} = useToast();
+    const [isLoading,setIsLoading] = useState(false);
 
     async function handleUserSaveApproval(){
+        setIsLoading(true)
         const result = await saveUserApproval(id)
         if(result.code !== 200){
             toast({
@@ -24,9 +27,11 @@ export function ApprovalButton( {id}:ApprovalButtonProps){
                 description: result.message,
             })
         }
+        setIsLoading(false)
      
     }
     async function handleDeleteUserApproval(){
+        setIsLoading(true)
         const result = await deleteUserById(id)
         if(result.code !== 200){
             toast({
@@ -39,15 +44,16 @@ export function ApprovalButton( {id}:ApprovalButtonProps){
                 description: "Usuário rejeitado com sucesso.",
             })
         }
+        setIsLoading(false)
       
     }
 
     return(
         <div className="flex gap-2">
-            <Button variant={"ghost"} onClick={handleUserSaveApproval}>
+            <Button disabled={isLoading} variant={"ghost"} onClick={handleUserSaveApproval}>
             Aprovar
         </Button>
-            <Button variant="destructive" onClick={handleDeleteUserApproval}>
+            <Button disabled={isLoading} variant="destructive" onClick={handleDeleteUserApproval}>
                 Rejeitar
             </Button>
             </div>

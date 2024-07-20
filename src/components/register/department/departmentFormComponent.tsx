@@ -14,16 +14,18 @@ import { Separator } from "@/src/components/ui/separator";
 import {  useRouter } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 import { generateUniqueKey } from "@/src/lib/utils";
+import { useState } from "react";
 
 
 export function DepartmentFormComponent() {
   const {toast} = useToast();
   const router = useRouter()
+  const [isLoading,setIsLoading] = useState(false);
   
 
 
   const onSubmit = async(data:CreateDepartmentAndUserValues) => {
-   
+    setIsLoading(true);
 
     //criar função para cadastrar o usuário no departamento
     const newData:CreateDepartmentAndUserValues = {...form.getValues()
@@ -56,7 +58,7 @@ export function DepartmentFormComponent() {
       return;
     }
 
-    
+    setIsLoading(false);
 
   };
   const showMessageInPortuguese = {
@@ -237,7 +239,7 @@ export function DepartmentFormComponent() {
       
 
       
-        <Button disabled={form.formState.isSubmitting} className='w-full' type="submit">Fazer Cadastro</Button>
+        <Button disabled={isLoading} className='w-full' type="submit">Fazer Cadastro</Button>
       </form>
       </Form>
           </div>

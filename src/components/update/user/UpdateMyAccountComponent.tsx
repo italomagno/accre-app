@@ -30,6 +30,7 @@ import {
 } from '../../ui/form';
 
 import { updateMyAccount } from '@/src/app/settings/users/createUser/actions';
+import { useState } from 'react';
 
 type UpdateMyAccountComponentProps = {
   id: string;
@@ -38,6 +39,8 @@ type UpdateMyAccountComponentProps = {
 
 export function UpdateMyAccountComponent({ defaultUserValues,id }: UpdateMyAccountComponentProps) {
   const { toast } = useToast();
+  const [isLoading,setIsLoading] = useState(false);
+
   const form = useForm<UpdateMyAccountValues>({
     resolver: zodResolver(updateMyAccountSchema),defaultValues: defaultUserValues
   })
@@ -214,7 +217,7 @@ export function UpdateMyAccountComponent({ defaultUserValues,id }: UpdateMyAccou
             />
           
             <CardFooter className="border-t px-6 py-4">
-              <Button type="submit">Atualizar Usuário</Button>
+              <Button disabled={isLoading} type="submit">Atualizar Usuário</Button>
             </CardFooter>
           </form>
         </Form>

@@ -32,14 +32,17 @@ import {
   FormLabel,
   FormMessage
 } from '../../ui/form';
+import { useState } from 'react';
 
 export function CreateRosterComponent() {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<CreateRosterValues>({
     resolver: zodResolver(createRosterSchema)
   });
 
   async function onSubmit(data: CreateRosterValues) {
+    setIsLoading(true);
     const result = await createRoster(data);
     if ('code' in result && result.code !== 200) {
       toast({
@@ -52,6 +55,7 @@ export function CreateRosterComponent() {
       title: 'Escala operacional criada com sucesso!',
       description: 'Agora você pode acessar a escala operacional criada.'
     });
+    setIsLoading(false);
   }
 
   return (
@@ -194,7 +198,7 @@ export function CreateRosterComponent() {
               }}
             />
             <CardFooter className="border-t px-6 py-4">
-              <Button type="submit">Criar escala operacional</Button>
+              <Button  disabled={isLoading} type="submit">Criar escala operacional</Button>
             </CardFooter>
           </form>
         </Form>
