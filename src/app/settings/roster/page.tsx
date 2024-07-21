@@ -1,13 +1,10 @@
 
 import { getRosters } from "./actions"
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/src/components/ui/table"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/src/components/ui/card"
-import { generateUniqueKey } from "@/src/lib/utils"
-import { Roster } from "@prisma/client"
-import ActionsCell from "@/src/components/tables/ActionsCell"
-import { removeRoster } from "./createRoster/action"
-import { UpdateRosterComponent } from "@/src/components/update/roster/UpdateRosterComponent"
+
 import { EmptyComponentCard } from "@/src/components/emptyComponents/EmptyComponentCard"
+import { DataTable } from "@/src/components/tables/data/dataTable"
+import { rosterColumns } from "@/src/components/tables/data/Columns"
 
 
 
@@ -15,11 +12,6 @@ import { EmptyComponentCard } from "@/src/components/emptyComponents/EmptyCompon
 export default async function RosterPage() {
 
 
-    async function handleRemoveRoster(id:string){
-        "use server"
-        const result = await removeRoster(id)
-        return result
-    }
 
     const rosters = await getRosters()
     const isErrorTypes = "code" in rosters
@@ -46,7 +38,6 @@ export default async function RosterPage() {
     }
 
     
-    const headingKeys = Object.keys(rosters[0]).filter(key => key !== "id" && key !== "created_at" && key !== "updatedAt" && key !== "departmentId" && key !== "shiftsId")
     return(
     
         
@@ -58,7 +49,8 @@ export default async function RosterPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                    <Table>
+                        <DataTable columns={rosterColumns} data={rosters} />
+                   {/*  <Table>
                     <TableHeader className="w-fit">
                         <TableRow>
                             {
@@ -98,7 +90,7 @@ export default async function RosterPage() {
                             
                         )})}
                     </TableBody>
-                </Table>
+                </Table> */}
 
                     </CardContent>
                 </Card>

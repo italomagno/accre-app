@@ -15,12 +15,14 @@ import {
 } from '@/src/lib/utils';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { useToast } from '../ui/use-toast';
-import {  Download, Pen } from 'lucide-react';
+import {  Bot, BotIcon, Download, Pen } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
 import { TableHeaderSticky } from './TableHeaderSticky';
 import { Search } from '../search';
 import { downloadCSV } from '@/src/app/action';
+import { callGeminiToAnalyzeMyData } from '@/src/lib/gemini';
+import { fillRoster } from '@/src/lib/fillRoster';
 
 export function GeralUserAdminShiftTable({
   shifts,
@@ -160,12 +162,35 @@ export function GeralUserAdminShiftTable({
   }
   }
 
+  async function handleCallIA(){
+ 
+const newData = [counterShiftsPerdayHeadings.map(day=>{
+  if(typeof day === 'string'){
+    return day
+  }
+  return String(day.day)
+}),...counterUsersPerday.map(row=>{
+
+  return [row.user.name, ...row.days.map(day=>{
+    if(typeof day === 'string'){
+      return day
+    }
+    return day.shiftInThisDay
+  })]
+})]
+    await fillRoster(newData);
+  }
+
   return (
     <div className='flex flex-col gap-2'>
-    <div className="mt-4 grid grid-cols-[1fr_50px] gap-5 w-full">
+    <div className="mt-4 grid grid-cols-[1fr_50px_50px] gap-5 w-full">
             <Search value={search} />
               <Button variant={"ghost"}>
                 <Download size={24} onClick={handleDownloadCSV}/>
+              </Button>
+              <Button variant={"ghost"} disabled={true} onClick={() => {}}
+              >
+                <BotIcon size={24} onClick={handleCallIA}/>
               </Button>
               </div>
     <Table

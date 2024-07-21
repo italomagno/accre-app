@@ -155,10 +155,11 @@ export async function createRoster(data:CreateRosterValues):Promise<ErrorTypes>{
 }
 
 
-export async function updateRoster(id:string,data:UpdateRosterValues):Promise<ErrorTypes>{
-
+export async function updateRoster(id:string,data:UpdateRosterValues | Roster):Promise<ErrorTypes>{
+    function isUpdateRoster(data: UpdateRosterValues | Roster): data is Roster {
+        return (data as Roster).created_at !== undefined
+    }
     try{
-        await UpdateRosterSchema.parseAsync(data)
         const session = await auth()
         if(!session){
             return {
@@ -173,6 +174,9 @@ export async function updateRoster(id:string,data:UpdateRosterValues):Promise<Er
                 message: admin.message
             }
         }
+
+
+        const isRoster = isUpdateRoster(data)
         const updatedRoster = await prisma.roster.update({
             where:{
                 id:id,
@@ -180,8 +184,8 @@ export async function updateRoster(id:string,data:UpdateRosterValues):Promise<Er
             },
             data:{
                 ...data,
-                year:parseInt(data.year),
-                minWorkingDaysOnWeekEnd: data.minQuantityOnWeekend ? parseInt(data.minQuantityOnWeekend) : 0,
+                year: typeof data.year === "string" ? parseInt(data.year) : data.year,
+                minWorkingDaysOnWeekEnd: isRoster? data.minWorkingDaysOnWeekEnd  : data.minQuantityOnWeekend ? parseInt(data.minQuantityOnWeekend) : 0,
                 minWorkingHoursPerRoster: data.minWorkingHoursPerRoster ? data.minWorkingHoursPerRoster : 0,
                 maxWorkingHoursPerRoster: data.maxWorkingHoursPerRoster ? data.maxWorkingHoursPerRoster : 0,
                 month: data.month as Months,

@@ -9,6 +9,8 @@ import { Button } from '@/src/components/ui/button';
 import Link from 'next/link';
 import { EmptyComponentCard } from '@/src/components/emptyComponents/EmptyComponentCard';
 import { EmptySettingsComponent } from '@/src/components/emptyComponents/empytySettingsComponent';
+import { DataTable } from '@/src/components/tables/data/dataTable';
+import { userColumns } from '@/src/components/tables/data/Columns';
 
 export default async function IndexPage({
   searchParams
@@ -72,7 +74,8 @@ export default async function IndexPage({
           </CardDescription>
         </CardHeader>
         <CardContent className='flex flex-wrap flex-col gap-4' >
-        <UserTable users={users as User[]}  search={search}/>
+          <DataTable columns={userColumns} data={users as User[]} />
+        {/* <UserTable users={users as User[]}  search={search}/> */}
         </CardContent>
       </Card>
       )

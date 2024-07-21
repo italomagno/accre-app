@@ -1,6 +1,6 @@
 "use client"
 import { generateUniqueKey } from "@/src/lib/utils";
-import { User } from "@prisma/client";
+import { Shift, User } from "@prisma/client";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import { ScrollBar } from "../ui/scroll-area";
 import { TableHeader, TableRow, TableHead, TableBody, TableCell, Table } from "@/src/components/ui/table";
@@ -15,7 +15,7 @@ type UserTableProps = {
     } 
 
 export function UserTable({users,search}: UserTableProps ) {
-    const headingKeys = Object.keys(users[0])
+    const headingKeys = Object.keys(users[0])  as unknown as (keyof User)[];
 
     const filteredUsers = users.filter((user) => {
       
@@ -30,6 +30,7 @@ export function UserTable({users,search}: UserTableProps ) {
       return result
     }
     
+    
     return(
         <>
         <div className="w-full">
@@ -42,7 +43,7 @@ export function UserTable({users,search}: UserTableProps ) {
                             {
                             headingKeys.map((key) => {
 
-                                return key === "id" || key === "role" ? null :<TableHead key={generateUniqueKey()}>{key}</TableHead>
+                                return key === "id" || key === "role" || key === "block_changes" || key === "isOffice" ? null :<TableHead key={generateUniqueKey()}>{key}</TableHead>
                             }
                             )
                             }
@@ -57,7 +58,7 @@ export function UserTable({users,search}: UserTableProps ) {
                         <TableRow key={userId}>
                           {headingKeys.map((key) => {
                             return (
-                              key === "id" || key === "role"? null :<TableCell  key={generateUniqueKey()}>
+                              key === "id" || key === "role" || key === "block_changes" || key === "isOffice"? null :<TableCell  key={generateUniqueKey()}>
                                 {
                                   
                                 typeof user[key] === "object"

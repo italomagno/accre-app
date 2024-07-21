@@ -11,7 +11,7 @@ import { useState } from "react";
 
 type RemoveButtonProps = {
     id: string;
-    handleRemoveItem:(id: string) => Promise<ErrorTypes>;
+    handleRemoveItem:(id: string) => Promise<ErrorTypes> | void;
 }
 
 
@@ -23,6 +23,7 @@ export function RemoveButton({id,handleRemoveItem}: RemoveButtonProps) {
     async function handleRemove(){
         setIsLoading(true)
         const result = await handleRemoveItem(id)
+        if(result)
         if("code" in result && result.code === 200){
             toast({
                 title: "Sucesso",

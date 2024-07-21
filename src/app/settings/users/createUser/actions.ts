@@ -1,4 +1,5 @@
 "use server"
+import { getUserByEmail } from '@/src/app/login/_actions';
 import { auth } from '@/src/lib/auth';
 import { hashCredential } from '@/src/lib/bcrypt';
 
@@ -275,7 +276,8 @@ export async function updateMyAccount(id:string, data:UpdateMyAccountValues):Pro
 }
 
 
-export async function updateUser(id:string, data:UpdateUserValues):Promise<ErrorTypes>{
+export async function updateUser(id:string, data:UpdateUserValues | User):Promise<ErrorTypes>{
+    console.log(data)
     try{
         const oldData = data
     const session = await auth()
@@ -286,25 +288,21 @@ export async function updateUser(id:string, data:UpdateUserValues):Promise<Error
         }
     }
     const email = session.user.email
-    const admin = await prisma.user.findFirst({
-        where: {
-            email
-        }
-    })
-    if(!admin){
+    const admin = await getUserByEmail(email)
+    if(!admin || "code" in admin){
         return {
             code: 401,
             message: "Administrador não encontrado"
         }
     }
 
+    console.log(admin)
     if(admin.role !== "ADMIN"){
         return {
             code: 401,
             message: "Usuário não é administrador"
         }
     }
-
     const updatedUser = await prisma.user.update({
         where: {
             id,
