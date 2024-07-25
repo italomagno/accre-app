@@ -6,6 +6,7 @@ import { getDateFromRoster } from "@/src/lib/utils";
 import { ErrorTypes, LoginLPNAValues, isErrorTypes } from "@/src/types";
 import { $Enums, Roster, Shift, User } from "@prisma/client";
 import { cookies } from "next/headers";
+import { URL } from "url";
 
 
 
@@ -34,13 +35,13 @@ export async function signInOnLPNA(data: LoginLPNAValues){
             }
         }
 
-        const response = await fetch("https://api.lpna.com.br/login", {
+        const response = await fetch("https://api.decea.mil.br/escala/api/auth/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                email: data.email,
+                login: data.email,
                 senha: data.password
             })
         })
@@ -50,17 +51,38 @@ export async function signInOnLPNA(data: LoginLPNAValues){
                 message: `Erro ao fazer login com a LPNA. O Erro retornado pela lpna foi o seguinte: ${response.statusText}`
             }
         }
-        const expires_in = (await response.json()).data.expires_in*1000
-        if(data.savePassword){
-            cookies().set("lpna", data.password, {
-                expires: new Date(expires_in)
-            })
-        }
-
-        const access_token = (await response.json()).data.access_token
+        const body = await response.json()
+        const expires_in = body.data.expires_in*1000
+       
+        const isToSaveSGPOLogin:boolean = data.savePassword
+        const access_token = body.data.access_token
         cookies().set("lpna_access_token", access_token, {
             expires: new Date(expires_in)
         })
+      
+                
+            const hashPassword = data.password
+        if(isToSaveSGPOLogin){
+            const lpna = await prisma.lPNASession.upsert({
+                where:{
+                    departmentId: admin.departmentId
+                },
+                update: {
+                    access_token: access_token,
+                },
+                create: {
+                    departmentId: admin.departmentId,
+                    login: data.email,
+                    password: hashPassword,
+                    expires_in: expires_in,
+                    access_token: access_token,
+                }
+            })
+            return {
+                code: 200,
+                message: "Login efetuado com sucesso na LPNA e as credenciais foram salvas."
+            }
+        }
 
         return {
             code: 200,
@@ -73,9 +95,62 @@ export async function signInOnLPNA(data: LoginLPNAValues){
 
 
     }catch(error){
+        console.log(error)
         return {
             code: 500,
             message: "Erro ao fazer login"
+        }
+    }
+
+}
+
+export async function getLoginLPNA(){
+    try {
+        const session = await auth()
+        if(!session){
+            return {
+                code: 401,
+                message: "Usuário não está autenticado"
+            }
+        }
+        const admin = await getUserByEmail(session.user.email)
+        const hasErrorOnAdmin = isErrorTypes(admin)
+        if(hasErrorOnAdmin){
+            return {
+                code: admin.code,
+                message: admin.message
+            }
+        }
+        if(admin.role !== "ADMIN"){
+            return {
+                code: 403,
+                message: "Usuário não é administrador"
+            }
+        }
+        const lpna = await prisma.lPNASession.findFirst({
+            where: {
+                departmentId: admin.departmentId
+            }
+        })
+        const emptyLpnaData = {
+            email: "",
+            password: "",
+            savePassword: false
+        }
+        if(!lpna){
+            return emptyLpnaData
+        }
+        return {
+            email: lpna.login,
+            password: lpna.password,
+            savePassword: true
+        }
+        
+    } catch (error) {
+        console.log(error)
+        return {
+            code: 500,
+            message: "Erro ao fazer login na lpna"
         }
     }
 
@@ -110,7 +185,7 @@ const getLPNADepartmentData = async (access_token: string): Promise<ErrorTypes |
     const responseFromLPNADepartment = await fetch("https://api.decea.mil.br/escala/api/organ", {
         method: "GET",
         headers: {
-            " Authorization": `Bearer ${access_token}`
+            "Authorization": `Bearer ${access_token}`
         }
     })
     if(responseFromLPNADepartment.status !== 200){
@@ -122,6 +197,7 @@ const getLPNADepartmentData = async (access_token: string): Promise<ErrorTypes |
     return await responseFromLPNADepartment.json() as LPNADepartmentResponse
 
 }catch(err){
+    console.log("Erro ao buscar dados do departamento na LPNA", err)
     return {
         code: 500,
         message: "Erro ao buscar dados do departamento na LPNA"
@@ -187,7 +263,7 @@ const getLPNAAbscencesShiftsData = async (access_token: string): Promise<ErrorTy
         const responseFromLPNA = await fetch("https://api.decea.mil.br/escala/api/scale/event/pimo/general/list", {
             method: "GET",
             headers: {
-                " Authorization": `Bearer ${access_token}`
+                "Authorization": `Bearer ${access_token}`
             }
         })
         if(responseFromLPNA.status !== 200){
@@ -373,7 +449,7 @@ const getLPNARosterData = async (access_token: string): Promise<ErrorTypes | LPN
             return await fetch(`https://api.decea.mil.br/escala/api/scale/${year}`, {
                 method: "GET",
                 headers: {
-                    " Authorization": `Bearer ${access_token}`
+                    "Authorization": `Bearer ${access_token}`
                 }
             })}
         ))
@@ -659,10 +735,10 @@ type LPNAShiftResponse = typeof ModelResponseFromLPNAShiftData
 
 const getLPNShiftsData = async (access_token: string):Promise<ErrorTypes | LPNAShiftResponse>=> {
     try{
-        const responseFromLPNA = await fetch("https://api.decea.mil.br/escala/api/scale/model", {
+        const responseFromLPNA = await fetch("https://api.decea.mil.br/escala/api/model", {
             method: "GET",
             headers: {
-                " Authorization": `Bearer ${access_token}`
+                "Authorization": `Bearer ${access_token}`
             }
         })
         if(responseFromLPNA.status !== 200){
@@ -671,13 +747,20 @@ const getLPNShiftsData = async (access_token: string):Promise<ErrorTypes | LPNAS
                 message: `Erro ao buscar dados de turnos na LPNA. O erro retornado pela LPNA foi o seguinte: ${responseFromLPNA.statusText}`
             }
         }
-        const shifts = (await responseFromLPNA.json() as LPNAShiftResponse).data.filter(shift=>shift.archived === 0 && (shift.function.toLowerCase().includes("ope") && shift.habilitation_type !== 29) && shift.function.toLowerCase().includes("sup"))
+        const shiftBody = (await responseFromLPNA.json() as LPNAShiftResponse).data
+        /* return {
+            status: false,
+            message: "",
+            data: []
+        } */
+        const shifts = shiftBody
+        
         const response:LPNAShiftResponse = {
             status: false,
             message: "",
             data: shifts
         }
-        return response
+        return response 
 
     }catch(err){
         return {
@@ -1237,7 +1320,7 @@ const getUsersFromLPNA = async (roster: Roster, access_token: string): Promise<E
         const getFunctionsFromLPNA = await fetch("https://api.decea.mil.br/escala/api/model/data/form", {
             method: "GET",
             headers: {
-                " Authorization": `Bearer ${access_token}`
+                "Authorization": `Bearer ${access_token}`
             }
         })
         if(getFunctionsFromLPNA.status !== 200){
@@ -1246,28 +1329,36 @@ const getUsersFromLPNA = async (roster: Roster, access_token: string): Promise<E
                 message: `Erro ao buscar funções na LPNA. O erro retornado pela LPNA foi o seguinte: ${getFunctionsFromLPNA.statusText}`
             }
         }
-        const functions = (await getFunctionsFromLPNA.json() as LPNAFunctionsResponse).data.functions.filter(functionName => !functionName.toLowerCase().includes("ope") && !functionName.toLowerCase().includes("sup"))
-
-        const getGroupsPerFunctionFromLpnas = await Promise.all(functions.map(async functionName => {
+        const functionsBody = await getFunctionsFromLPNA.json() as LPNAFunctionsResponse
+    
+        const functions = functionsBody.data.functions
+        const getGroupsPerFunctionFromLpnasBody = await Promise.all(functions.map(async functionName => {
             return {
                 functionName,
-                response : await fetch(`https://api.decea.mil.br/escala/api/scale/general/${roster.id}/groups/${functionName}`, {
+                response : await (await fetch(`https://api.decea.mil.br/escala/api/scale/general/${roster.id}/groups/${functionName}`, {
                 method: "GET",
                 headers: {
-                    " Authorization": `Bearer ${access_token}`
+                    "Authorization": `Bearer ${access_token}`
                 }
-            })
+            })).json()
     }}))
+
+
+
+        const getGroupsPerFunctionFromLpnas = getGroupsPerFunctionFromLpnasBody.filter(group => group.response.length > 0)
         const getUsersFromLPNA = await Promise.all(getGroupsPerFunctionFromLpnas.map(async group => {
-            const letters = await group.response.json()
-            const usersFromLPNA = await Promise.all(letters.data.map(async (letter:any) => {
-                const response = await fetch(`https://api.decea.mil.br/escala/api/scale/general/${roster.id}/groups/${group.functionName}/${letter}`, {
+            const letters = group.response
+            const usersFromLPNA = await Promise.all(letters.map(async (letter:any,i:number) => {
+"https://api.decea.mil.br/escala/api/scale/shift/byFunction/e5b00477-44ac-11ef-a377-02420a000b13/Operador%20(OPE)"
+"https://api.decea.mil.br/escala/api/scale/general/e5b00477-44ac-11ef-a377-02420a000b13/Operador%20(OPE)/A"
+                const response = await (await fetch(new URL(`https://api.decea.mil.br/escala/api/scale/general/${roster.id}/${group.functionName}/${letter}`), {
                     method: "GET",
                     headers: {
-                        " Authorization": `Bearer ${access_token}`
+                        "Authorization": `Bearer ${access_token}`
                     }
-                })
-                const usersFromLpna = (await response.json() as LPNAUsersResponse).data[letter as "A"].map(user => {
+                })).json() as LPNAUsersResponse
+
+                const usersFromLpna = response.data[letter as "A"].map(user => {
                     users.push(user as unknown as LPNAUsersArrayResponse)
                 })
             }))
@@ -1277,6 +1368,7 @@ const getUsersFromLPNA = async (roster: Roster, access_token: string): Promise<E
         return users
 
     } catch (error) {
+        console.log("error from users:", error)
         return {
             code: 500,
             message: "Erro ao buscar usuários da LPNA"
@@ -1356,20 +1448,21 @@ export async function getLPNAData(): Promise<ErrorTypes | {users: User[], shifts
             }
         }
         const convertReferenceMonthToRosterMonth = {
-            "01": "JAN",
-            "02": "FEB",
-            "03": "MAR",
-            "04": "APR",
-            "05": "MAY",
-            "06": "JUN",
-            "07": "JUL",
-            "08": "AUG",
-            "09": "SEP",
+            "1": "JAN",
+            "2": "FEB",
+            "3": "MAR",
+            "4": "APR",
+            "5": "MAY",
+            "6": "JUN",
+            "7": "JUL",
+            "8": "AUG",
+            "9": "SEP",
             "10": "OCT",
             "11": "NOV",
             "12": "DEC",
         } as unknown as $Enums.Months;
         const rosters= lpnaRosterData.data.map(roster => {
+         
             const Roster = {
                 id: roster.id,
                 month:  convertReferenceMonthToRosterMonth[parseFloat(roster.reference_month)] as $Enums.Months,
@@ -1399,6 +1492,19 @@ export async function getLPNAData(): Promise<ErrorTypes | {users: User[], shifts
                 }
                 return ""
             }).join("")
+            const normalizedAndCleanedName = getFirstLettersFromFullName
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remove accent marks
+    .replace(/[^a-zA-Z0-9. ]/g, "") // Remove special characters except for spaces and periods
+    .toLowerCase();
+    const normalizedAndCleanedWarName = user.war_name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remove accent marks
+    .replace(".", "") // Remove special characters except for spaces and periods
+    .toLowerCase()
+    .split(" ")
+    .join("")
+        const userEmail = `${normalizedAndCleanedWarName}${normalizedAndCleanedName}`
             const newUser = {
                 id: user.id,
                 created_at: new Date(),
@@ -1406,7 +1512,7 @@ export async function getLPNAData(): Promise<ErrorTypes | {users: User[], shifts
                 saram: "",
                 cpf: "",
                 password: null,
-                email: `${user.war_name.toLowerCase().split(" ").join("")}${getFirstLettersFromFullName}@fab.mil.br`,
+                email: `${userEmail}@fab.mil.br`,
                 block_changes: false,
                 isOffice: false,
                 function: "OPE",
@@ -1458,8 +1564,9 @@ export async function getLPNAData(): Promise<ErrorTypes | {users: User[], shifts
                 end,
             }
         })
-        const shiftsFromOpe = lpnaShiftsData.data.filter(shift=>shift.function.toLowerCase().includes("ope")).map(shift =>{ 
+        const shiftsFromOpe = lpnaShiftsData.data.filter(shift=>shift.function).map(shift =>{ 
             const AllShiftsFromOperator = shift.shifts.map(shiftData => {
+                
                 const newShift = {
                     name: shiftData.legend,
                     isOnlyToSup: false,
@@ -1495,9 +1602,13 @@ export async function getLPNAData(): Promise<ErrorTypes | {users: User[], shifts
             return [...AllShiftsFromSupervisor]
         }
         )
-
         const onlyShifts = [...shiftsFromOpe, ...shiftsFromSup].flat()
-        const shifts = [...onlyShifts, ...abscences] as Shift[]
+        const onlyShiftsWithoutDuplicateds = onlyShifts.filter((shift, index, self) =>
+            index === self.findIndex((t) => (
+                t.name === shift.name && t.start.getTime() === shift.start.getTime() && t.end.getTime() === shift.end.getTime()
+            ))
+        )
+        const shifts = [...onlyShiftsWithoutDuplicateds,...abscences] as Shift[]//[...onlyShifts, ...abscences] as Shift[]
         
 
         return {

@@ -3,7 +3,7 @@ import { Analytics } from '@vercel/analytics/react';
 
 import { ThemeProvider } from '@/src/components/theme/theme-provider';
 import { Toaster } from '@/src/components/ui/toaster';
-import { QueryProvider } from "../providers/queryProvider";
+import { CookiesProvider } from 'next-client-cookies/server';
 
 
 export const metadata = {
@@ -31,9 +31,9 @@ export default function RootLayout({
     enableSystem
     disableTransitionOnChange
   >
-    <QueryProvider>
-      {children}
-    </QueryProvider>
+    <CookiesProvider>
+    {children}
+    </CookiesProvider>
     <Toaster />
   </ThemeProvider>
         <Analytics />

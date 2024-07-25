@@ -146,11 +146,9 @@ model LPNASession {
   created_at     DateTime @default(now())
   login          String
   password       String
-  token          String
   department     Department @relation(fields: [departmentId], references: [id])
-  departmentId   String @db.ObjectId
+  departmentId   String @db.ObjectId @unique
   access_token   String
-  token_type     String
   expires_in     Int      
 }
 

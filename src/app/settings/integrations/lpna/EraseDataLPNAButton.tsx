@@ -1,14 +1,18 @@
+"use client";
 import { Button } from "@/src/components/ui/button";
-
-type EraseDataLpnaButtonProps = {
-    handleRemoveCookie: () => Promise<void>
-}
+import { useCookies } from 'next-client-cookies';
 
 
-export function  EraseDataLpnaButton( {handleRemoveCookie}: EraseDataLpnaButtonProps) {
+
+
+export function  EraseDataLpnaButton() {
+    const cookies = useCookies();
+
+    async function handleRemoveCookie() {
+            cookies.remove('lpna_access_token')
+    }
+
     return (
-        <Button onClick={async()=>{
-            const result = await handleRemoveCookie()
-        }} variant="link">Apagar dados da LPNA e tentar novamente</Button>
+        <Button onClick={handleRemoveCookie} variant="link">Apagar dados da LPNA e tentar novamente</Button>
     )
 }

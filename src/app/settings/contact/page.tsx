@@ -1,7 +1,5 @@
 import { ContactFormComponent } from "@/src/components/register/contact/ContactFormComponent";
-import { Button } from "@/src/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/src/components/ui/card";
-import { Textarea } from "@/src/components/ui/textarea";
 import { auth } from "@/src/lib/auth";
 
 

@@ -67,7 +67,10 @@ export function handleDateStartEnd({
     )
   };
 }
-
+export const isTokenValid = (expirationTime: number): boolean => {
+  const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+  return currentTime < expirationTime;
+};
 
 export function handleisSameDate(
   date1: Date,

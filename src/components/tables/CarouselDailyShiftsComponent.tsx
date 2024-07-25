@@ -30,14 +30,22 @@ export function CarouselDailyShiftsComponent() {
 
   async function handleGetShifts() {
     const response = await getShiftsFilteredPerDay(date ?? new Date());
-
-    if ('code' in response) {
+    if(response){
+      
+      if ('code' in response) {
+        toast({
+          title: 'Erro',
+          description: response.message
+        });
+      } else {
+        setShifts(response);
+      }
+    }
+    else{
       toast({
         title: 'Erro',
-        description: response.message
+        description: 'Não foi possível carregar os dados'
       });
-    } else {
-      setShifts(response);
     }
   }
 

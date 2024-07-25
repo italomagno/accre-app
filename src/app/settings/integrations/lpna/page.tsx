@@ -14,10 +14,14 @@ import {
 } from '@/src/components//ui/tabs';
 import { EmptyComponentCard } from '@/src/components/emptyComponents/EmptyComponentCard';
 import { SignInLPNAComponent } from '@/src/components/register/lpna/SignInLPNAComponent';
-import { getLPNAData } from './actions';
+import { getLPNAData, getLoginLPNA } from './actions';
 import { isErrorTypes } from '@/src/types';
 import { EraseDataLpnaButton } from './EraseDataLPNAButton';
 import { cookies } from 'next/headers';
+import { DataTable } from '@/src/components/tables/data/dataTable';
+import { ShiftColumns, rosterColumns, userColumns } from '@/src/components/tables/data/Columns';
+import { SaveAllIcon } from 'lucide-react';
+import { Button } from '@/src/components/ui/button';
 
 export default async function integrateWithLpnaPage({
   searchParams
@@ -25,9 +29,7 @@ export default async function integrateWithLpnaPage({
   searchParams: { q: string; offset: string };
 }) {
 
-  async function handleRemoveCookie(){
-    cookies().delete('access_token')
-  }
+  
   const search = searchParams.q ?? '';
   const department = await getDepartmentBySession();
   const hasErrorOnDepartment = 'code' in department;
@@ -38,7 +40,7 @@ export default async function integrateWithLpnaPage({
       </EmptyComponentCard>
     );
   }
-  const access_token = localStorage.getItem('access_token');
+  const access_token = cookies().get('lpna_access_token')?.value;
   const lpnaData = access_token
     ? await getLPNAData()
     : { users: [], shifts: [], rosters: [] };
@@ -46,50 +48,60 @@ export default async function integrateWithLpnaPage({
   if (hasErrorOnLPNA) {
     return (
       <EmptyComponentCard error={lpnaData} title="Erro">
-        <EraseDataLpnaButton
-        handleRemoveCookie={handleRemoveCookie} />
+        <EraseDataLpnaButton/>
       </EmptyComponentCard>
     );
   }
 
+  const lpnaSavedData = await getLoginLPNA();
+  if (isErrorTypes(lpnaSavedData)) {
+    return (
+      <EmptyComponentCard error={lpnaSavedData} title="Erro">
+        <EraseDataLpnaButton/>
+      </EmptyComponentCard>
+    );
+  }
+  var defaultLoginValues = {
+    email: lpnaSavedData.email ,
+    password: lpnaSavedData.password,
+    savePassword: true
+  }
   const { users, shifts, rosters } = lpnaData;
 
   const pageTitle = `Integrar dados do Shift-App-${department.name} com a LPNA-Decea`;
 
   return (
-    <Card x-chunk="dashboard-04-chunk-1">
-      <CardHeader>
-        <CardTitle>{pageTitle}</CardTitle>
-        <CardDescription></CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-wrap flex-col gap-4">
-        {users.length > 0 || shifts.length > 0 || rosters.length > 0 ? 
-        <>
-            <div className="flex flex-col gap-4">
-                <h2 className="text-xl font-bold">Usuários</h2>
-                <ul className="list-disc list-inside">
-                <li>Quantidade de usuários: {users.length}</li>
-                <li>Quantidade de turnos: {shifts.length}</li>
-                <li>Quantidade de escalas: {rosters.length}</li>
-                </ul>
-            </div>
-            <EraseDataLpnaButton
-            handleRemoveCookie={handleRemoveCookie}
-            />
-        </>
+
+    <>
+    {users.length > 0 || shifts.length > 0 || rosters.length > 0 ? 
+            <>
+          <div className="flex flex-col gap-4">
+          <div className='border border-spacing-1 p-4 rounded'>
+          <div className="flex justify-between">
+            <div><h2 className="text-xl font-bold mb-2">Usuários</h2></div>
+            <div><Button variant={"ghost"}>Salvar Dados De Usuários no app</Button></div>
+          </div>
+          <DataTable columns={userColumns} data={users}/>
+          </div>
+          <h2 className="text-xl font-bold mb-2">Turnos</h2>
+          <DataTable columns={ShiftColumns} data={shifts}/>
+          <h2 className="text-xl font-bold mb-2">Escalas</h2>
+          <DataTable columns={rosterColumns} data={rosters}/>
         
+        </div><EraseDataLpnaButton /></>
         : 
-        (
-          <Tabs defaultValue="createManyUsers" className="w-[400px]">
-            <TabsList>
-              <TabsTrigger value="signInLPNA">Credenciais LPNA</TabsTrigger>
-            </TabsList>
-            <TabsContent value="signInLPNA">
-              <SignInLPNAComponent />
-            </TabsContent>
-          </Tabs>
-        )}
+        <Card x-chunk="dashboard-04-chunk-1">
+        <CardHeader>
+          <CardTitle>{pageTitle}</CardTitle>
+          <CardDescription></CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap flex-col gap-4">
+              <SignInLPNAComponent
+              defaultValues={defaultLoginValues} />
       </CardContent>
     </Card>
+    }
+        </>
+
   );
 }

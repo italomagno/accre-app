@@ -13,8 +13,11 @@ import { Checkbox } from "../../ui/checkbox";
 import { signInOnLPNA } from '@/src/app/settings/integrations/lpna/actions';
 import { useState } from 'react';
 
+type SignInLPNAComponentProps = {
+  defaultValues: LoginLPNAValues;
+};
 
-export function SignInLPNAComponent() {
+export function SignInLPNAComponent({defaultValues}: SignInLPNAComponentProps) {
   const {toast} = useToast();
   const router = useRouter();
   const [isLoading,setIsLoading] = useState(false);
@@ -40,22 +43,17 @@ export function SignInLPNAComponent() {
 
   const form = useForm<LoginLPNAValues>({
     resolver: zodResolver(LoginLPNASchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      savePassword:false
-    },
+    defaultValues,
   });
 
   return (
         <div className='w-full flex flex-col gap-5 items-center justify-center'>
-        <div className="max-w-md w-full space-y-6 px-4 md:px-0">
+        <div className="w-full space-y-6 px-4 md:px-0">
           <div className="space-y-2 text-center">
-            <h1 className="text-3xl font-bold">Integração com a LPNA!</h1>
-            <p className="text-gray-500 dark:text-gray-400">Coloque suas credenciais para sincronizar dados.</p>
+            <h1 className="text-3xl font-bold">Integração com O SGPO-LPNA!</h1>
           </div>
           </div>
-          <div className='container w-full lg:w-1/2 mx-auto'>
+          <div className=' w-full '>
       <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
@@ -69,7 +67,7 @@ export function SignInLPNAComponent() {
                 />
               </FormControl>
               <FormDescription>
-                Seu do Escalante
+                Email do Escalante
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -92,23 +90,7 @@ export function SignInLPNAComponent() {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field}) => (
-            <FormItem>
-              <FormLabel>Senha</FormLabel>
-              <FormControl
-              >
-                <Input type= "password" placeholder="Senha Secreta" {...field} />
-              </FormControl>
-              <FormDescription>
-                Senha do Escalante
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+       
          <FormField
           control={form.control}
           name="savePassword"
@@ -122,7 +104,7 @@ export function SignInLPNAComponent() {
                 </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel>
-                  Salvar credenciais para um próximo login
+                  Manter Logado
                 </FormLabel>
               </div>
             </FormItem>
@@ -132,8 +114,6 @@ export function SignInLPNAComponent() {
       </form>
       </Form>
           </div>
-              
-              
               
             </div>
     
