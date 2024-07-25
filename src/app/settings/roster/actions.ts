@@ -7,7 +7,7 @@ import { Roster } from "@prisma/client"
 import { getUserByEmail } from "../../login/_actions"
 
 
-export async function getRosters():Promise<Roster[] | ErrorTypes>{
+export async function getRosters(quantityToFetch=1000):Promise<Roster[] | ErrorTypes>{
     const session = await auth()
     if(!session){
         return {
@@ -41,7 +41,8 @@ export async function getRosters():Promise<Roster[] | ErrorTypes>{
         const rosters = await prisma.roster.findMany({
             where:{
                 departmentId: user.departmentId
-            }
+            },
+            take:quantityToFetch
         })
         prisma.$disconnect();
         return rosters

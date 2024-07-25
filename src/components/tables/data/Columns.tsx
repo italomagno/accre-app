@@ -9,6 +9,8 @@ import { UpdateUserComponent } from "../../update/user/UpdateUserComponent"
 import { removeUser } from "@/src/app/settings/users/actions"
 import NewActionsCell from "./newActionsCell"
 import { updateRoster } from "@/src/app/settings/roster/createRoster/action"
+import { Button } from "../../ui/button"
+import { ArrowUpDown } from "lucide-react"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -17,11 +19,23 @@ import { updateRoster } from "@/src/app/settings/roster/createRoster/action"
 export const userColumns: ColumnDef<User>[] = [
     {
         accessorKey: "name",
-        header: "Nome",
+        header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+              >
+                Nome
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            )
+          },
+      
     },
     {
         accessorKey: "email",
         header: "Email",
+
     },
     {
         accessorKey: "function",
@@ -29,7 +43,17 @@ export const userColumns: ColumnDef<User>[] = [
     },
     {
         accessorKey: "isOffice",
-        header: "Expediente",
+        header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+              >
+                Expediente
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            )
+          },
         cell: (cell) => {
 
             const {toast} = useToast()
@@ -81,7 +105,17 @@ export const userColumns: ColumnDef<User>[] = [
     },
     {
         accessorKey: "block_changes",
-        header: "Bloquear alterações",
+        header: ({ column }) => {
+            return (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+              >
+                Bloquear alterações
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            )
+          },
         cell: (cell) => {
 const {toast} = useToast()
 

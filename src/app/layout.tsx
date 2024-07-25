@@ -3,6 +3,7 @@ import { Analytics } from '@vercel/analytics/react';
 
 import { ThemeProvider } from '@/src/components/theme/theme-provider';
 import { Toaster } from '@/src/components/ui/toaster';
+import { QueryProvider } from "../providers/queryProvider";
 
 
 export const metadata = {
@@ -30,8 +31,9 @@ export default function RootLayout({
     enableSystem
     disableTransitionOnChange
   >
+    <QueryProvider>
       {children}
-    
+    </QueryProvider>
     <Toaster />
   </ThemeProvider>
         <Analytics />

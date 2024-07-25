@@ -2,15 +2,12 @@
 import { getUsersWithFilter } from './actions';
 import { getDepartmentBySession } from '../../cadastrarOrgao/actions';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/src/components/ui/card';
-import { UserTable } from '@/src/components/tables/UserTable';
-import { Search } from '@/src/components/search';
-import { User } from '@prisma/client';
-import { Button } from '@/src/components/ui/button';
-import Link from 'next/link';
+
 import { EmptyComponentCard } from '@/src/components/emptyComponents/EmptyComponentCard';
-import { EmptySettingsComponent } from '@/src/components/emptyComponents/empytySettingsComponent';
 import { DataTable } from '@/src/components/tables/data/dataTable';
 import { userColumns } from '@/src/components/tables/data/Columns';
+import { Search } from '@/src/components/search';
+import { User } from '@prisma/client';
 
 export default async function IndexPage({
   searchParams
@@ -47,6 +44,9 @@ export default async function IndexPage({
     )
   }
 
+
+
+
   const pageTitle = `Usuários Cadastrados no ${department.name}`
 
  
@@ -54,18 +54,6 @@ export default async function IndexPage({
   return (
     <>
     {
-      users.length === 0 ? (
-        <EmptySettingsComponent
-        pageTitle={pageTitle}
-        pageSubtitle="Nenhum usuário cadastrado."
-        >
-          <div className="flex flex-col gap-4">
-            <div><Button><Link href={'/'} >Retornar para página inicial.</Link></Button></div>
-          </div>
-        </EmptySettingsComponent>
-
-      ) 
-      : 
       (
         <Card x-chunk="dashboard-04-chunk-1">
         <CardHeader>
@@ -73,8 +61,8 @@ export default async function IndexPage({
           <CardDescription>
           </CardDescription>
         </CardHeader>
-        <CardContent className='flex flex-wrap flex-col gap-4' >
-          <DataTable columns={userColumns} data={users as User[]} />
+        <CardContent className='h-fit' >
+          <DataTable columns={userColumns} data={users as User[]}         />
         {/* <UserTable users={users as User[]}  search={search}/> */}
         </CardContent>
       </Card>

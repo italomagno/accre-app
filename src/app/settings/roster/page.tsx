@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/src
 import { EmptyComponentCard } from "@/src/components/emptyComponents/EmptyComponentCard"
 import { DataTable } from "@/src/components/tables/data/dataTable"
 import { rosterColumns } from "@/src/components/tables/data/Columns"
+import { Roster } from "@prisma/client"
 
 
 
@@ -14,33 +15,11 @@ export default async function RosterPage() {
 
 
     const rosters = await getRosters()
-    const isErrorTypes = "code" in rosters
-    if(isErrorTypes){
-        return(
-            <EmptyComponentCard
-            title="Escalas"
-            error={rosters}
-            >
-                Não há escalas cadastradas.
-            </EmptyComponentCard>
-        )
-    }
+
     const pageTitle = "Escalas"
-    if(rosters.length === 0){
-        return(
-            <EmptyComponentCard
-            title={pageTitle}
-            error={{code: 404 ,message:"Não há escalas cadastradas no sistema"}}
-            >
-                Não há escalas cadastradas.
-            </EmptyComponentCard>
-        )
-    }
 
     
     return(
-    
-        
     
                 <Card x-chunk="dashboard-04-chunk-1">
                     <CardHeader>
@@ -49,7 +28,7 @@ export default async function RosterPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <DataTable columns={rosterColumns} data={rosters} />
+                        <DataTable columns={rosterColumns} data={rosters as Roster[]}  />
                    {/*  <Table>
                     <TableHeader className="w-fit">
                         <TableRow>

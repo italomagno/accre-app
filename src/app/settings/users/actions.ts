@@ -7,7 +7,7 @@ import { User } from "next-auth"
 import { getUserByEmail } from "../../login/_actions"
 import { revalidatePath } from "next/cache"
 
-
+//query:string,
 export async function getUsersWithFilter(query:string):Promise<ErrorTypes|User[]>{
   const session = await auth()
   if(!session){
@@ -55,15 +55,6 @@ export async function getUsersWithFilter(query:string):Promise<ErrorTypes|User[]
         },
       ]
       },
-      select:{
-      id:true,
-      email:true,
-      name: true,
-      function: true,
-      role: true,
-      block_changes: true,
-      isOffice: true,
-      }
     })
     if(!users || users.length === 0){
       prisma.$disconnect();
@@ -74,7 +65,6 @@ export async function getUsersWithFilter(query:string):Promise<ErrorTypes|User[]
     }
 
     prisma.$disconnect();
-
     return users
   } catch(e){
     prisma.$disconnect();
