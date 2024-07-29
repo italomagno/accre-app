@@ -1335,7 +1335,7 @@ const getUsersFromLPNA = async (roster: Roster, access_token: string): Promise<E
         const getGroupsPerFunctionFromLpnasBody = await Promise.all(functions.map(async functionName => {
             return {
                 functionName,
-                response : await (await fetch(`https://api.decea.mil.br/escala/api/scale/general/${roster.id}/groups/${functionName}`, {
+                response : await (await fetch(`https://api.decea.mil.br/escala/api/scale/general/${roster.rosterLpnaId}/groups/${functionName}`, {
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${access_token}`
@@ -1344,26 +1344,24 @@ const getUsersFromLPNA = async (roster: Roster, access_token: string): Promise<E
     }}))
 
 
-
         const getGroupsPerFunctionFromLpnas = getGroupsPerFunctionFromLpnasBody.filter(group => group.response.length > 0)
         const getUsersFromLPNA = await Promise.all(getGroupsPerFunctionFromLpnas.map(async group => {
             const letters = group.response
             const usersFromLPNA = await Promise.all(letters.map(async (letter:any,i:number) => {
 "https://api.decea.mil.br/escala/api/scale/shift/byFunction/e5b00477-44ac-11ef-a377-02420a000b13/Operador%20(OPE)"
 "https://api.decea.mil.br/escala/api/scale/general/e5b00477-44ac-11ef-a377-02420a000b13/Operador%20(OPE)/A"
-                const response = await (await fetch(new URL(`https://api.decea.mil.br/escala/api/scale/general/${roster.id}/${group.functionName}/${letter}`), {
+                const response = await (await fetch(new URL(`https://api.decea.mil.br/escala/api/scale/general/${roster.rosterLpnaId}/${group.functionName}/${letter}`), {
                     method: "GET",
                     headers: {
                         "Authorization": `Bearer ${access_token}`
                     }
                 })).json() as LPNAUsersResponse
-
                 const usersFromLpna = response.data[letter as "A"].map(user => {
+
                     users.push(user as unknown as LPNAUsersArrayResponse)
                 })
             }))
         }))
-
 
         return users
 
@@ -1462,19 +1460,19 @@ export async function getLPNAData(): Promise<ErrorTypes | {users: User[], shifts
             "12": "DEC",
         } as unknown as $Enums.Months;
         const rosters= lpnaRosterData.data.map(roster => {
-         
+
             const Roster = {
-                id: roster.id,
-                month:  convertReferenceMonthToRosterMonth[parseFloat(roster.reference_month)] as $Enums.Months,
+                month: convertReferenceMonthToRosterMonth[parseFloat(roster.reference_month)] as $Enums.Months,
                 year: parseFloat(roster.reference_year),
                 minWorkingHoursPerRoster: lpnaDepartmentData.data.workload_base,
                 maxWorkingHoursPerRoster: lpnaDepartmentData.data.workload,
                 departmentId: admin.departmentId,
                 blockChanges: roster.type !== "Pr\u00e9via",
-            }
-            return Roster
+                rosterLpnaId: roster.id,
+            };
+            return Roster;
         }
-        ).sort((a,b) => getDateFromRoster(b).getTime() - getDateFromRoster(a).getTime()) as Roster[]
+        ).sort((a, b) => getDateFromRoster(b as Roster).getTime() - getDateFromRoster(a as Roster).getTime()) as unknown as Roster[]
         const lastRosterToGetUsers = rosters[0] as Roster ?? {id:""} as Roster
         const lpnaUsersData = await getUsersFromLPNA(lastRosterToGetUsers, access_token)
         const hasErrorOnUsers = isErrorTypes(lpnaUsersData)
@@ -1493,22 +1491,21 @@ export async function getLPNAData(): Promise<ErrorTypes | {users: User[], shifts
                 return ""
             }).join("")
             const normalizedAndCleanedName = getFirstLettersFromFullName
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // Remove accent marks
-    .replace(/[^a-zA-Z0-9. ]/g, "") // Remove special characters except for spaces and periods
-    .toLowerCase();
-    const normalizedAndCleanedWarName = user.war_name
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // Remove accent marks
-    .replace(".", "") // Remove special characters except for spaces and periods
-    .toLowerCase()
-    .split(" ")
-    .join("")
-        const userEmail = `${normalizedAndCleanedWarName}${normalizedAndCleanedName}`
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "") // Remove accent marks
+                .replace(/[^a-zA-Z0-9. ]/g, "") // Remove special characters except for spaces and periods
+                .toLowerCase();
+            const normalizedAndCleanedWarName = user.war_name
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "") // Remove accent marks
+                .replace(".", "") // Remove special characters except for spaces and periods
+                .toLowerCase()
+                .split(" ")
+                .join("");
+            const userEmail = `${normalizedAndCleanedWarName}${normalizedAndCleanedName}`;
             const newUser = {
-                id: user.id,
                 created_at: new Date(),
-                name:`${user.graduation} ${user.war_name}`,
+                name: `${user.graduation} ${user.war_name}`,
                 saram: "",
                 cpf: "",
                 password: null,
@@ -1521,10 +1518,12 @@ export async function getLPNAData(): Promise<ErrorTypes | {users: User[], shifts
                 departmentId: admin.departmentId,
                 workDaysId: [],
                 isApproved: true,
-            }
-            return newUser
+                userLpnaId: user.id,
+            };
+            return newUser;
 
-        }) as User[]
+        }) as unknown as User[]
+
 
 
         const abscences = lpnaShiftAbcesesData.data.map(abscence => {
@@ -1577,6 +1576,7 @@ export async function getLPNAData(): Promise<ErrorTypes | {users: User[], shifts
                     quantity: 0,
                     start: new Date(shiftData.timestamp_start),
                     end: new Date(shiftData.timestamp_finish),
+                    shiftLpnaId: shiftData.id
 
                 }
                 return newShift

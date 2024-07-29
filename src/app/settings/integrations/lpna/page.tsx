@@ -6,12 +6,6 @@ import {
   CardTitle
 } from '@/src/components/ui/card';
 import { getDepartmentBySession } from '../../../cadastrarOrgao/actions';
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent
-} from '@/src/components//ui/tabs';
 import { EmptyComponentCard } from '@/src/components/emptyComponents/EmptyComponentCard';
 import { SignInLPNAComponent } from '@/src/components/register/lpna/SignInLPNAComponent';
 import { getLPNAData, getLoginLPNA } from './actions';
@@ -20,16 +14,13 @@ import { EraseDataLpnaButton } from './EraseDataLPNAButton';
 import { cookies } from 'next/headers';
 import { DataTable } from '@/src/components/tables/data/dataTable';
 import { ShiftColumns, rosterColumns, userColumns } from '@/src/components/tables/data/Columns';
-import { SaveAllIcon } from 'lucide-react';
-import { Button } from '@/src/components/ui/button';
+import { SaveAllDataButton } from './SaveAllDataButton';
 
 export default async function integrateWithLpnaPage({
   searchParams
 }: {
   searchParams: { q: string; offset: string };
 }) {
-
-  
   const search = searchParams.q ?? '';
   const department = await getDepartmentBySession();
   const hasErrorOnDepartment = 'code' in department;
@@ -79,14 +70,30 @@ export default async function integrateWithLpnaPage({
           <div className='border border-spacing-1 p-4 rounded'>
           <div className="flex justify-between">
             <div><h2 className="text-xl font-bold mb-2">Usuários</h2></div>
-            <div><Button variant={"ghost"}>Salvar Dados De Usuários no app</Button></div>
+            <div><SaveAllDataButton
+            data={users} 
+            /></div>
           </div>
           <DataTable columns={userColumns} data={users}/>
           </div>
-          <h2 className="text-xl font-bold mb-2">Turnos</h2>
+          <div className='border border-spacing-1 p-4 rounded'>
+          <div className="flex justify-between">
+            <div><h2 className="text-xl font-bold mb-2">Turnos</h2></div>
+            <div><SaveAllDataButton
+            data={shifts} 
+            /></div>
+          </div>
           <DataTable columns={ShiftColumns} data={shifts}/>
-          <h2 className="text-xl font-bold mb-2">Escalas</h2>
+          </div>
+          <div className='border border-spacing-1 p-4 rounded'>
+          <div className="flex justify-between">
+            <div><h2 className="text-xl font-bold mb-2">Escalas</h2></div>
+            <div><SaveAllDataButton
+            data={rosters} 
+            /></div>
+          </div>
           <DataTable columns={rosterColumns} data={rosters}/>
+          </div>
         
         </div><EraseDataLpnaButton /></>
         : 

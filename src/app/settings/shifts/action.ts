@@ -4,7 +4,7 @@ import prisma from "@/src/lib/db/prisma/prismaClient"
 import { ErrorTypes } from "@/src/types"
 import { getUserByEmail } from "../../login/_actions"
 import { revalidatePath } from "next/cache"
-import { Shift } from "@prisma/client"
+import { Prisma, Shift } from "@prisma/client"
 
 
 export async function getShifts(){
@@ -177,4 +177,147 @@ export async function getShiftsAndAbscence(){
         absences: abscences
   }
 
+}
+
+export async function createOrUpdateManyShifts(shifts:Shift[]):Promise<ErrorTypes>{
+    try{
+        const session = await auth()
+        if(!session){
+            return {
+                code: 401,
+                message: "Usuário não autenticado"
+            }
+        }
+        const email = session.user.email
+        const user = await getUserByEmail(email)
+        if("code" in user){
+            return{
+                code: 404,
+                message: user.message
+            }
+        }
+        if(user.role !== "ADMIN"){
+            return {
+                code: 403,
+                message: "Usuário não autorizado"
+            }
+        }
+        const registeredNormalUsers = await prisma.user.findMany({
+            where: {
+                departmentId: user.departmentId,
+                role: "USER"
+            }
+        })
+        if(!registeredNormalUsers || registeredNormalUsers.length === 0){
+            prisma.$disconnect()
+            return {
+                code: 403,
+                message: "Não é possível criar um turno sem usuários cadastrados"
+            }
+        }
+        const allusers = await prisma.user.findMany({
+            where: {
+                departmentId: user.departmentId,
+            }
+        })
+        if(!allusers || allusers.length === 0){
+            prisma.$disconnect()
+            return {
+                code: 403,
+                message: "Não é possível criar um turno sem usuários cadastrados"
+            }
+        }
+        if(!shifts || shifts.length === 0){
+            prisma.$disconnect()
+            return {
+                code: 403,
+                message: "Não é possível criar um turno sem usuários cadastrados"
+            }
+        }
+        const shiftsWithoutDuplicateds = shifts.filter((shift, index) =>
+            shifts.findIndex(s => s.shiftLpnaId === shift.shiftLpnaId) === index
+          );
+          
+          const createOrUpdatedShifts = await Promise.all(
+            shiftsWithoutDuplicateds.map(async shift => {
+              //@ts-ignore
+              const { start, end, type, ...shiftsWithoutDateStartEnd } = shift;
+          
+              const newShift: Prisma.ShiftCreateInput = {
+                minQuantity: shift.minQuantity ?? 0,
+                quantity: shift.quantity ?? 1,
+                quantityInWeekEnd: shift.quantityInWeekEnd ?? 0,
+                minQuantityInWeekEnd: shift.minQuantityInWeekEnd ?? 0,
+                maxQuantity: shift.maxQuantity ?? 0,
+                department: {
+                  connect: {
+                    id: user.departmentId
+                  }
+                },
+                start,
+                end,
+                shiftLpnaId: shift.shiftLpnaId,
+                isOnlyToSup: shift.isOnlyToSup,
+                name: shift.name
+              };
+          
+              if (shift.id) {
+                return await prisma.shift.upsert({
+                  where: {
+                    id: shift.id
+                  },
+                  update: newShift,
+                  create: newShift
+                });
+              } else {
+                const existingShift = await prisma.shift.findFirst({
+                  where: {
+                    OR: [
+                      { shiftLpnaId: newShift.shiftLpnaId ?? undefined },
+                      { id: newShift.id ?? undefined }
+                    ],
+                    departmentId: user.departmentId
+                  }
+                });
+          
+                if (existingShift) {
+                  // If shiftLpnaId exists, update the existing shift
+                  return await prisma.shift.update({
+                    where: {
+                      departmentId: user.departmentId,
+                    id: existingShift.id
+                    },
+                    data: newShift
+                  });
+                } else {
+                  return await prisma.shift.create({
+                    data: newShift
+                  });
+                }
+              }
+            })
+          );
+          
+          if (createOrUpdatedShifts.length === 0) {
+            return {
+              code: 403,
+              message: "Não é possível criar ou atualizar turnos"
+            };
+          }
+        
+
+
+       
+        return {
+            code: 200,
+            message: "Turnos criados ou atualizados com sucesso"
+        }
+    }
+    catch(error){
+        console.error(error)
+        return {
+            code: 500,
+            message: "Erro ao criar ou atualizar turnos"
+        }
+    }
 }

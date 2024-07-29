@@ -19,6 +19,30 @@ export  const extractSpreadSheetId = (spreadSheetUrl: string) => {
 export function handleSearchParamsForLaunches(searchParams: string) {
   return `${new URLSearchParams({turnos:searchParams})}`
 }
+export function removeHyphens(objectId:string) {
+  return objectId.replace(/-/g, '');
+}
+export function addHyphens(cleanedObjectId:string) {
+  return cleanedObjectId.replace(
+      /^(.{8})(.{4})(.{4})(.{4})(.{12})$/,
+      '$1-$2-$3-$4-$5'
+  );
+}
+export function removeHyphensAndCompress(objectId:string) {
+  const hexString = objectId.replace(/-/g, '');
+  const buffer = Buffer.from(hexString, 'hex');
+  const compressed = buffer.toString('base64').slice(0, 16); // Take only the first 16 characters
+  return compressed;
+}
+
+export function decompressAndAddHyphens(compressedObjectId:string) {
+  const buffer = Buffer.from(compressedObjectId, 'base64');
+  const hexString = buffer.toString('hex');
+  return hexString.replace(
+      /^(.{8})(.{4})(.{4})(.{4})(.{12})$/,
+      '$1-$2-$3-$4-$5'
+  );
+}
 
 
 

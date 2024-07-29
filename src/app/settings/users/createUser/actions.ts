@@ -4,7 +4,7 @@ import { auth } from '@/src/lib/auth';
 import { hashCredential } from '@/src/lib/bcrypt';
 
 import prisma from "@/src/lib/db/prisma/prismaClient"
-import { ErrorTypes, UpdateMyAccountValues, UpdateUserValues, } from "@/src/types"
+import { ErrorTypes, UpdateMyAccountValues, UpdateUserValues, isErrorTypes, } from "@/src/types"
 import { $Enums, User,Function } from "@prisma/client"
 import { revalidatePath } from 'next/cache';
 
@@ -98,6 +98,88 @@ export async function handleFileInputForManyUsers(prevState:any,formData: FormDa
 
 }
 
+export async function CreateOrUpdateManyUsers(users:User[]):Promise<ErrorTypes>{
+    try {
+        const session = await auth()
+        if(!session){
+            return {
+                code: 401,
+                message: "Usuário não autenticado"
+            }
+        }
+        const admin = getUserByEmail(session.user.email)
+        const isError = isErrorTypes(admin)
+        if(isError){
+            return {
+                code: 401,
+                message: "Administrador não encontrado"
+            }
+        }
+        const upsertManyData = await Promise.all(users.map(async (user) => {
+            const {id:_,userLpnaId,...restOfUser} = user
+            const upsertData = await prisma.user.upsert({
+                where: {
+                    email: user.email
+                },
+                create: {
+                    ...restOfUser,
+                    userLpnaId: userLpnaId || null, // Default to null if not provided
+                    name: user.name, // Ensure name is provided
+                    saram: user.saram || "", // Default to empty string if not provided
+                    cpf: user.cpf || "", // Default to empty string if not provided
+                    email: user.email, // Ensure email is provided
+                    block_changes: user.block_changes || false, // Default to false if not provided
+                    isOffice: user.isOffice || false, // Default to false if not provided
+                    function: user.function || "OPE", // Default to "OPE" if not provided
+                    role: user.role || "USER", // Default to "USER" if not provided
+                    rosterId: user.rosterId || null, // Default to null if not provided
+                    departmentId: user.departmentId, // Ensure departmentId is provided
+                    workDaysId: user.workDaysId || [], // Default to empty array if not provided
+                    isApproved: user.isApproved || true // Default to true if not provided
+                },
+                update: {
+                    ...restOfUser,
+                    userLpnaId: user.userLpnaId || null, // Default to null if not provided
+                    name: user.name, // Ensure name is provided
+                    saram: user.saram || "", // Default to empty string if not provided
+                    cpf: user.cpf || "", // Default to empty string if not provided
+                    email: user.email, // Ensure email is provided
+                    block_changes: user.block_changes || false, // Default to false if not provided
+                    isOffice: user.isOffice || false, // Default to false if not provided
+                    function: user.function || "OPE", // Default to "OPE" if not provided
+                    role: user.role || "USER", // Default to "USER" if not provided
+                    rosterId: user.rosterId || null, // Default to null if not provided
+                    departmentId: user.departmentId, // Ensure departmentId is provided
+                    workDaysId: user.workDaysId || [], // Default to empty array if not provided
+                    isApproved: user.isApproved || true // Default to true if not provided
+                }
+            })
+            return upsertData
+        }
+        ))
+        if(upsertManyData.length < users.length){
+            return {
+                code: 500,
+                message: "Erro ao criar ou atualizar usuários"
+            }
+        }
+        return {
+            code: 200,
+            message: "Usuários criados ou atualizados com sucesso"
+        }
+      
+
+        
+    } catch (error) {
+        console.log(error)
+        return {
+            code: 500,
+            message: "Erro ao criar ou atualizar usuários"
+        }
+        
+    }
+}
+    
 
 export async function createManyUsers(users:Pick<User, "name" | "email" | "function">[]):Promise<ErrorTypes>{
     const session = await auth()
@@ -110,18 +192,16 @@ export async function createManyUsers(users:Pick<User, "name" | "email" | "funct
         }
     }
 
-    const admin = await prisma.user.findFirst({
-        where: {
-            email: session.user.email
-        }
-    })
-    if(!admin){
+    const admin = await getUserByEmail(session.user.email)
+    const isError = isErrorTypes(admin)
+    if(isError){
         prisma.$disconnect()
         return {
             code: 401,
             message: "Administrador não encontrado"
         }
     }
+    
     if(admin.role !== "ADMIN"){
         prisma.$disconnect()
         return {
@@ -277,7 +357,6 @@ export async function updateMyAccount(id:string, data:UpdateMyAccountValues):Pro
 
 
 export async function updateUser(id:string, data:UpdateUserValues | User):Promise<ErrorTypes>{
-    console.log(data)
     try{
         const oldData = data
     const session = await auth()
@@ -296,7 +375,6 @@ export async function updateUser(id:string, data:UpdateUserValues | User):Promis
         }
     }
 
-    console.log(admin)
     if(admin.role !== "ADMIN"){
         return {
             code: 401,
