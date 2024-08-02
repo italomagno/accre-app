@@ -4,7 +4,7 @@ import { auth } from '@/src/lib/auth';
 import { handleDateStartEnd, handleisSameDate } from '@/src/lib/date';
 import prisma from '@/src/lib/db/prisma/prismaClient';
 import { CreateShiftValues, ErrorTypes, createShiftSchema } from '@/src/types';
-import { Prisma } from '@prisma/client';
+import { Prisma, Shift } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 export async function createShift(shiftValues: CreateShiftValues) {
@@ -65,10 +65,8 @@ export async function createShift(shiftValues: CreateShiftValues) {
   }
 }
 
-export async function updateShift(id: string, shiftValues: CreateShiftValues) {
-  console.log(shiftValues);
+export async function updateShift(id: string, shiftValues: CreateShiftValues | Omit<Shift | Prisma.ShiftUpdateInput, 'id'>) {
   try {
-   const error = await createShiftSchema.parseAsync(shiftValues);
     const session = await auth();
     if (!session) {
       return {
@@ -83,7 +81,23 @@ export async function updateShift(id: string, shiftValues: CreateShiftValues) {
         message: admin.message
       };
     }
-
+    const hasDateStartEnd = 'dateStartEnd' in shiftValues;
+    if (!hasDateStartEnd) {
+      const updateShift = await prisma.shift.update({
+        where: {
+          id,
+          departmentId: admin.departmentId
+        },
+        data: {
+          ...shiftValues
+        }
+      });
+      return {
+        code: 200,
+        message: 'Turno atualizado com sucesso'
+      };
+     
+    }
     const { dateStartEnd, ...shiftsWithoutDateStartEnd } = shiftValues;
     const { start, end } = handleDateStartEnd(dateStartEnd);
     const shiftUpdated: Prisma.ShiftUpdateInput = {
@@ -108,7 +122,8 @@ export async function updateShift(id: string, shiftValues: CreateShiftValues) {
         name: {
           contains: shiftValues.name,
           mode: 'insensitive'
-        }
+        },
+        departmentId: admin.departmentId,
       }
     });
 
@@ -136,6 +151,7 @@ export async function updateShift(id: string, shiftValues: CreateShiftValues) {
       message: 'Turno atualizado com sucesso'
     };
   } catch (err) {
+    console.log(err);
     return {
       code: 500,
       message: 'Erro ao atualizar turno'

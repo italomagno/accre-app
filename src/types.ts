@@ -14,7 +14,9 @@ export type AvailableShifts = {
   title: string;
   shifts: {
     shift: Shift; // Use the actual type of shift here
-    day: Date;
+    day: number;
+    month: number;
+    year: number;
     quantity: number;
     count: number;
     sum: number;

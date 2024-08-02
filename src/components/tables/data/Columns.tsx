@@ -11,19 +11,46 @@ import NewActionsCell from "./newActionsCell"
 import { updateRoster } from "@/src/app/settings/roster/createRoster/action"
 import { Button } from "../../ui/button"
 import { ArrowUpDown } from "lucide-react"
+import { updateShift } from "../../update/shift/action"
+import { removeShift } from "@/src/app/settings/shifts/action"
+import { UpdateShiftComponent } from "../../update/shift/UpdateShiftComponent"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 
-"created_at	name	start	end	quantity	minQuantity	quantityInWeekEnd	minQuantityInWeekEnd	maxQuantity	isOnlyToSup	isAvailable	isAbscence	Actions"
 export const ShiftColumns: ColumnDef<Shift>[] = [
     {
         accessorKey: "name",
         header: "Nome",
     },
-    {
+   /*  {
       accessorKey: "created_at",
       header: "Criado em",
+      cell: (cell) => {
+        const date = new Date(cell.getValue() as string)
+        return date.toLocaleDateString('pt-BR')
+    }
+    }, */
+    {
+      accessorKey: "shiftLpnaId",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            LpnaID
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: (cell) => {
+        return <div className="w-14 text-ellipsis">
+          <p className="truncate ">
+          {typeof cell.getValue() === "string" ? cell.getValue() as string :  'Não encontrado'}
+        </p>
+        </div>
+    }
     },
     {
         accessorKey: "start",
@@ -69,23 +96,216 @@ export const ShiftColumns: ColumnDef<Shift>[] = [
     },
     {
         accessorKey: "isOnlyToSup",
-        header: "Dispoível apenas para supervisores?",
+        header: ({ column }) => {
+          return (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+              Disponível apenas para Supervisores?
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          )
+        },
+        cell: (cell) => {
+          const {toast} = useToast()
+          
+                      const oldData = cell.row.original
+          
+                      async function handleBlockChangesChange(value:string){
+                          const {id,workDayId,rostersId,departmentId,isOnlyToSup,...dataWithoutId} = oldData
+                          
+                          const booleanValue = value === "true" ? true : false
+                          const newData = {...dataWithoutId,isOnlyToSup:booleanValue}
+                          
+                         const resutFromUpdateUser = await updateShift(id,newData)
+                         if(resutFromUpdateUser.code === 200){
+                          toast({
+                              title: "Sucesso",
+                              description: resutFromUpdateUser.message
+                          })
+                      }else{
+                          toast({
+                              title: "Erro",
+                              description: resutFromUpdateUser.message
+                          })
+                      
+                      }
+                      }
+                      return(
+                          <Select onValueChange={handleBlockChangesChange}
+                          defaultValue={String(cell.getValue())}
+                          >
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Bloquear alterações?" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                      <SelectItem
+                                            value={"true"}
+                                          >
+                                            Sim
+                                      </SelectItem>
+                                      <SelectItem
+                                            value={"false"}
+                                          >
+                                            Não
+                                      </SelectItem>
+                                       
+                                      </SelectContent>
+                                    </Select>
+                      )
+                  }
     },
     {
         accessorKey: "isAvailable",
-        header: "Está disponível?",
+        header: ({ column }) => {
+          return (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+              Esta Disponível?
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          )
+        },
+        cell: (cell) => {
+          const {toast} = useToast()
+          
+                      const oldData = cell.row.original
+          
+                      async function handleBlockChangesChange(value:string){
+                          const {id,workDayId,rostersId,departmentId,isAvailable,...dataWithoutId} = oldData
+                          
+                          const booleanValue = value === "true" ? true : false
+                          const newData = {...dataWithoutId,isAvailable:booleanValue}
+                          
+                         const resutFromUpdateUser = await updateShift(id,newData)
+                         if(resutFromUpdateUser.code === 200){
+                          toast({
+                              title: "Sucesso",
+                              description: resutFromUpdateUser.message
+                          })
+                      }else{
+                          toast({
+                              title: "Erro",
+                              description: resutFromUpdateUser.message
+                          })
+                      
+                      }
+                      }
+                      return(
+                          <Select onValueChange={handleBlockChangesChange}
+                          defaultValue={String(cell.getValue())}
+                          >
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Bloquear alterações?" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                      <SelectItem
+                                            value={"true"}
+                                          >
+                                            Sim
+                                      </SelectItem>
+                                      <SelectItem
+                                            value={"false"}
+                                          >
+                                            Não
+                                      </SelectItem>
+                                       
+                                      </SelectContent>
+                                    </Select>
+                      )
+                  }
     },
     {
         accessorKey: "isAbscence",
-        header: "É Afastamento?",
+        header: ({ column }) => {
+          return (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+              É Afastamento?
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          )
+        },
+        cell: (cell) => {
+          const {toast} = useToast()
+          
+                      const oldData = cell.row.original
+          
+                      async function handleBlockChangesChange(value:string){
+                          const {id,workDayId,rostersId,departmentId,isAbscence,...dataWithoutId} = oldData
+                          
+                          const booleanValue = value === "true" ? true : false
+                          const newData = {...dataWithoutId,isAbscence:booleanValue}
+                          
+                         const resutFromUpdateUser = await updateShift(id,newData)
+                         if(resutFromUpdateUser.code === 200){
+                          toast({
+                              title: "Sucesso",
+                              description: resutFromUpdateUser.message
+                          })
+                      }else{
+                          toast({
+                              title: "Erro",
+                              description: resutFromUpdateUser.message
+                          })
+                      
+                      }
+                      }
+                      return(
+                          <Select onValueChange={handleBlockChangesChange}
+                          defaultValue={String(cell.getValue())}
+                          >
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Bloquear alterações?" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                      <SelectItem
+                                            value={"true"}
+                                          >
+                                            Sim
+                                      </SelectItem>
+                                      <SelectItem
+                                            value={"false"}
+                                          >
+                                            Não
+                                      </SelectItem>
+                                       
+                                      </SelectContent>
+                                    </Select>
+                      )
+                  }
     },
     {
         accessorKey: "id",
         header: "Ações",
         cell: (cell) => {
-            const {id:shiftId} = cell.row.original
+            const {id:shiftId,name,quantity,minQuantity,quantityInWeekEnd,minQuantityInWeekEnd,maxQuantity,isOnlyToSup,isAbscence,isAvailable,end,start} = cell.row.original
             return(
-                <NewActionsCell id={shiftId} handleRemoveItem={removeUser}>
+                <NewActionsCell id={shiftId} handleRemoveItem={removeShift}>
+                  <UpdateShiftComponent
+                    id={shiftId}
+                    defaultShiftValues={{
+                      name,
+                      quantity:String(quantity),
+                      minQuantity:String(minQuantity),
+                      quantityInWeekEnd:String(quantityInWeekEnd),
+                      minQuantityInWeekEnd:String(minQuantityInWeekEnd),
+                      maxQuantity:String(maxQuantity),
+                      isOnlyToSup,
+                      isAvailable,
+                      isAbscence,
+                      dateStartEnd: {
+                        end: end.toLocaleTimeString("pt-br", { hour: '2-digit', minute: '2-digit' }).replace(":",""),
+                        start: start.toLocaleTimeString("pt-br", { hour: '2-digit', minute: '2-digit' }).replace(":",""),
+                        isNextDay:false
+                      },
+                    }}
+                  />
                 </NewActionsCell>
             )
         }
@@ -455,6 +675,7 @@ const {toast} = useToast()
                 id={userId?? ""}
                 defaultUserValues={{...otherPropsFromUser,function:String(cell.row.original.function)}}
                 />
+
                 </NewActionsCell>
             )
         }
@@ -463,13 +684,34 @@ const {toast} = useToast()
 ]
 
 export const rosterColumns: ColumnDef<Roster>[] = [
+  /*   */
     {
         accessorKey: "month",
-        header: "Mês",
+        header: ({ column }) => {
+          return (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+              Mês
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          )
+        },
     },
     {
         accessorKey: "year",
-        header: "Ano",
+        header: ({ column }) => {
+          return (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
+              Ano
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          )
+        },
     },
     {
         accessorKey: "minWorkingHoursPerRoster",

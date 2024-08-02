@@ -4,21 +4,19 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger
 } from '@/src/components/ui/dialog';
 import { ShowAvailableShiftsComponent } from '../components/ShowAvailableShiftsComponent';
 import { Separator } from '../components/ui/separator';
-import { Shift, WorkDay } from '@prisma/client';
+import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { RegisterWorkDayForm } from '../components/register/workDay/RegisterWorkDayForm';
 
 interface DialogComponentProps {
   day: Date;
   workDay?: WorkDay ;
   rosterId?: string;
-  shifts: Shift[];
   shiftInThisDay: string;
   isSameMonth: boolean;
   onWorkDayUpdate?: (workDay: Exclude<WorkDay,'id'>,rosterId:string) => void;
@@ -48,9 +46,7 @@ export function DialogComponent({
         </DialogTitle>
         <DialogDescription>
         </DialogDescription>
-          <ShowAvailableShiftsComponent
-          day={day}
-          />
+          <ShowAvailableShiftsComponent day={day}         />
           <Separator className="my-6" />
           <RegisterWorkDayForm
           rosterId={rosterId}

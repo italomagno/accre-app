@@ -1,7 +1,8 @@
 import { type ClassValue, clsx } from "clsx"
 
 import { twMerge } from "tailwind-merge"
-import { Roster, Shift } from "@prisma/client";
+import { Roster, Shift, User, WorkDay } from "@prisma/client";
+import shiftPage from "../app/settings/shifts/page";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -44,7 +45,115 @@ export function decompressAndAddHyphens(compressedObjectId:string) {
   );
 }
 
+export  const transformToVector =  (header:string[], data:any[]) => {
 
+  const csvContent = [
+      header, 
+      ...data
+    ]
+  
+    return csvContent
+
+};
+
+
+export function getAvailableShiftsDayUsingVectors(
+ {
+  shifts,
+  workDays,
+  roster,
+  users
+ }:{ shifts: Shift[],
+  workDays: WorkDay[],
+  users: User[],
+  roster: Roster}
+) {
+  const WorkDaysColumn = createWorkDaysColumn(roster);
+  const counterUsersPerday = users.map((user) => {
+    const shiftPerDay = WorkDaysColumn.map((day) => {
+      const newDate = day.day;
+      const isWeekend = day.isWeekend;
+      const workDay = workDays.find(
+        (workDay) =>
+          workDay.userId === user.id && workDay.day.getDate() === newDate
+      );
+      const shiftsInThisWorkDay =
+        workDay?.shiftsId.flatMap((shiftId) =>
+          shifts.filter((shift) => shift.id === shiftId)
+        ) || [];
+      const shiftInThisDay =
+        shiftsInThisWorkDay.length > 0
+          ? shiftsInThisWorkDay.map((shift) => shift.name).join(' | ')
+          : '-';
+      if (!workDay) return '-';
+      return {shiftInThisDay,
+        isWeekend
+      };
+    });
+    return {
+      user,
+      days: [...shiftPerDay]
+    };
+  });
+
+  const counterUserPerDayHeading = [
+    'Usuário',
+    ...WorkDaysColumn
+  ];
+
+    const resultFromDownloadCSV = transformToVector(counterUserPerDayHeading.map(day=>{
+      if(typeof day === 'string'){
+        return day
+      }
+      return String(day.day)
+    }), counterUsersPerday.map(row=>{
+
+      return [row.user.name, ...row.days.map(day=>{
+        if(typeof day === 'string'){
+          return day
+        }
+        return day.shiftInThisDay
+      })]
+    }));
+
+  const counterShiftsPerday = shifts.map((shift) => {
+    return [...WorkDaysColumn.map((workdayObject) => {
+      const { day, isWeekend } = workdayObject;
+      const columnOfShifts:string[] = resultFromDownloadCSV.map(row=>{
+        const cellData = row[day];
+        const hasVerticalBar = cellData.includes('|');
+        if(hasVerticalBar){
+          const shifts = cellData.split(' | ');
+          return shifts
+        }
+        return [cellData]
+      })
+      const quantityOfThisShift = columnOfShifts
+          .filter(
+            (workDay) =>
+              workDay.includes(shift.name) || workDay.includes(shift.id)
+          ).length
+          const isComplete = quantityOfThisShift >= shift.quantity;
+        const count = Math.abs(shift.quantity - quantityOfThisShift)
+          return {
+            shift,
+            day:day,
+            month:getMonthFromRosterInNumber(roster),
+            year:roster.year,
+            quantity: shift.quantity,
+            count,
+            sum: quantityOfThisShift,
+            isComplete
+          };
+     
+    })];
+  }).flat();
+
+
+
+return counterShiftsPerday
+ 
+}
 
 
 

@@ -10,7 +10,7 @@ import { ShiftsTable } from '../components/tables/shiftsTable';
 import { getWorkDays } from './lancamento/action';
 
 
-export function UniqueRosterCalendarComponent({ shifts, roster, workDays,user,admin }: { shifts: Shift[],user:User,admin?:User , roster: Roster, workDays:WorkDay[]}) {
+export function UniqueRosterCalendarComponent({ shifts, roster, workDays,user,admin}: { users:User[],shifts: Shift[],user:User,admin?:User , roster: Roster, workDays:WorkDay[]}) {
 
     const [workDaysList, setWorkDaysList] = useState<WorkDay[]>(()=>workDays)
     const [previewWorkDays, setPreviewWorkDays] = useState<WorkDay[]>([])
@@ -93,7 +93,6 @@ export function UniqueRosterCalendarComponent({ shifts, roster, workDays,user,ad
                                     day={props.date}
                                     rosterId={roster.id}
                                     workDay={workDay}
-                                    shifts={shiftsInThisWorkDay}
                                     shiftInThisDay={shiftInThisDay}
                                     isSameMonth={isSameMonth}
                                     onWorkDayUpdate={handleUpdateWorkDay}
@@ -108,7 +107,6 @@ export function UniqueRosterCalendarComponent({ shifts, roster, workDays,user,ad
                                     day={props.date}
                                     rosterId={roster.id}
                                     workDay={workDay}
-                                    shifts={shifts}
                                     shiftInThisDay={shiftInThisDay}
                                     isSameMonth={isSameMonth}
                                 />

@@ -3,6 +3,7 @@ import { auth } from '@/src/lib/auth';
 import prisma from '@/src/lib/db/prisma/prismaClient';
 import { $Enums } from '@prisma/client';
 import { getUserByEmail } from '../login/_actions';
+import { getAvailableShiftsDayUsingVectors } from '@/src/lib/utils';
 
 export async function getWorkDaysByUserSession() {
   const session = await auth();
@@ -43,6 +44,10 @@ export async function getWorkDaysByUserSession() {
 
 export async function getAvailableShiftsDay(day: Date) {
   try {
+
+
+
+
     const session = await auth();
     if (!session) {
       return {
@@ -51,49 +56,73 @@ export async function getAvailableShiftsDay(day: Date) {
       };
     }
     const user = await getUserByEmail(session.user.email);
-    if("code" in user){
-        return {
-            code: user.code,
-            message: user.message
-        };
-        }
-
-
+    if ('code' in user) {
+      return {
+        code: user.code,
+        message: user.message
+      };
+    }
     const monthInEnglishWithThreeLetters = day
       .toLocaleString('en', { month: 'short' })
       .toUpperCase() as keyof typeof $Enums.Months;
     const month = $Enums.Months[monthInEnglishWithThreeLetters];
 
-    const rosterByMonthAndYear = await prisma.roster.findFirst({
+    const [rosterByMonthAndYear,supShifts,opeShifts,workDays,Allusers] = await Promise.all([await prisma.roster.findFirst({
       where: {
         month: month,
         year: day.getFullYear(),
         departmentId: user.departmentId
       }
-    });
+    }),
+    await prisma.shift.findMany({
+      where: {
+        departmentId: user.departmentId,
+        isOnlyToSup: true,
+        isAbscence: false,
+        quantity: {
+          gt: 0
+        }
+      }
+    }),
+    await prisma.shift.findMany({
+      where: {
+        departmentId: user.departmentId,
+        isOnlyToSup: false,
+        isAbscence: false,
+        quantity: {
+          gt: 0
+        }
+      }
+    }),
+    await prisma.workDay.findMany({
+      where: {
+        departmentId: user.departmentId,
+      }
+    }),
+    await prisma.user.findMany({
+      where: {
+        departmentId: user.departmentId
+      }
+    })
+
+  
+  
+  ])
+
     if (!rosterByMonthAndYear) {
       return {
         code: 404,
         message: 'Escala não encontrada'
       };
     }
+    const userIsAdmin = user.role === 'ADMIN';
+    const userIsSup = user.function === 'SUP';
 
-    const supShifts = await prisma.shift.findMany({
-      where:{
-          departmentId: user.departmentId,
-          isOnlyToSup: true
-      }
-  })
-  const userIsAdmin = user.role === "ADMIN"
-  const userIsSup = user.function === "SUP"
-  const opeShifts =  await prisma.shift.findMany({
-      where:{
-          departmentId: user.departmentId,
-          isOnlyToSup: false
-      }
-  }) 
-
-  const shifts = userIsAdmin ? [...supShifts, ...opeShifts] : userIsSup ? [...supShifts, ...opeShifts] : opeShifts
+    const shifts = userIsAdmin
+      ? [...supShifts, ...opeShifts]
+      : userIsSup
+        ? [...supShifts, ...opeShifts]
+        : opeShifts;
 
     if (!shifts) {
       return {
@@ -101,12 +130,7 @@ export async function getAvailableShiftsDay(day: Date) {
         message: 'Turnos não encontrados'
       };
     }
-    const workDays = await prisma.workDay.findMany({
-      where:{
-        departmentId: user.departmentId,
-        day
-      }
-    });
+
 
     /*   const counterShiftsPerday = shifts.map(shift => {
     const shiftPerDay = WorkDaysColumn.map(day => {
@@ -156,31 +180,37 @@ export async function getAvailableShiftsDay(day: Date) {
       }
       
     }) */
+    const dateOnly = new Date(day.getFullYear(), day.getMonth(), day.getDate());
+    /* const counterShiftsPerday = (
+      shifts.map((shift) => {
+        const workDaysReducedByDay = workDays.filter(w=>w.shiftsId.includes(shift.id) && w.day.getDate() === dateOnly.getDate() && w.day.getMonth() === dateOnly.getMonth() && w.day.getFullYear() === dateOnly.getFullYear()).length;
+        const isComplete = workDaysReducedByDay >= shift.quantity;
+        const count = Math.abs(shift.quantity - workDaysReducedByDay)
+     
 
-    const counterShiftsPerday = shifts.map((shift) => {
-      const workDaysReducedByDay = workDays
-        .filter(
-          (workDay) =>
-            workDay.shiftsId.includes(shift.id)
-        )
-        .reduce((acc, curr) => acc + 1, 0);
-      const isComplete = workDaysReducedByDay >= shift.quantity;
-      const count = shift.quantity - workDaysReducedByDay;
-      return {
-        shift,
-        day,
-        quantity: shift.quantity,
-        count,
-        sum: workDaysReducedByDay,
-        isComplete
-      };
+        return {
+          shift,
+          day,
+          quantity: shift.quantity,
+          count,
+          sum: workDaysReducedByDay,
+          isComplete
+        };
+      })
+    ); */
+
+    const counterShiftsPerday = getAvailableShiftsDayUsingVectors({
+      shifts,
+      workDays,
+      roster:rosterByMonthAndYear,
+      users:Allusers
     });
 
     const completeShifts = counterShiftsPerday.filter(
-      (shift) => shift.isComplete
+      (shift) => shift.isComplete && shift.shift.quantity > 0 && shift.day === dateOnly.getDate()
     );
     const incompleteShifts = counterShiftsPerday.filter(
-      (shift) => !shift.isComplete
+      (shift) => !shift.isComplete && shift.shift.quantity > 0 && shift.day === dateOnly.getDate()
     );
 
     return [
@@ -194,7 +224,7 @@ export async function getAvailableShiftsDay(day: Date) {
       }
     ];
   } catch (e) {
-      console.log(e)
+    console.log(e);
     return {
       code: 500,
       message: 'Erro ao buscar turnos disponíveis'
@@ -210,7 +240,7 @@ export async function getWorkDaysByUserEmail(userEmail: string) {
       message: 'Usuário não autenticado'
     };
   }
-  const email = userEmail
+  const email = userEmail;
   try {
     const user = await prisma.user.findUnique({
       where: {
@@ -238,7 +268,6 @@ export async function getWorkDaysByUserEmail(userEmail: string) {
     };
   }
 }
-
 
 export async function getWorkDays() {
   const session = await auth();
@@ -276,4 +305,3 @@ export async function getWorkDays() {
     };
   }
 }
-

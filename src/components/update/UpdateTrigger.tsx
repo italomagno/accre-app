@@ -18,8 +18,8 @@ export function UpdateTrigger( {children}: UpdateTriggerProps) {
         <PopoverTrigger>
           <Edit/>
         </PopoverTrigger>
-        <PopoverContent>
-          <ScrollArea className="h-44" >
+        <PopoverContent className="w-dvw lg:w-fit">
+          <ScrollArea className="h-96 mx-auto">
           {children}
           <ScrollBar orientation="vertical" />
           </ScrollArea>

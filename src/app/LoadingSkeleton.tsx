@@ -1,4 +1,43 @@
+import { Badge } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card";
 import { Skeleton } from "../components/ui/skeleton";
+import { generateUniqueKey } from "../lib/utils";
+
+
+
+export function ShowAvailableShiftsComponentLoading(){
+        return (
+                <>
+                <Card key={generateUniqueKey()} className="w-full">
+                <CardHeader>
+                  <CardTitle><Skeleton className="h-4 w-40"/></CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-3 w-full">
+                <Skeleton className="h-4 w-11"/>
+                <Skeleton className="h-4 w-11"/>
+                <Skeleton className="h-4 w-11"/>
+                <Skeleton className="h-4 w-11"/>
+                </CardContent>
+              </Card>
+
+              <Card key={generateUniqueKey()} className="w-full">
+                <CardHeader>
+                  <CardTitle><Skeleton className="h-4 w-40"/></CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-3 w-full">
+                <Skeleton className="h-4 w-11"/>
+                <Skeleton className="h-4 w-11"/>
+                <Skeleton className="h-4 w-11"/>
+                <Skeleton className="h-4 w-11"/>
+                </CardContent>
+              </Card>
+              </>
+
+        )
+}
+
+
+
 
 export function LoadingSkeleton(){
         return (

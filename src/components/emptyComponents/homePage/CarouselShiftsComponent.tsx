@@ -22,8 +22,6 @@ export function CarouselShiftsComponent({
       ?
       null
       :
-
-
                 <ShiftsTable
                   shifts={shifts}
                   users={users}

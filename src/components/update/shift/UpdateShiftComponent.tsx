@@ -39,6 +39,7 @@ import { updateShift } from './action';
 import { useRouter } from 'next/navigation';
 import { Separator } from '../../ui/separator';
 import { useState } from 'react';
+import { Shift } from '@prisma/client';
 
 type UpdateShiftComponentProps = {
   id: string;
@@ -85,7 +86,7 @@ export function UpdateShiftComponent({ defaultShiftValues,id }: UpdateShiftCompo
         <CardTitle>Editar Turno de Serviço</CardTitle>
         <CardDescription>Preencha os dados do turno.</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className='max-w-sm'>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}

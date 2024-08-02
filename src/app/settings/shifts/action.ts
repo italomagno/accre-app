@@ -234,70 +234,50 @@ export async function createOrUpdateManyShifts(shifts:Shift[]):Promise<ErrorType
                 message: "Não é possível criar um turno sem usuários cadastrados"
             }
         }
-        const shiftsWithoutDuplicateds = shifts.filter((shift, index) =>
-            shifts.findIndex(s => s.shiftLpnaId === shift.shiftLpnaId) === index
-          );
-          
-          const createOrUpdatedShifts = await Promise.all(
-            shiftsWithoutDuplicateds.map(async shift => {
-              //@ts-ignore
-              const { start, end, type, ...shiftsWithoutDateStartEnd } = shift;
-          
-              const newShift: Prisma.ShiftCreateInput = {
+        const createOrUpdatedShifts = await Promise.all( shifts.map(async shift => {
+            const newShift: Prisma.ShiftCreateInput = {
                 minQuantity: shift.minQuantity ?? 0,
                 quantity: shift.quantity ?? 1,
                 quantityInWeekEnd: shift.quantityInWeekEnd ?? 0,
                 minQuantityInWeekEnd: shift.minQuantityInWeekEnd ?? 0,
                 maxQuantity: shift.maxQuantity ?? 0,
                 department: {
-                  connect: {
-                    id: user.departmentId
-                  }
+                    connect: {
+                        id: user.departmentId
+                    }
                 },
-                start,
-                end,
+                start: shift.start,
+                end: shift.end,
                 shiftLpnaId: shift.shiftLpnaId,
                 isOnlyToSup: shift.isOnlyToSup,
                 name: shift.name
-              };
-          
-              if (shift.id) {
-                return await prisma.shift.upsert({
-                  where: {
-                    id: shift.id
-                  },
-                  update: newShift,
-                  create: newShift
-                });
-              } else {
-                const existingShift = await prisma.shift.findFirst({
-                  where: {
-                    OR: [
-                      { shiftLpnaId: newShift.shiftLpnaId ?? undefined },
-                      { id: newShift.id ?? undefined }
-                    ],
-                    departmentId: user.departmentId
-                  }
-                });
-          
-                if (existingShift) {
-                  // If shiftLpnaId exists, update the existing shift
-                  return await prisma.shift.update({
-                    where: {
-                      departmentId: user.departmentId,
-                    id: existingShift.id
+            };
+            const alreadyExistsThisShift = await prisma.shift.findFirst({
+                where: {
+                    name: {
+                        equals: shift.name
                     },
-                    data: newShift
-                  });
-                } else {
-                  return await prisma.shift.create({
-                    data: newShift
-                  });
+                    departmentId: user.departmentId
                 }
-              }
             })
-          );
-          
+            if(alreadyExistsThisShift){
+                return await prisma.shift.update({
+                    where: {
+                        id: alreadyExistsThisShift.id
+                    },
+                    data: {
+                        shiftLpnaId: shift.shiftLpnaId,
+                    }
+                })
+            }
+            return await prisma.shift.create({
+                data: newShift
+            })
+            
+        }
+        ))
+
+
           if (createOrUpdatedShifts.length === 0) {
             return {
               code: 403,
