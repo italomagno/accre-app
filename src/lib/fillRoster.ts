@@ -5,6 +5,7 @@ import { auth } from "./auth";
 import { ErrorTypes } from "../types";
 import { getUserByEmail } from "../app/login/_actions";
 import prisma from "./db/prisma/prismaClient";
+import { counterShiftsPerDay } from "./utils";
 
 // Helper function to parse a time string (e.g., "20:00") into a Date object on the current day
 const parseTime = (time: string): Date => {
@@ -62,7 +63,10 @@ const canAssignShift = (
 };
 
 // Function to fill the roster table with shifts
-export const fillRoster = async (roster: string[][]): Promise<string[][] | ErrorTypes> => {
+export const fillRoster = async (roster: string[][],workDaysColumn: {
+  day: number;
+  isWeekend: boolean;
+}[])/* : Promise<string[][] | ErrorTypes> */ => {
   try {
     const session = await auth();
     if (!session) return { code: 401, message: "Usuário não autenticado" };
@@ -71,51 +75,81 @@ export const fillRoster = async (roster: string[][]): Promise<string[][] | Error
     if ("code" in user) return { code: user.code, message: user.message };
 
     const shifts = await prisma.shift.findMany({
-      where: { departmentId: user.departmentId }
+      where: { departmentId: user.departmentId,
+        quantity: { gt: 0 },
+        isAbscence: false
+       }
     });
+    const supervisors = await prisma.user.findMany({
+      where: { departmentId: user.departmentId,
+        function: "SUP" }
+       });
+       const operators = await prisma.user.findMany({
+        where: { departmentId: user.departmentId,
+          function: "OPE" }
+         });
 
-    const updatedRoster = [...roster];
+    const [mil,...days] = roster.shift() as [string, string[]];
 
-    shifts.forEach((shift) => {
-      let assignedShifts = 0;
+    const completeShiftsAndTheDayFromOperators:any[] = []
+    const inCompleteShiftsAndTheDayFromOperators:any[] = []
+    const completeShiftsAndTheDayFromSupervisors:any[] = []
+    const inCompleteShiftsAndTheDayFromSupervisors:any[] = []
 
-      for (let dayIndex = 1; dayIndex < roster[0].length; dayIndex++) {
-        if (assignedShifts >= shift.quantity) {
-          break;
-        }
-
-        const availableUsers = updatedRoster.filter((userRoster) => {
-          const userShifts = userRoster.filter((day) => day.includes(shift.name)).length;
-          if (userShifts >= shift.minQuantity) {
-            return false;
-          }
-          return canAssignShift(userRoster, dayIndex, shift, shifts, updatedRoster);
-        });
-
-        if (availableUsers.length > 0) {
-          const randomUserIndex = Math.floor(Math.random() * availableUsers.length);
-          const userRoster = updatedRoster[randomUserIndex];
-
-          if (userRoster[dayIndex] !== '-') {
-            const existingShiftEnd = parseTime(userRoster[dayIndex].split('|')[0]);
-            const newShiftStart = parseTime(shift.start.toISOString().slice(11, 16));
-            const hoursDifference = differenceInHours(newShiftStart, existingShiftEnd);
-
-            if (hoursDifference >= 8) {
-              userRoster[dayIndex] += `|${shift.name}`;
-            }
-          } else {
-            userRoster[dayIndex] = shift.name;
-          }
-
-          assignedShifts++;
-        }
+    counterShiftsPerDay(shifts,workDaysColumn,roster).forEach((counter)=>{
+      const {shift,days} = counter
+      if(shift.isOnlyToSup === false){
+      const ShiftsWithExcess = days.filter(day=>day.cellData > shift.quantity).map(day=>({...day,shiftName:shift.name,id:shift.id,excess:day.cellData - shift.quantity}))
+      const qntOfShiftsWithExcess = days.filter(day=>day.cellData > shift.quantity).length
+      const ShiftsWithoutFilling = days.filter(day=>day.cellData < shift.quantity).map(day=>({...day,shiftName:shift.name,id:shift.id,excess:shift.quantity - day.cellData}))
+      const qntOfShiftsWithoutFilling = days.filter(day=>day.cellData < shift.quantity).length
+      if(qntOfShiftsWithExcess > 0){
+        completeShiftsAndTheDayFromOperators.push(...ShiftsWithExcess)
       }
-    });
+      if(qntOfShiftsWithoutFilling > 0){
+        inCompleteShiftsAndTheDayFromOperators.push(...ShiftsWithoutFilling)
+      }
+    }else{
+      const ShiftsWithExcess = days.filter(day=>day.cellData > shift.quantity).map(day=>({...day,shiftName:shift.name,id:shift.id,excess:day.cellData - shift.quantity}))
+      const qntOfShiftsWithExcess = days.filter(day=>day.cellData > shift.quantity).length
+      const ShiftsWithoutFilling = days.filter(day=>day.cellData < shift.quantity).map(day=>({...day,shiftName:shift.name,id:shift.id,excess:shift.quantity - day.cellData}))
+      const qntOfShiftsWithoutFilling = days.filter(day=>day.cellData < shift.quantity).length
+      if(qntOfShiftsWithExcess > 0){
+        completeShiftsAndTheDayFromSupervisors.push(...ShiftsWithExcess)
+      }
+      if(qntOfShiftsWithoutFilling > 0){
+        inCompleteShiftsAndTheDayFromSupervisors.push(...ShiftsWithoutFilling)
+      }
+    }
+    }
+    )
+
+    const hasSuficientShiftsToFillDataOperators = completeShiftsAndTheDayFromOperators.length >= inCompleteShiftsAndTheDayFromOperators.length
+    const howManyMoreShiftsOperators = completeShiftsAndTheDayFromOperators.length - inCompleteShiftsAndTheDayFromOperators.length
+  
+    const hasSuficientShiftsToFillDataSupervisors = completeShiftsAndTheDayFromSupervisors.length >= inCompleteShiftsAndTheDayFromSupervisors.length
+    const howManyMoreShiftsSupervisors = completeShiftsAndTheDayFromSupervisors.length - inCompleteShiftsAndTheDayFromSupervisors.length
+    console.log(hasSuficientShiftsToFillDataOperators, howManyMoreShiftsOperators,hasSuficientShiftsToFillDataSupervisors,howManyMoreShiftsSupervisors);
 
 
-    console.log(JSON.stringify(updatedRoster, null, 2));
-    return updatedRoster;
+
+
+   
+
+
+
+    
+
+    //count if has suficient shifts to fill data
+    //get the roster in a table format
+    //check if the shifts is filled for this day
+    //save this shift and day
+    //check if the has shifts without filling
+
+
+
+  /*   console.log(JSON.stringify(updatedRoster, null, 2));
+    return updatedRoster; */
 
   } catch (error) {
     console.log(error);

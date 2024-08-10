@@ -5,8 +5,6 @@ import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { handleisSameDate } from '../lib/date';
 import { RegisterWorkDayButton } from '../components/register/workDay/RegisterWorkDayButton';
 import { useState } from 'react';
-import { AvailableShifts } from '../types';
-import { getMonthFromRosterInNumber } from '../lib/utils';
 
 export function CalendarComponent({
   shifts,
@@ -14,8 +12,6 @@ export function CalendarComponent({
   workDays,
   user,
   defaultMonth,
-  roster,
-  users
 }: {
   shifts: Shift[];
   user: User;

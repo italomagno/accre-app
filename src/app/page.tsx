@@ -67,7 +67,7 @@ const usersByRoster = users
     <LayoutComponent>
       <main>
         <>
-          <div className='my-14 w-full flex items-center justify-between px-7'>
+          <div className='my-14 w-full flex items-center justify-between px-2 lg:px-7'>
             <NavigateBetweenRostersButton 
               rosters={rosters}
               type="left"
@@ -80,7 +80,7 @@ const usersByRoster = users
               type="right"
             />
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-2 px-14">
+          <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-2 px-2 lg:px-14">
             <>
             <div className='grid grid-rows-subgrid'>
 

@@ -163,6 +163,10 @@ export function GeralUserAdminShiftTable({
   }
 
   async function handleCallIA(){
+    toast({
+      title: 'Função em Produção',
+      description: 'Aguarde um desenvolvimento futuro',
+    });
  
 const newData = [counterShiftsPerdayHeadings.map(day=>{
   if(typeof day === 'string'){
@@ -178,7 +182,7 @@ const newData = [counterShiftsPerdayHeadings.map(day=>{
     return day.shiftInThisDay
   })]
 })]
-    await fillRoster(newData);
+    await fillRoster(newData,WorkDaysColumn)
   }
 
   return (
@@ -188,7 +192,7 @@ const newData = [counterShiftsPerdayHeadings.map(day=>{
               <Button variant={"ghost"}>
                 <Download size={24} onClick={handleDownloadCSV}/>
               </Button>
-              <Button variant={"ghost"} disabled={true} onClick={() => {}}
+              <Button variant={"ghost"} disabled={false} onClick={() => {}}
               >
                 <BotIcon size={24} onClick={handleCallIA}/>
               </Button>

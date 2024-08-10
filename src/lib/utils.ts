@@ -221,6 +221,47 @@ export function handleCellColor(shift:(Pick<Shift,"id" | "name" | "quantity"> & 
 }
 
 
+export const counterShiftsPerDay = (shifts:Shift[],WorkDaysColumn:{
+  day: number;
+  isWeekend: boolean;
+}[]  ,resultFromDownloadCSV:any[]
+)=>{
+  return shifts.map((shift) => {
+
+    
+    const shiftPerDay = WorkDaysColumn.map((workdayObject) => {
+      const { day, isWeekend } = workdayObject;
+
+      const columnOfShifts:string[] = resultFromDownloadCSV.map(row=>{
+        const cellData = row[day];
+        const hasVerticalBar = cellData.includes('|');
+        if(hasVerticalBar){
+          const shifts = cellData.split(' | ');
+          return shifts
+        }
+        return [cellData]
+      })
+
+      return {
+        day,
+        cellData: columnOfShifts
+          .filter(
+            (workDay) =>
+              workDay.includes(shift.name) || workDay.includes(shift.id)
+          ).length,
+        isWeekend
+      };
+    });
+    
+    return {
+      shift,
+      days: [...shiftPerDay]
+    };
+  });
+
+}
+
+
 
 
 

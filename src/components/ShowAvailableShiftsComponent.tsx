@@ -50,7 +50,7 @@ export function ShowAvailableShiftsComponent( {day}: ShowAvailableShiftsComponen
                   {
                   shift.shifts.map((availableShift) => (
                     <Badge
-                      className="flex flex-col text-xl text-nowrap"
+                      className="flex flex-col text-base lg:text-xl text-nowrap"
                       key={generateUniqueKey()}
                     >
                       {`${availableShift.shift.name}(${availableShift.count})`}
