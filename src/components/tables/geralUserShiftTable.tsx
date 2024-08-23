@@ -11,7 +11,8 @@ import {
 import {
   createWorkDaysColumn,
   generateUniqueKey,
-  getDateFromRoster
+  getDateFromRoster,
+  getMonthFromRosterInNumber
 } from '@/src/lib/utils';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { useToast } from '../ui/use-toast';
@@ -88,8 +89,7 @@ export function GeralUserShiftTable({
       );
       const workDay = workDays.find(
         (workDay) =>
-          workDay.userId.includes(user.id) &&
-          handleisSameDate(workDay.day, newDate)
+          workDay.userId.includes(user.id) && workDay.day.getMonth() === getMonthFromRosterInNumber(roster) && workDay.day.getFullYear() === roster.year
       );
       const shiftsInThisWorkDay =
         workDay?.shiftsId.flatMap((shiftId) =>

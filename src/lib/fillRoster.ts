@@ -1,11 +1,11 @@
 "use server"
-import { Shift } from "@prisma/client";
-import { addDays, differenceInHours, isAfter, isBefore, parse } from 'date-fns';
+import { Roster, Shift } from "@prisma/client";
+import { addDays, isAfter, isBefore, parse } from 'date-fns';
 import { auth } from "./auth";
-import { ErrorTypes } from "../types";
 import { getUserByEmail } from "../app/login/_actions";
 import prisma from "./db/prisma/prismaClient";
 import { counterShiftsPerDay } from "./utils";
+import { checkFatigueRules } from "../components/register/workDay/action";
 
 // Helper function to parse a time string (e.g., "20:00") into a Date object on the current day
 const parseTime = (time: string): Date => {
@@ -66,7 +66,7 @@ const canAssignShift = (
 export const fillRoster = async (roster: string[][],workDaysColumn: {
   day: number;
   isWeekend: boolean;
-}[])/* : Promise<string[][] | ErrorTypes> */ => {
+}[],rosterObj:Roster)/* : Promise<string[][] | ErrorTypes> */ => {
   try {
     const session = await auth();
     if (!session) return { code: 401, message: "Usuário não autenticado" };
@@ -91,17 +91,20 @@ export const fillRoster = async (roster: string[][],workDaysColumn: {
 
     const [mil,...days] = roster.shift() as [string, string[]];
 
-    const completeShiftsAndTheDayFromOperators:any[] = []
-    const inCompleteShiftsAndTheDayFromOperators:any[] = []
-    const completeShiftsAndTheDayFromSupervisors:any[] = []
-    const inCompleteShiftsAndTheDayFromSupervisors:any[] = []
+    var completeShiftsAndTheDayFromOperators:any[] = []
+    var inCompleteShiftsAndTheDayFromOperators:any[] = []
+    var completeShiftsAndTheDayFromSupervisors:any[] = []
+    var inCompleteShiftsAndTheDayFromSupervisors:any[] = []
 
-    counterShiftsPerDay(shifts,workDaysColumn,roster).forEach((counter)=>{
+    counterShiftsPerDay(shifts,workDaysColumn,roster).forEach((counter,i)=>{
+      if(i === 0){
+        //console.log(counter)
+      }
       const {shift,days} = counter
       if(shift.isOnlyToSup === false){
-      const ShiftsWithExcess = days.filter(day=>day.cellData > shift.quantity).map(day=>({...day,shiftName:shift.name,id:shift.id,excess:day.cellData - shift.quantity}))
+      const ShiftsWithExcess = days.filter(day=>day.cellData > shift.quantity).map(day=>({...day,shift,shiftName:shift.name,id:shift.id,excess:day.cellData - shift.quantity}))
       const qntOfShiftsWithExcess = days.filter(day=>day.cellData > shift.quantity).length
-      const ShiftsWithoutFilling = days.filter(day=>day.cellData < shift.quantity).map(day=>({...day,shiftName:shift.name,id:shift.id,excess:shift.quantity - day.cellData}))
+      const ShiftsWithoutFilling = days.filter(day=>day.cellData < shift.quantity).map(day=>({...day,shift,shiftName:shift.name,id:shift.id,excess:shift.quantity - day.cellData}))
       const qntOfShiftsWithoutFilling = days.filter(day=>day.cellData < shift.quantity).length
       if(qntOfShiftsWithExcess > 0){
         completeShiftsAndTheDayFromOperators.push(...ShiftsWithExcess)
@@ -110,9 +113,9 @@ export const fillRoster = async (roster: string[][],workDaysColumn: {
         inCompleteShiftsAndTheDayFromOperators.push(...ShiftsWithoutFilling)
       }
     }else{
-      const ShiftsWithExcess = days.filter(day=>day.cellData > shift.quantity).map(day=>({...day,shiftName:shift.name,id:shift.id,excess:day.cellData - shift.quantity}))
+      const ShiftsWithExcess = days.filter(day=>day.cellData > shift.quantity).map(day=>({...day,shift,shiftName:shift.name,id:shift.id,excess:day.cellData - shift.quantity}))
       const qntOfShiftsWithExcess = days.filter(day=>day.cellData > shift.quantity).length
-      const ShiftsWithoutFilling = days.filter(day=>day.cellData < shift.quantity).map(day=>({...day,shiftName:shift.name,id:shift.id,excess:shift.quantity - day.cellData}))
+      const ShiftsWithoutFilling = days.filter(day=>day.cellData < shift.quantity).map(day=>({...day,shift,shiftName:shift.name,id:shift.id,excess:shift.quantity - day.cellData}))
       const qntOfShiftsWithoutFilling = days.filter(day=>day.cellData < shift.quantity).length
       if(qntOfShiftsWithExcess > 0){
         completeShiftsAndTheDayFromSupervisors.push(...ShiftsWithExcess)
@@ -124,21 +127,89 @@ export const fillRoster = async (roster: string[][],workDaysColumn: {
     }
     )
 
-    const hasSuficientShiftsToFillDataOperators = completeShiftsAndTheDayFromOperators.length >= inCompleteShiftsAndTheDayFromOperators.length
-    const howManyMoreShiftsOperators = completeShiftsAndTheDayFromOperators.length - inCompleteShiftsAndTheDayFromOperators.length
-  
-    const hasSuficientShiftsToFillDataSupervisors = completeShiftsAndTheDayFromSupervisors.length >= inCompleteShiftsAndTheDayFromSupervisors.length
-    const howManyMoreShiftsSupervisors = completeShiftsAndTheDayFromSupervisors.length - inCompleteShiftsAndTheDayFromSupervisors.length
-    console.log(hasSuficientShiftsToFillDataOperators, howManyMoreShiftsOperators,hasSuficientShiftsToFillDataSupervisors,howManyMoreShiftsSupervisors);
+    const newRoster = roster.map(async (userRow,indexOfUserRow,RosterArray)=>{
+      const userName = userRow.shift()
+      const u = operators.find(op=>op.name === userName) || supervisors.find(sup=>sup.name === userName)
+      if(!u){
+        return [userName,userRow]
+      }
+      const allWorkDaysFromUser = await prisma.workDay.findMany({
+        where: { userId: u.id,
+          departmentId: user.departmentId,
+          rosterId: rosterObj.id }
+      });
+      const quantityOfProposalShifts = allWorkDaysFromUser.reduce((acc,curr)=>{
+        const shift = shifts.filter(shift=>curr.shiftsId.includes(shift.id)).filter(shift=>shift.isAbscence === false)
+        return acc + shift.length
+      }
+      ,0)
 
+      console.log("workdaysBefore:",allWorkDaysFromUser)
+      const workDaysFromUser = allWorkDaysFromUser.map(async (w, i, completeW) => {
+        const isOperator = operators.find(op => op.name === userName);
+        if (isOperator) {
+          const hasNecessityOfAssignShift = inCompleteShiftsAndTheDayFromOperators.filter(shift => shift.day === w.day.getDate());
+          hasNecessityOfAssignShift.map(async (shift) => {
+            completeW[i].shiftsId = [shift.id];
+            const hasPassedfatigueRules = await checkFatigueRules(u, completeW, rosterObj, shifts);
+            if (hasPassedfatigueRules.code === 200) {
+              completeW[i].shiftsId = completeW[i].shiftsId.filter(shiftId => shiftId !== shift.id);
+              inCompleteShiftsAndTheDayFromOperators = inCompleteShiftsAndTheDayFromOperators.filter(s=>s.shift.id !== shift.id)
+              w.shiftsId = [shift.id];
+              const removeExcessShift = completeShiftsAndTheDayFromOperators.filter(shift => shift.day === w.day.getDate());
+              removeExcessShift.map(async (shift) => {
+                completeW[i].shiftsId = completeW[i].shiftsId.filter(shiftId => shiftId !== shift.id);
+              });
+            }
+          });
+          return w;
+        } else {
+          const hasNecessityOfAssignShift = inCompleteShiftsAndTheDayFromSupervisors.filter(shift => shift.day === w.day.getDate());
+          hasNecessityOfAssignShift.map(async (shift) => {
+            completeW[i].shiftsId = completeW[i].shiftsId.filter(shiftId => shiftId !== shift.id);
+            completeW[i].shiftsId = [shift.id];
+            const hasPassedfatigueRules = await checkFatigueRules(u, completeW, rosterObj, shifts);
+            if (hasPassedfatigueRules.code === 200) {
+              inCompleteShiftsAndTheDayFromSupervisors = inCompleteShiftsAndTheDayFromSupervisors.filter(s=>s.shift.id !== shift.id)
+              w.shiftsId = [shift.id];
+              const removeExcessShift = completeShiftsAndTheDayFromSupervisors.filter(shift => shift.day === w.day.getDate());
+              removeExcessShift.map(async (shift) => {
+                completeW[i].shiftsId = completeW[i].shiftsId.filter(shiftId => shiftId !== shift.id);
+              });
+            }
+          });
+          return w;
+          
+        }
 
-
-
-   
-
+      })
+      const workDays = await Promise.all(workDaysFromUser)
+      const sortedWorkDays = workDays.sort((a, b) => a.day.getDate() - b.day.getDate())
+      console.log("workDaysBefore = ",userRow)
+      const transformWorkDaysToUserRowWithShifts = sortedWorkDays.map((w) => {
+        const shiftsInThisWorkDay = w.shiftsId.flatMap((shiftId) =>
+          shifts.filter((shift) => shift.id === shiftId)
+        );
+        const shiftInThisDay =
+          shiftsInThisWorkDay.length > 0
+            ? shiftsInThisWorkDay.map((shift) => shift.name).join(' | ')
+            : '-';
+        return shiftInThisDay;
+      }
+      )
+      console.log("workDaysAfter = ",transformWorkDaysToUserRowWithShifts)
 
 
     
+
+
+      
+      return [userName,transformWorkDaysToUserRowWithShifts]
+
+      
+    })
+
+
 
     //count if has suficient shifts to fill data
     //get the roster in a table format

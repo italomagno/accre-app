@@ -6,7 +6,7 @@ import prisma from '@/src/lib/db/prisma/prismaClient';
 import { createWorkDaysColumn, getMonthFromRosterInNumber } from '@/src/lib/utils';
 import { ErrorTypes } from '@/src/types';
 import {  checkIfHas48HoursOfRestAfter6DaysOfWork, checkIfThisWorkDayHasNightShift} from '@/src/validations';
-import {  Roster, User, WorkDay } from '@prisma/client';
+import {  Roster, Shift, User, WorkDay } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 
@@ -325,8 +325,8 @@ export async function registerOrUpdateManyWorkDays(
 }
 
 
-async function checkFatigueRules(user:User,workDaysFromUser:WorkDay[],rosterAvailablesToChange:Roster){
-  const shifts = await prisma.shift.findMany({
+export async function checkFatigueRules(user:User,workDaysFromUser:WorkDay[],rosterAvailablesToChange:Roster,shiftsConstant?:Shift[]){
+  const shifts = shiftsConstant? shiftsConstant : await prisma.shift.findMany({
     where:{
       departmentId:user.departmentId
     }

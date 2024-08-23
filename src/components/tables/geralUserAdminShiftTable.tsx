@@ -1,9 +1,7 @@
 'use client';
 
 import {
-  TableHead,
   TableRow,
-  TableHeader,
   TableCell,
   TableBody,
   Table
@@ -12,6 +10,8 @@ import {
   createWorkDaysColumn,
   generateUniqueKey,
   getDateFromRoster,
+  getMonthFromRoster,
+  getMonthFromRosterInNumber,
 } from '@/src/lib/utils';
 import { Roster, Shift, User, WorkDay } from '@prisma/client';
 import { useToast } from '../ui/use-toast';
@@ -33,7 +33,7 @@ export function GeralUserAdminShiftTable({
 }: {
   shifts: (Shift & Partial<{ [key: string]: any }>)[];
   users: (User & Partial<{ [key: string]: any }>)[];
-  roster: Pick<Roster, 'month' | 'year' | 'id'>;
+  roster: Roster;
   workDays: WorkDay[];
   search: string;
 }) {
@@ -83,12 +83,12 @@ export function GeralUserAdminShiftTable({
 
   const WorkDaysColumn = createWorkDaysColumn(roster);
   const counterUsersPerday = users.map((user) => {
-    const shiftPerDay = WorkDaysColumn.map((day) => {
+    const shiftPerDay: any[] = WorkDaysColumn.map((day) => {
       const newDate = day.day;
       const isWeekend = day.isWeekend;
       const workDay = workDays.find(
         (workDay) =>
-          workDay.userId === user.id && workDay.day.getDate() === newDate
+          workDay.userId === user.id && workDay.day.getDate() === newDate && workDay.day.getMonth() === getMonthFromRosterInNumber(roster) && workDay.day.getFullYear() === roster.year
       );
       const shiftsInThisWorkDay =
         workDay?.shiftsId.flatMap((shiftId) =>
@@ -182,7 +182,7 @@ const newData = [counterShiftsPerdayHeadings.map(day=>{
     return day.shiftInThisDay
   })]
 })]
-    await fillRoster(newData,WorkDaysColumn)
+    await fillRoster(newData,WorkDaysColumn,roster)
   }
 
   return (
