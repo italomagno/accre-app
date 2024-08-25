@@ -74,9 +74,9 @@ export function ShiftsTable({
     const shiftPerDay = WorkDaysColumn.map((day) => {
       const newDate = day.day;
       const isWeekend = day.isWeekend;
-      const workDay = workDays.find(
+      const workDay = workDays.filter(w=> w.userId === user.id && w.day.getMonth() === getMonthFromRosterInNumber(roster) && w.day.getFullYear() === roster.year ).find(
         (workDay) =>
-          workDay.userId === user.id && workDay.day.getDate() === newDate && workDay.day.getMonth() === getMonthFromRosterInNumber(roster) && workDay.day.getFullYear() === roster.year
+           workDay.day.getDate() === newDate  
       );
       const shiftsInThisWorkDay =
         workDay?.shiftsId.flatMap((shiftId) =>

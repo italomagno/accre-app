@@ -87,9 +87,9 @@ export function GeralUserShiftTable({
         dateFromRoster.getMonth(),
         day
       );
-      const workDay = workDays.find(
+      const workDay = workDays.filter(w=> w.userId === user.id && w.day.getMonth() === getMonthFromRosterInNumber(roster) && w.day.getFullYear() === roster.year ).find(
         (workDay) =>
-          workDay.userId.includes(user.id) && workDay.day.getMonth() === getMonthFromRosterInNumber(roster) && workDay.day.getFullYear() === roster.year
+           workDay.day.getDate() === newDate.getDate()  
       );
       const shiftsInThisWorkDay =
         workDay?.shiftsId.flatMap((shiftId) =>
