@@ -40,10 +40,14 @@ export function DialogComponent({
             </Button>
         </DialogTrigger>
     <DialogContent className="max-h-dvh overflow-y-auto">
+     
       <DialogHeader>
         <DialogTitle className="mb-4">
           Faça sua escolha de proposição para o dia {day.getDate()}
         </DialogTitle>
+        <DialogDescription>
+        
+        </DialogDescription>
         <DialogDescription>
         </DialogDescription>
           <ShowAvailableShiftsComponent day={day}         />

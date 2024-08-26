@@ -156,6 +156,7 @@ export default async function lancamento({
     );
   }
   const roster = rosters[0];
+  console.log("tudo certo até aqui")
 
   return (
     <LayoutComponent>

@@ -96,9 +96,7 @@ export function GeralUserAdminShiftTable({
         workDay?.shiftsId.flatMap((shiftId) =>
           shifts.filter((shift) => shift.id === shiftId)
         ) || [];
-        if(user.name === '1S CLARA'){
-          console.log(user.name ,shiftsInThisWorkDay );
-        }
+      
 
       const shiftInThisDay =
         shiftsInThisWorkDay.length > 0

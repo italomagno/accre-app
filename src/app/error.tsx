@@ -20,12 +20,15 @@ export default function Error({
   return (
     <LayoutComponent>
     <main className="flex items-center justify-center w-dvw h-dvh text-3xl font-bold">
-      <div>
-          Desculpe o Transtorno, ocorreu um erro inesperado.
-      </div>
-      <Button  variant={"link"}>
+      <div className='flex flex-col gap-4'>
+          <div>Desculpe o Transtorno, ocorreu um erro inesperado.</div>
+          <div>{JSON.stringify(Error,null,2)}</div>
+          <Button  variant={"link"}>
         <Link  href={"/settings/contato"}>Reporte Aqui por gentileza.</Link>
       </Button>
+      </div>
+      
+      
     </main>
     </LayoutComponent>
   );

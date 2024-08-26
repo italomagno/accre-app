@@ -2,11 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
-  functions: {
-    "api/*.js": {
-      "maxDuration": 60
-    }
-  },
+  
   images: {
     remotePatterns: [
       {
