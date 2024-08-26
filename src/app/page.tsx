@@ -61,7 +61,7 @@ export default async function IndexPage({
     const workDaysByRoster = WorkDays.filter(workDay=>workDay.rosterId === currentRoster?.id)
 const usersByRoster = users
 
-
+    console.log("Hello")
 
   return (
     <LayoutComponent>

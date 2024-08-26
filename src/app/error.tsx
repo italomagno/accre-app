@@ -14,7 +14,7 @@ export default function Error({
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    console.error(error);
+    console.error("o erro é esse: ",error);
   }, [error]);
 
   return (
@@ -25,6 +25,11 @@ export default function Error({
           <div>{JSON.stringify(Error,null,2)}</div>
           <Button  variant={"link"}>
         <Link  href={"/settings/contato"}>Reporte Aqui por gentileza.</Link>
+      </Button>
+      <Button 
+      onClick={reset}
+      >
+        Recarregar a página
       </Button>
       </div>
       
