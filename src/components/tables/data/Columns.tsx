@@ -16,7 +16,6 @@ import { removeShift } from "@/src/app/settings/shifts/action"
 import { UpdateShiftComponent } from "../../update/shift/UpdateShiftComponent"
 
 // This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
 
 export const ShiftColumns: ColumnDef<Shift>[] = [
     {
