@@ -15,7 +15,6 @@ export default async function IndexPage({
 }: {
   searchParams: { q: string; rosterMonth: string; rosterYear: string; day: string};
 }) {
-  console.log("???????")
   const search = searchParams.q ?? "";
   const day = parseInt(searchParams.day ?? new Date().getDate()) ;
 
@@ -62,7 +61,6 @@ export default async function IndexPage({
     const workDaysByRoster = WorkDays.filter(workDay=>workDay.rosterId === currentRoster?.id)
 const usersByRoster = users
 
-    console.log("Hello")
 
   return (
     <LayoutComponent>

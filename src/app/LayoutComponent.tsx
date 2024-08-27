@@ -1,4 +1,3 @@
-
 "use client"
 import { NavMenu } from './NavMenu';
 import React from 'react';
