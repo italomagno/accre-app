@@ -10,10 +10,12 @@ import { removeUser } from "@/src/app/settings/users/actions"
 import NewActionsCell from "./newActionsCell"
 import { updateRoster } from "@/src/app/settings/roster/createRoster/action"
 import { Button } from "../../ui/button"
+import { toZonedTime } from 'date-fns-tz';
 import { ArrowUpDown } from "lucide-react"
 import { updateShift } from "../../update/shift/action"
 import { removeShift } from "@/src/app/settings/shifts/action"
 import { UpdateShiftComponent } from "../../update/shift/UpdateShiftComponent"
+import { parseISO, format } from "date-fns"
 
 // This type is used to define the shape of our data.
 
@@ -55,23 +57,35 @@ export const ShiftColumns: ColumnDef<Shift>[] = [
         accessorKey: "start",
         header: "Hora de início",
         cell: (cell) => {
-            const date = new Date(cell.getValue() as string)
-            return date.toLocaleTimeString('pt-BR', {
-                hour: '2-digit',
-                minute: '2-digit'
-              })
-        }
+          const dateString = JSON.stringify(cell.getValue())
+
+    // Ensure the dateString is valid
+    if (!dateString || !dateString.includes('T')) {
+        return 'Time not found';
+    }
+
+    // Manually extract the time portion in HH:MM format
+    const timeString = dateString.split('T')[1].substring(0, 5);
+
+    return timeString; // Return the extracted time, e.g., "07:45"
+      }
     },
     {
         accessorKey: "end",
         header: "Hora de término",
         cell: (cell) => {
-            const date = new Date(cell.getValue() as string)
-            return date.toLocaleTimeString('pt-BR', {
-                hour: '2-digit',
-                minute: '2-digit'
-              })
-        }
+          const dateString = JSON.stringify(cell.getValue())
+
+    // Ensure the dateString is valid
+    if (!dateString || !dateString.includes('T')) {
+        return 'Time not found';
+    }
+
+    // Manually extract the time portion in HH:MM format
+    const timeString = dateString.split('T')[1].substring(0, 5);
+
+    return timeString; // Return the extracted time, e.g., "07:45"
+      }
     },
     {
         accessorKey: "quantity",
