@@ -3,7 +3,6 @@ import { hashCredential } from '@/src/lib/bcrypt';
 import { Department, Function, User } from '@prisma/client';
 import prisma from "@/src/lib/db/prisma/prismaClient";
 import { ErrorTypes, RegisterUserValues } from "@/src/types";
-import { auth } from '@/src/lib/auth';
 
 export async function getDepartments(): Promise<Department[] | ErrorTypes>{
     try {

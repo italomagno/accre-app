@@ -6,6 +6,7 @@ import { hashCredential } from '@/src/lib/bcrypt';
 import prisma from "@/src/lib/db/prisma/prismaClient"
 import { ErrorTypes, UpdateMyAccountValues, UpdateUserValues, isErrorTypes, } from "@/src/types"
 import { $Enums, User,Function } from "@prisma/client"
+import { ca } from 'date-fns/locale';
 import { revalidatePath } from 'next/cache';
 
 type SuccessResponse = ErrorTypes & {
@@ -434,5 +435,73 @@ export async function updateUser(id:string, data:UpdateUserValues | User):Promis
         message: "Erro ao atualizar usuário"
     }
 }
+
+}
+
+
+export async function resetUserPassword(id:string):Promise<ErrorTypes>{
+    try{
+    const session = await auth()
+    if(!session){
+        return {
+            code: 401,
+            message: "Usuário não autenticado"
+        }
+    }
+    const email = session.user.email
+    const admin = await getUserByEmail(email)
+    if(!admin || "code" in admin){
+        return {
+            code: 401,
+            message: "Administrador não encontrado"
+        }
+    }
+
+    if(admin.role !== "ADMIN"){
+        return {
+            code: 401,
+            message: "Usuário não é administrador"
+        }
+    }
+    const user = await prisma.user.findFirst({
+        where: {
+            id,
+            departmentId: admin.departmentId
+        }
+    })
+    if(!user){
+        return {
+            code: 404,
+            message: "Usuário não encontrado"
+        }
+    }
+    const hashedPassword = hashCredential("123456789")
+    const updatedUser = await prisma.user.update({
+        where: {
+            id,
+            departmentId: admin.departmentId
+        },
+        data: {
+            password: hashedPassword
+        }
+    })
+    if(!updatedUser){
+        return {
+            code: 500,
+            message: "Erro ao resetar senha do usuário"
+        }
+    }
+    revalidatePath('/settings/users')
+    return {
+        code: 200,
+        message: "Senha do usuário resetada com sucesso"
+    }
+}catch(error){
+        console.log(error)
+        return {
+            code: 500,
+            message: "Erro ao resetar senha do usuário"
+        }
+    }
 
 }

@@ -88,6 +88,7 @@ export async function getUser(email: string, password: string): Promise<User | E
         await prisma.$disconnect();
         return user;
     } catch (error) {
+        console.log(error);
         await prisma.$disconnect();
         return {
             code: 500,
