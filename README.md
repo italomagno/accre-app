@@ -11,14 +11,13 @@ I noticed that my colleagues were having difficulty managing their operational s
 - 📊 **Custom Google Sheets Database** - A simple yet effective backend for storing and managing shift data.
 
 ## Tech Stack
-- **Frontend:** Next.js, Chakra UI
-- **Backend:** Google Sheets as a database, Google APIs
-- **Hosting:** Vercel (Recommended)
+- **Frontend:** Next.js, tailwindcss
+- **Backend:** MongoDB as database with prisma ORM
+- **Hosting:** Vercel / Hostinger
 
 ## Installation
 ### Prerequisites
 - Node.js installed (>= 16.0.0)
-- Google Sheets API access set up
 
 ### Steps
 1. **Clone the repository**
